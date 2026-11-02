@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+"""Back up personal files in $HOME (Documents, Pictures, ...) to a separate
+private GitHub repo, apart from the settings in ~/dotfiles.
+
+Usage: ~/dotfiles/home_backup.py [--no-push]
+
+Every non-hidden top-level folder/file in $HOME is included, so new folders
+are picked up automatically. Settings (dotfiles) are not; backup.py owns those.
+"""
+import os
+import shutil
+import socket
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from backup import GLOB_DENY, SECRET_RE  # noqa: E402
+
+import fnmatch
+
+HOME = Path.home()
+REPO = HOME / "home-backup"
+REMOTE = "home-backup"     # repo name under the logged-in GitHub account
+OUT = REPO / "files"
+MAX_FILE = 95 * 1024**2    # GitHub rejects files over 100MB
+
+# Top-level entries of $HOME never copied: build caches and the backup repos themselves.
+TOP_DENY = {"yay", "paru", "dotfiles", "home-backup", "go", "snap", "Steam"}
+# Folder names skipped at any depth: dependency/build output and nested git data.
+DIR_DENY = {".git", "node_modules", ".venv", "venv", "__pycache__", "target",
+            "build", "dist", ".next", ".cache", ".gradle", ".tox"}
+# GLOB_DENY from backup.py also skips history/cookie/key/token-named files.
+SKIP_GLOBS = [g for g in GLOB_DENY if g not in ("cache", "Cache", "build")]
+
+skipped = []
+
+
+def run(*cmd, check=True):
+    return subprocess.run(cmd, check=check, text=True, capture_output=True)
+
+
+def git(*args, check=True):
+    return run("git", "-C", str(REPO), *args, check=check)
+
+
+def ensure_repo():
+    if (REPO / ".git").is_dir():
+        return
+    user = run("gh", "api", "user", "--jq", ".login + \" \" + (.id|tostring)").stdout.split()
+    login, uid = user[0], user[1]
+    if run("gh", "repo", "view", f"{login}/{REMOTE}", check=False).returncode != 0:
+        run("gh", "repo", "create", f"{login}/{REMOTE}", "--private",
+            "--description", "Personal files from ~ (separate from dotfiles)")
+        REPO.mkdir(exist_ok=True)
+        run("git", "init", "-q", "-b", "main", str(REPO))
+        git("remote", "add", "origin", f"https://github.com/{login}/{REMOTE}.git")
+    else:
+        run("gh", "repo", "clone", f"{login}/{REMOTE}", str(REPO))
+    git("config", "user.name", login)
+    git("config", "user.email", f"{uid}+{login}@users.noreply.github.com")
+
+
+def copy(src: Path, dst: Path):
+    if src.is_symlink():
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        os.symlink(os.readlink(src), dst)
+    elif src.is_dir():
+        if src.name in DIR_DENY:
+            return
+        for child in sorted(src.iterdir()):
+            copy(child, dst / child.name)
+    elif src.is_file():
+        if any(fnmatch.fnmatch(src.name, g) for g in SKIP_GLOBS):
+            skipped.append(f"{src} (name looks like a secret/cache file)")
+        elif src.stat().st_size > MAX_FILE:
+            skipped.append(f"{src} (file > 95MB, GitHub limit)")
+        else:
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                shutil.copy2(src, dst)
+            except PermissionError:
+                skipped.append(f"{src} (no read permission)")
+
+
+def main():
+    ensure_repo()
+    shutil.rmtree(OUT, ignore_errors=True)
+    for child in sorted(HOME.iterdir()):
+        if child.name.startswith(".") or child.name in TOP_DENY:
+            continue
+        copy(child, OUT / child.name)
+    if not (REPO / "README.md").exists():
+        (REPO / "README.md").write_text(
+            "# home-backup\n\n`~` 의 개인 파일(문서, 사진, 다운로드 등). 설정은 dotfiles 저장소에 따로 있음.\n\n"
+            "복원: `~/dotfiles/restore.sh home`\n")
+
+    if skipped:
+        print("Skipped:")
+        for s in skipped:
+            print("  -", s)
+
+    hits = []
+    for root, _, files in os.walk(OUT):
+        for f in files:
+            p = Path(root) / f
+            if p.is_symlink():
+                continue
+            data = p.read_bytes()
+            if b"\0" not in data[:4096] and (m := SECRET_RE.search(data)):
+                hits.append(f"{p.relative_to(REPO)}: {m.group(0)[:12].decode(errors='replace')}…")
+    if hits:
+        print("\nABORTED: possible secrets found, nothing committed:")
+        for h in hits:
+            print("  !", h)
+        sys.exit(2)
+
+    git("add", "-A")
+    if git("diff", "--cached", "--quiet", check=False).returncode == 0:
+        print("No changes since the last home backup.")
+    else:
+        stat = git("diff", "--cached", "--shortstat").stdout.strip()
+        msg = f"home backup: {socket.gethostname()} {datetime.now():%Y-%m-%d %H:%M}"
+        git("commit", "-m", msg)
+        print(f"Committed: {msg} ({stat})")
+
+    if "--no-push" not in sys.argv:
+        r = git("push", "-u", "origin", "HEAD", check=False)
+        if r.returncode != 0:
+            print("Push failed:\n" + r.stderr)
+            sys.exit(1)
+        print("Pushed to GitHub.")
+
+
+if __name__ == "__main__":
+    main()

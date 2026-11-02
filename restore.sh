@@ -3,7 +3,7 @@
 #
 #   git clone https://github.com/<you>/dotfiles ~/dotfiles
 #   ~/dotfiles/restore.sh            # everything
-#   ~/dotfiles/restore.sh files      # only one step: packages|files|zen|dconf|etc|services
+#   ~/dotfiles/restore.sh files      # only one step: packages|files|zen|home|dconf|etc|services
 #
 # Existing files that would be overwritten are moved to ~/.dotfiles-old/<time>/ first.
 set -euo pipefail
@@ -62,6 +62,14 @@ if want zen && [[ -d "$REPO/zen" ]]; then
         place "$REPO/zen" "$HOME/.config/zen"
         # Bookmarks: Zen imports the newest bookmarkbackups file when places.sqlite is missing.
     fi
+fi
+
+if want home; then
+    say "Restoring personal files (Documents, Pictures, ...) from the home-backup repo"
+    if [[ ! -d "$HOME/home-backup/.git" ]]; then
+        gh repo clone home-backup "$HOME/home-backup" || git clone "https://github.com/$(gh api user --jq .login)/home-backup.git" "$HOME/home-backup"
+    fi
+    place "$HOME/home-backup/files" "$HOME"
 fi
 
 if want dconf && [[ -s "$REPO/meta/dconf.ini" ]]; then

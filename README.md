@@ -18,8 +18,18 @@ git clone https://github.com/<계정>/dotfiles ~/dotfiles
 ~/dotfiles/restore.sh
 ```
 
-단계별로만 하려면 `restore.sh packages|files|zen|dconf|etc|services`.
+단계별로만 하려면 `restore.sh packages|files|zen|home|dconf|etc|services`.
+`home` 단계는 개인 파일 저장소(`home-backup`)를 받아 `~`에 풀어 놓습니다(`gh auth login` 먼저).
 덮어쓴 기존 파일은 `~/.dotfiles-old/<시각>/`에 보관됩니다.
+
+## 개인 파일 백업 (별도 저장소)
+
+```bash
+~/dotfiles/home_backup.py
+```
+
+`~`의 숨김이 아닌 폴더(문서, 사진, 다운로드, Projects 등)를 비공개 저장소 `home-backup`에 따로 올립니다.
+`yay` 빌드 폴더, `node_modules`·`.git` 같은 빌드/의존성 폴더, 95MB 넘는 파일(GitHub 한도)은 건너뜁니다.
 
 ## 무엇이 들어가나
 
