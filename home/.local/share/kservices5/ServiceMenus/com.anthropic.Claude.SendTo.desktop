@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Service
+TryExec=/home/leejaeik/.local/share/nautilus/scripts/Claude로 보내기
+MimeType=all/all;
+X-KDE-Protocols=file
+Actions=sendToClaude
+X-KDE-ServiceTypes=KonqPopupMenu/Plugin
+X-Claude-Generated=true
+
+[Desktop Action sendToClaude]
+Name=Claude로 보내기
+Icon=claude-desktop
+Exec="/home/leejaeik/.local/share/nautilus/scripts/Claude로 보내기" %F

@@ -1,0 +1,102 @@
+// Waybar: monochrome dark bar (Claude grays), Catppuccin Mocha only for highlighted text
+{
+    "layer": "top",
+    "position": "top",
+    "height": 32,
+    "margin-top": 8,
+    "margin-left": 8,
+    "margin-right": 8,
+    "spacing": 6,
+
+    // Only the workspace island is shown; the other modules stay defined below.
+    // To bring them back:
+    //   "modules-left": ["clock"],
+    //   "modules-right": ["network", "bluetooth", "wireplumber", "backlight", "battery", "tray"],
+    "modules-left": ["custom/cava"],
+    "modules-center": ["hyprland/workspaces"],
+    "modules-right": ["clock"],
+
+    // Menu button: opens the control center popup (Wi-Fi, Bluetooth, sound, display)
+    "custom/control": {
+        "format": "󰍜",
+        "tooltip": false,
+        "on-click": "~/.local/bin/popup-toggle local.control.center ~/.local/bin/control-center"
+    },
+
+    // Dynamic-island dots: one dot per existing workspace, the active one stretches
+    "hyprland/workspaces": {
+        "format": "",
+        "show-special": false,
+        "sort-by": "number",
+        "tooltip": false,
+        "on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'",
+        "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'"
+    },
+
+    // Left pill: sound visualizer; click shows/hides Spotify as a popup
+    "custom/cava": {
+        "exec": "~/.local/bin/waybar-cava",
+        "format": "{}",
+        "restart-interval": 5,
+        "on-click": "~/.local/bin/spotify-popup",
+        "tooltip": false
+    },
+
+    // Clock at the far right: click opens the control center popup
+    "clock": {
+        "format": "{:%H:%M}",
+        "on-click": "~/.local/bin/popup-toggle local.control.center ~/.local/bin/control-center",
+        "tooltip-format": "<tt>{calendar}</tt>",
+        "calendar": {
+            "format": {
+                "today": "<span color='#cba6f7'><b>{}</b></span>"
+            }
+        }
+    },
+
+    "network": {
+        "format-wifi": "󰤨  {essid}",
+        "format-ethernet": "󰈀  유선",
+        "format-disconnected": "󰤭  연결 없음",
+        "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
+        "on-click": "~/.local/bin/popup-toggle local.control.center ~/.local/bin/control-center"
+    },
+
+    "bluetooth": {
+        "format": "󰂯",
+        "format-off": "󰂲",
+        "format-connected": "󰂱  {num_connections}",
+        "tooltip-format-connected": "{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}",
+        "on-click": "~/.local/bin/popup-toggle local.control.center ~/.local/bin/control-center"
+    },
+
+    "wireplumber": {
+        "format": "{icon}  {volume}%",
+        "format-muted": "󰝟  음소거",
+        "format-icons": ["󰕿", "󰖀", "󰕾"],
+        "on-click": "~/.local/bin/popup-toggle local.control.center ~/.local/bin/control-center",
+        "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "scroll-step": 5
+    },
+
+    "backlight": {
+        "format": "󰃠  {percent}%",
+        "on-scroll-up": "brightnessctl -e4 -n2 set 5%+",
+        "on-scroll-down": "brightnessctl -e4 -n2 set 5%-"
+    },
+
+    "battery": {
+        "states": { "warning": 25, "critical": 10 },
+        "format": "{icon}  {capacity}%",
+        "format-charging": "󰂄  {capacity}%",
+        "format-plugged": "󰚥  {capacity}%",
+        "format-icons": ["󰁺", "󰁼", "󰁾", "󰂀", "󰁹"],
+        "tooltip-format": "{timeTo}"
+    },
+
+    "tray": {
+        "icon-size": 16,
+        "spacing": 8
+    }
+}

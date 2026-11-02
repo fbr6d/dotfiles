@@ -1,0 +1,11 @@
+configuration {
+    modi:               "drun,run,window";
+    show-icons:         true;
+    font:               "Pretendard 13";
+    display-drun:       "앱";
+    display-run:        "실행";
+    display-window:     "창";
+    drun-display-format: "{name}";
+}
+
+@theme "theme"

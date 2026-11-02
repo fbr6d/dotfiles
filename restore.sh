@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# Restore a backup made by backup.py onto a fresh Arch Linux install.
+#
+#   git clone https://github.com/<you>/dotfiles ~/dotfiles
+#   ~/dotfiles/restore.sh            # everything
+#   ~/dotfiles/restore.sh files      # only one step: packages|files|zen|dconf|etc|services
+#
+# Existing files that would be overwritten are moved to ~/.dotfiles-old/<time>/ first.
+set -euo pipefail
+
+REPO="$(cd "$(dirname "$0")" && pwd)"
+OLD="$HOME/.dotfiles-old/$(date +%Y%m%d-%H%M%S)"
+STEP="${1:-all}"
+
+say() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
+want() { [[ "$STEP" == all || "$STEP" == "$1" ]]; }
+
+# Copy every file under $1 into $2, backing up anything it replaces.
+place() {
+    local src="$1" dst="$2" sudo="${3:-}"
+    (cd "$src" && find . \( -type f -o -type l \) -print0) | while IFS= read -r -d '' rel; do
+        rel="${rel#./}"
+        if [[ -e "$dst/$rel" || -L "$dst/$rel" ]] && ! cmp -s "$src/$rel" "$dst/$rel"; then
+            mkdir -p "$OLD/$(dirname "${dst#/}/$rel")"
+            $sudo cp -a "$dst/$rel" "$OLD/${dst#/}/$rel"
+        fi
+        $sudo mkdir -p "$(dirname "$dst/$rel")"
+        $sudo cp -a --remove-destination "$src/$rel" "$dst/$rel"
+    done
+}
+
+if want packages; then
+    say "Installing packages"
+    # Skip names no longer in the repos instead of failing the whole install.
+    mapfile -t pkgs < <(comm -12 <(sort "$REPO/meta/pacman.txt") <(pacman -Slq | sort -u))
+    sudo pacman -Syu --needed "${pkgs[@]}"
+    if [[ -s "$REPO/meta/aur.txt" ]]; then
+        if ! command -v yay >/dev/null; then
+            sudo pacman -S --needed git base-devel
+            tmp=$(mktemp -d) && git clone https://aur.archlinux.org/yay-bin.git "$tmp/yay-bin"
+            (cd "$tmp/yay-bin" && makepkg -si --noconfirm)
+        fi
+        grep -vxE 'yay|yay-bin|yay-debug|yay-bin-debug' "$REPO/meta/aur.txt" | yay -S --needed - || true
+    fi
+    if [[ -s "$REPO/meta/flatpak.txt" ]] && command -v flatpak >/dev/null; then
+        xargs -a "$REPO/meta/flatpak.txt" flatpak install -y flathub || true
+    fi
+fi
+
+if want files; then
+    say "Restoring home files"
+    place "$REPO/home" "$HOME"
+    chmod +x "$HOME"/.local/bin/* 2>/dev/null || true
+    fc-cache -f >/dev/null 2>&1 || true
+fi
+
+if want zen && [[ -d "$REPO/zen" ]]; then
+    say "Restoring Zen browser profile (close Zen first)"
+    if pgrep -x zen >/dev/null || pgrep -f zen-bin >/dev/null; then
+        echo "Zen is running; skipping. Close it and run: $0 zen"
+    else
+        place "$REPO/zen" "$HOME/.config/zen"
+        # Bookmarks: Zen imports the newest bookmarkbackups file when places.sqlite is missing.
+    fi
+fi
+
+if want dconf && [[ -s "$REPO/meta/dconf.ini" ]]; then
+    say "Loading dconf (GTK/GNOME app) settings"
+    dconf load / < "$REPO/meta/dconf.ini"
+fi
+
+if want etc && [[ -d "$REPO/etc" ]]; then
+    say "Restoring /etc files (needs sudo)"
+    place "$REPO/etc" /etc sudo
+    sudo systemctl daemon-reload
+fi
+
+if want services; then
+    say "Enabling services"
+    while read -r u; do
+        [[ -n "$u" && "$u" != *@* ]] && sudo systemctl enable "$u" 2>/dev/null || true
+    done < "$REPO/meta/services-system.txt"
+    while read -r u; do
+        [[ -n "$u" && "$u" != *@* ]] && systemctl --user enable "$u" 2>/dev/null || true
+    done < "$REPO/meta/services-user.txt"
+fi
+
+say "Done. Replaced files (if any) are in $OLD. Log out and back in to apply everything."

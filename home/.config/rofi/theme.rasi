@@ -1,0 +1,49 @@
+/* Monochrome dark (Claude grays); Catppuccin Mocha only for highlighted text */
+* {
+    bg:        #262624;
+    bg-alt:    #30302e;
+    border:    #e6e6e6;
+    raised:    #4a4a47;
+    fg:        #faf9f5;
+    fg-dim:    #9c9a92;
+    accent:    #cba6f7;
+
+    background-color: transparent;
+    text-color:       @fg;
+}
+
+window {
+    width:            600px;
+    background-color: @bg;
+    border:           2px;
+    border-color:     @border;
+    border-radius:    12px;
+    padding:          12px;
+}
+
+mainbox  { spacing: 10px; children: [ inputbar, listview ]; }
+
+inputbar {
+    background-color: @bg-alt;
+    border-radius:    8px;
+    padding:          10px 12px;
+    spacing:          10px;
+    children:         [ prompt, entry ];
+}
+prompt   { text-color: @accent; }
+entry    { placeholder: "검색"; placeholder-color: @fg-dim; }
+
+listview { lines: 8; columns: 1; fixed-height: false; scrollbar: false; spacing: 4px; }
+
+element {
+    padding:       8px 12px;
+    border-radius: 8px;
+    spacing:       10px;
+}
+element-icon { size: 22px; }
+element-text { vertical-align: 0.5; }
+element selected.normal, element selected.active {
+    background-color: @raised;
+    text-color:       @fg;
+}
+element-text selected { text-color: @fg; }

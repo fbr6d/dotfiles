@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Waybar left pill click: show/hide Spotify as a popup under the bar.
+# Spotify lives on the special workspace "spotify", so hiding it keeps music playing.
+set -u
+find_addr() {
+    hyprctl clients -j | python3 -c '
+import json, sys
+for c in json.load(sys.stdin):
+    if c["class"].lower() == "spotify" or c["initialTitle"].startswith("Spotify"):
+        print(c["address"]); break'
+}
+
+addr=$(find_addr)
+if [ -n "$addr" ]; then
+    hyprctl dispatch 'hl.dsp.workspace.toggle_special("spotify")' >/dev/null
+    exit 0
+fi
+
+# Not running: start it, then move its window into the popup workspace.
+# (Spotify sets its window class late, so window rules alone can miss it.)
+setsid -f spotify-launcher >/dev/null 2>&1
+for _ in $(seq 1 150); do
+    sleep 0.2
+    addr=$(find_addr)
+    [ -n "$addr" ] && break
+done
+[ -z "$addr" ] && exit 1
+w="address:$addr"
+hyprctl dispatch "hl.dsp.window.move({ window = \"$w\", workspace = \"special:spotify\" })" >/dev/null
+hyprctl dispatch "hl.dsp.window.float({ window = \"$w\", action = \"enable\" })" >/dev/null
+hyprctl dispatch "hl.dsp.window.resize({ window = \"$w\", x = 900, y = 640 })" >/dev/null
+hyprctl dispatch "hl.dsp.window.move({ window = \"$w\", x = 8, y = 48 })" >/dev/null
+# Show the popup (moving a focused window may already have opened it)
+shown=$(hyprctl monitors -j | python3 -c 'import json,sys; print(json.load(sys.stdin)[0]["specialWorkspace"]["name"])')
+[ "$shown" = "special:spotify" ] || hyprctl dispatch 'hl.dsp.workspace.toggle_special("spotify")' >/dev/null

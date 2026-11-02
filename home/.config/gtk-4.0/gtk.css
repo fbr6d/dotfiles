@@ -1,0 +1,24 @@
+/* libadwaita colors: monochrome dark (Claude dark-mode grays),
+   Catppuccin Mocha only for highlighted text */
+@define-color window_bg_color     #262624;
+@define-color window_fg_color     #faf9f5;
+@define-color view_bg_color       #262624;
+@define-color view_fg_color       #faf9f5;
+@define-color headerbar_bg_color  #1f1e1d;
+@define-color headerbar_fg_color  #faf9f5;
+@define-color headerbar_backdrop_color #1f1e1d;
+@define-color sidebar_bg_color    #1f1e1d;
+@define-color sidebar_fg_color    #faf9f5;
+@define-color sidebar_backdrop_color #1f1e1d;
+@define-color secondary_sidebar_bg_color #1f1e1d;
+@define-color card_bg_color       #30302e;
+@define-color card_fg_color       #faf9f5;
+@define-color dialog_bg_color     #30302e;
+@define-color dialog_fg_color     #faf9f5;
+@define-color popover_bg_color    #30302e;
+@define-color popover_fg_color    #faf9f5;
+@define-color thumbnail_bg_color  #30302e;
+
+@define-color accent_bg_color     #4a4a47;
+@define-color accent_fg_color     #faf9f5;
+@define-color accent_color        #cba6f7;

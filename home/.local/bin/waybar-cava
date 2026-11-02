@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Waybar custom module: turn cava's raw ascii frames (0-7 per bar) into block glyphs.
+bars="▁▂▃▄▅▆▇█"
+sed_expr="s/;//g"
+for i in $(seq 0 7); do
+    sed_expr="$sed_expr;s/$i/${bars:$i:1}/g"
+done
+exec cava -p "$HOME/.config/cava/waybar.conf" | sed -u "$sed_expr"

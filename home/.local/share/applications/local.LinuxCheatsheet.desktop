@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=리눅스 명령어 사전
+Comment=리눅스 명령어 319개 사전
+Exec=/home/leejaeik/.local/share/linux-cheatsheet/viewer.py
+Icon=utilities-terminal
+Terminal=false
+Categories=Utility;Development;
+StartupWMClass=local.LinuxCheatsheet
