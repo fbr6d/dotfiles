@@ -1,6 +1,7 @@
 [terminal]
 vt = 1
 
+# cage/libseat print seat-probing messages on the text console; keep them off it
 [default_session]
-command = "cage -s -- regreet"
+command = "cage -s -- regreet >/dev/null 2>&1"
 user = "greeter"

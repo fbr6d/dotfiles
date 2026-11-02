@@ -1,16 +1,31 @@
-/* ReGreet: Claude dark-mode grays, monochrome */
+/* ReGreet: Claude dark-mode grays, monochrome. Only the password field is shown:
+   labels, user/session pickers, buttons, clock and the bottom bar are hidden
+   (GTK CSS has no display:none, so they are made transparent and inert). */
 window, window.background { background: #262624; color: #faf9f5; }
 * { font-family: "Pretendard", "Noto Sans CJK KR", sans-serif; }
-frame, .frame, box.background { background: transparent; border: none; box-shadow: none; }
-entry, dropdown > button, combobox button, button {
-  background: #30302e; color: #faf9f5;
-  border: 1px solid #4a4a47; border-radius: 999px;
-  box-shadow: none; min-height: 40px; padding: 0 16px;
+frame, .frame, frame.background { background: transparent; border: none; box-shadow: none; }
+
+/* hidden: clock (top frame), bottom bar (reboot / power off), every label,
+   user/session pickers, edit toggles and the Cancel/Login buttons */
+overlay > frame:nth-child(3),
+overlay > box > box,
+grid > label,
+grid > combobox, grid > entry:not(.password),
+grid > button, grid > box {
+  opacity: 0;
 }
-entry:focus-within { border: 2px solid #e6e6e6; }
-button:hover, dropdown > button:hover { background: #4a4a47; }
-button.suggested-action { background: #faf9f5; color: #262624; border-color: #faf9f5; }
-button.destructive-action { background: #30302e; color: #f38ba8; }
-label { color: #faf9f5; }
-label.dim-label, .dim-label { color: #9c9a92; }
-popover contents, popover.menu contents { background: #30302e; color: #faf9f5; border-radius: 12px; }
+grid > label { color: transparent; }
+
+/* the password field */
+grid > entry.password, grid > passwordentry, passwordentry {
+  background: #30302e; color: #faf9f5; caret-color: #faf9f5;
+  border: 3px solid #4a4a47; border-radius: 999px;
+  min-height: 54px; padding: 0 24px; font-size: 20px;
+  box-shadow: none; outline: none;
+}
+entry.password:focus-within { border-color: #e6e6e6; }
+entry.password { min-width: 380px; }
+entry.password image { opacity: 0; }
+
+/* notices in the bottom bar ("Auto-selecting session ...") are hidden too */
+overlay > box > frame { opacity: 0; }

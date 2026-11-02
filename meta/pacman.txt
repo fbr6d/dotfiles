@@ -48,6 +48,7 @@ librsvg
 linux-firmware
 linux-t2
 linux-t2-headers
+localsend
 lvm2
 meson
 nano

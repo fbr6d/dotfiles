@@ -276,7 +276,7 @@ hl.config({
 -- See https://wiki.hypr.land/configuring/layouts/scrolling-layout/ for more
 hl.config({
     scrolling = {
-        fullscreen_on_one_column = true,       -- a lone window fills the screen
+        fullscreen_on_one_column = false,      -- a lone window keeps its column width
         column_width             = 0.667,      -- new columns: 2/3 of the screen (small display)
         explicit_column_widths   = "0.5, 0.667, 1.0",   -- SUPER+CTRL+left/right cycles these
         focus_fit_method         = 0,          -- center the focused column
@@ -571,12 +571,13 @@ hl.on("window.active", function (window)
 end)
 
 -- Miku greeting terminal (~/.local/bin/miku-boot): an ordinary tiled column on the
--- current workspace (full height), 60% of the screen wide
+-- current workspace (full height), 70% wide (widest greeting line = 124 columns,
+-- 70% gives ~135)
 hl.window_rule({
     name  = "miku-greeter",
     match = { class = "^miku-greeter$" },
 
-    scrolling_width = 0.6,
+    scrolling_width = 0.7,
 })
 
 -- Keybind cheatsheet (~/.local/bin/hypr-cheatsheet, not started at login; SUPER+/

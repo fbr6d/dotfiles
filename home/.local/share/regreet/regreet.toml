@@ -1,4 +1,8 @@
-# ReGreet (greetd greeter) — monochrome dark, matches the desktop theme
+# ReGreet (greetd greeter) — monochrome dark, matches the desktop theme.
+# skip_selection: go straight to the password for the last user + session
+# (kept in /var/lib/regreet/state.toml), so only the password field shows.
+skip_selection = true
+
 [background]
 fit = "Cover"
 
@@ -15,4 +19,4 @@ poweroff = ["systemctl", "poweroff"]
 greeting_msg = ""
 
 [widget.clock]
-format = "%H:%M"
+format = ""

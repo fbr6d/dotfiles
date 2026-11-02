@@ -51,7 +51,8 @@ SHARE_DENY = {
     "Steam", "flatpak", "containers", "docker", "baloo", "klipper", "kwalletd",
     "zoxide", "fish", "zsh", "bash", "lutris", "bottles", "applications/mimeinfo.cache",
     "Claude", "zen", "virtualenvs", "pnpm", "go", "nvim/lazy", "nvim/mason",
-    "sddm", "xorg", "TelegramDesktop", "spotify-launcher", "mime", "icons/hicolor/icon-theme.cache",
+    "sddm", "xorg", "TelegramDesktop", "spotify-launcher",
+    "org.localsend.localsend_app/shared_preferences.json",  # holds its TLS private key, "mime", "icons/hicolor/icon-theme.cache",
 }
 # Code/IDE settings worth keeping even though the app folder is denied.
 CONFIG_EXTRA = [

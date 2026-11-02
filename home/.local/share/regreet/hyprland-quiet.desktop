@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Hyprland (quiet)
+Comment=Hyprland, with its start-up output kept off the text console
+Exec=/home/leejaeik/.local/bin/start-hyprland-quiet
+Type=Application
+DesktopNames=Hyprland
