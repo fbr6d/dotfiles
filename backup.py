@@ -52,7 +52,8 @@ SHARE_DENY = {
     "zoxide", "fish", "zsh", "bash", "lutris", "bottles", "applications/mimeinfo.cache",
     "Claude", "zen", "virtualenvs", "pnpm", "go", "nvim/lazy", "nvim/mason",
     "sddm", "xorg", "TelegramDesktop", "spotify-launcher",
-    "org.localsend.localsend_app/shared_preferences.json",  # holds its TLS private key, "mime", "icons/hicolor/icon-theme.cache",
+    "mime", "icons/hicolor/icon-theme.cache",
+    "org.localsend.localsend_app/shared_preferences.json",  # holds its TLS private key
 }
 # Code/IDE settings worth keeping even though the app folder is denied.
 CONFIG_EXTRA = [
