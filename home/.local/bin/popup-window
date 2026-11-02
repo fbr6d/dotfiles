@@ -2,12 +2,13 @@
 # Show/hide an app window as a popup without special or named workspaces
 # (Hyprland 0.57 reports no id for those and hyprshell 4.10 then fails to list
 # any windows, see hyprshell issue #533). Hidden windows park on workspace 99.
-#   popup-window <match> <geometry> -- <command...>
+#   popup-window [--start-hidden] <match> <geometry> -- <command...>
 #     match      window class (case-insensitive) or initial-title prefix
 #     geometry   "x,y,w,h" in logical px, or "center:W%xH%" of the monitor
 # Visible on the current workspace -> park it on workspace 99 (hidden from the island).
 # Parked or elsewhere -> bring it to the current workspace, float and place it.
-# Not running -> launch the command, wait for the window, then place it.
+# Not running -> launch the command, wait for the window, then place it
+#   (with --start-hidden: park it on workspace 99 instead, e.g. at login).
 import json
 import subprocess
 import sys
@@ -54,17 +55,25 @@ def show(c, spec):
     dispatch(f'hl.dsp.window.alter_zorder({{ window = {win}, mode = "top" }})')
 
 
+def park(c):
+    dispatch(f'hl.dsp.window.move({{ window = "address:{c["address"]}", '
+             f'workspace = {HIDDEN}, follow = false }})')
+
+
 def main():
-    if len(sys.argv) < 5 or sys.argv[3] != "--":
-        sys.exit("usage: popup-window <match> <geometry> -- <command...>")
-    match, spec, cmd = sys.argv[1], sys.argv[2], sys.argv[4:]
+    args = sys.argv[1:]
+    start_hidden = args[:1] == ["--start-hidden"]
+    if start_hidden:
+        args = args[1:]
+    if len(args) < 4 or args[2] != "--":
+        sys.exit("usage: popup-window [--start-hidden] <match> <geometry> -- <command...>")
+    match, spec, cmd = args[0], args[1], args[3:]
     c = find(match)
     if c:
         active = json.loads(hypr("-j", "activeworkspace"))["name"]
         if c["workspace"]["name"] == active:
-            dispatch(f'hl.dsp.window.move({{ window = "address:{c["address"]}", '
-                     f'workspace = {HIDDEN}, follow = false }})')
-        else:
+            park(c)
+        elif not start_hidden:
             show(c, spec)
         return
     subprocess.Popen(cmd, start_new_session=True,
@@ -72,7 +81,7 @@ def main():
     for _ in range(150):   # some apps (Spotify) take a while and set their class late
         time.sleep(0.2)
         if (c := find(match)):
-            show(c, spec)
+            park(c) if start_hidden else show(c, spec)
             return
 
 

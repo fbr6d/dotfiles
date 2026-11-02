@@ -88,3 +88,14 @@ scale slider { background: @text; border-radius: 999px; min-width: 16px; min-hei
 }
 .notification-default-action:hover, .notification-action:hover { background: @raised; }
 .floating-notifications .notification { background: @base; }
+
+/* Power row (lock / reboot / power off): icon-only buttons */
+.widget-buttons-grid.power { margin: 8px 0 0 0; }
+.widget-buttons-grid.power > flowbox { }
+.widget-buttons-grid.power > flowbox > flowboxchild > button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 18px;
+}

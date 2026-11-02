@@ -28,6 +28,7 @@ git
 github-cli
 gobject-introspection-runtime
 greetd
+greetd-regreet
 grim
 grub
 grub-btrfs

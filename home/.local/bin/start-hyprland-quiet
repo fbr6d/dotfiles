@@ -1,0 +1,6 @@
+#!/bin/sh
+# Login session command (used by the greetd greeter): blank the text console and
+# hide its cursor so no Arch tty text shows before Hyprland draws, then start
+# Hyprland with its launcher output kept off the console.
+printf '\033[2J\033[3J\033[H\033[?25l'
+exec start-hyprland >/dev/null 2>&1

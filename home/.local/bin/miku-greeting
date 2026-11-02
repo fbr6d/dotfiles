@@ -5,6 +5,7 @@
 import datetime
 import json
 import os
+import random
 import re
 import shutil
 import subprocess
@@ -184,6 +185,51 @@ def weather_message(temp, code):
     return "엄청 더워요! 시원한 곳에서 쉬엄쉬엄 해요~"
 
 
+# A small warm suggestion; one is picked at random on every start-up.
+# Time-of-day ones are mixed in with the ones that fit any time.
+SUGGESTIONS = {
+    "any": [
+        "오늘은 웃으면서 지내봐요! 마스터 웃는 얼굴이 제일 좋아요 ♪",
+        "물 한 잔 마시고 시작해요. 몸이 고마워할 거예요!",
+        "한 시간에 한 번은 기지개 쭉~ 펴기, 약속이에요!",
+        "오늘 하나만 끝내도 충분히 잘한 거예요.",
+        "좋아하는 노래 한 곡 틀고 시작해 볼까요? 제 노래면 더 좋고요~",
+        "가끔은 창밖 하늘도 한 번 봐 주세요. 마음이 맑아져요.",
+        "실수해도 괜찮아요. 다시 하면 되니까요!",
+        "작은 일이라도 해냈으면 스스로 칭찬해 주기!",
+        "어깨 힘 빼고, 숨 크게 한 번 들이쉬어요~",
+        "오늘 고마운 사람한테 짧은 인사 한 줄 보내 봐요.",
+        "책상 위 하나만 정리해도 기분이 산뜻해져요!",
+        "화면만 보지 말고 눈도 잠깐 쉬어 주세요. 먼 곳 보기 20초!",
+        "마스터는 생각보다 훨씬 잘하고 있어요. 제가 보증해요!",
+        "오늘의 작은 즐거움 하나 찾아보기, 어때요?",
+    ],
+    "morning": [
+        "아침밥은 챙겨 먹었어요? 든든해야 힘이 나요!",
+        "오늘 할 일 세 가지만 정해 보고 시작해요.",
+    ],
+    "afternoon": [
+        "점심 먹고 졸리면 잠깐 산책 어때요?",
+        "오후엔 달달한 간식 하나 정도는 괜찮아요~",
+    ],
+    "evening": [
+        "오늘 하루도 수고했어요. 맛있는 저녁 먹어요!",
+        "저녁엔 따뜻한 차 한 잔 어때요?",
+    ],
+    "night": [
+        "너무 늦게까지 무리하지 말고, 푹 자는 것도 일이에요!",
+        "자기 전엔 화면 대신 잠깐 눈 감고 쉬어요.",
+    ],
+}
+
+
+def suggestion(now):
+    h = now.hour
+    part = ("morning" if 5 <= h < 11 else "afternoon" if h < 17 else
+            "evening" if h < 22 else "night") if h >= 5 else "night"
+    return random.choice(SUGGESTIONS["any"] + SUGGESTIONS[part] * 2)
+
+
 def text_width(s):
     s = re.sub(r"\x1b\[[0-9;]*m", "", s)   # color codes take no space
     return sum(2 if unicodedata.east_asian_width(ch) in "WF" else 1 for ch in s)
@@ -214,6 +260,7 @@ def main():
         lines.append(f"\x1b[2m{area} · {desc} · {temp}°C{RESET}")
     else:
         lines.append("오늘도 마스터 곁에서 응원할게요!")
+    lines.append(f"\x1b[38;2;245;194;231m✿ {suggestion(now)}{RESET}")   # Mocha pink
     lines.append(f"\x1b[2m{now:%Y년 %-m월 %-d일 %H:%M}{RESET}")
 
     try:

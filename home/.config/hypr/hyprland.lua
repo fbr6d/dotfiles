@@ -74,7 +74,6 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd("sleep 0.5; waypaper --restore")   -- last wallpaper / slideshow (island click)
   hl.exec_cmd("hyprpm reload -n")   -- load hyprexpo (workspace overview, no key bound)
   hl.exec_cmd("quickshell -c qs-hyprview")   -- window overview (SUPER tap)
-  hl.exec_cmd("~/.local/bin/hypr-cheatsheet")   -- keybind cheatsheet (SUPER+/)
   hl.exec_cmd("~/.local/bin/miku-boot")         -- Miku greeting terminal, first login after boot only
 
 end)
@@ -470,6 +469,9 @@ hl.bind("XF86AudioMicMute",     hl.dsp.exec_cmd("swayosd-client --input-volume m
 hl.bind("XF86MonBrightnessUp",  hl.dsp.exec_cmd("swayosd-client --brightness raise"),                     { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("swayosd-client --brightness lower"),                     { locked = true, repeating = true })
 
+-- Reboot, after a confirmation prompt
+hl.bind("CTRL + ALT + SHIFT + R", hl.dsp.exec_cmd("~/.local/bin/power-confirm reboot"))
+
 -- Lock screen (hyprlock), like macOS Ctrl+Cmd+Q
 hl.bind(mainMod .. " + CTRL + Q", hl.dsp.exec_cmd("loginctl lock-session"))
 
@@ -568,7 +570,17 @@ hl.on("window.active", function (window)
   end
 end)
 
--- Keybind cheatsheet (~/.local/bin/hypr-cheatsheet): floating, on every workspace,
+-- Miku greeting terminal (~/.local/bin/miku-boot): an ordinary tiled column on the
+-- current workspace (full height), 60% of the screen wide
+hl.window_rule({
+    name  = "miku-greeter",
+    match = { class = "^miku-greeter$" },
+
+    scrolling_width = 0.6,
+})
+
+-- Keybind cheatsheet (~/.local/bin/hypr-cheatsheet, not started at login; SUPER+/
+-- shows/hides it): floating, on every workspace,
 -- no focus on open/hover, top right under waybar
 hl.window_rule({
     name  = "hypr-cheatsheet",

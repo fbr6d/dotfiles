@@ -25,6 +25,7 @@
     "buttons-grid",
     "volume",
     "backlight",
+    "buttons-grid#power",
     "title",
     "notifications"
   ],
@@ -61,10 +62,22 @@
           "type": "toggle",
           "command": "sh -c 'swaync-client -d -sw'",
           "update-command": "sh -c 'swaync-client -D -sw'"
+        }
+      ]
+    },
+    "buttons-grid#power": {
+      "actions": [
+        {
+          "label": "󰌾",
+          "command": "sh -c 'swaync-client -cp -sw; loginctl lock-session'"
         },
         {
-          "label": "󰌾  잠금",
-          "command": "sh -c 'swaync-client -cp -sw; loginctl lock-session'"
+          "label": "󰜉",
+          "command": "/home/leejaeik/.local/bin/power-confirm reboot"
+        },
+        {
+          "label": "󰐥",
+          "command": "/home/leejaeik/.local/bin/power-confirm poweroff"
         }
       ]
     }

@@ -1,0 +1,16 @@
+/* ReGreet: Claude dark-mode grays, monochrome */
+window, window.background { background: #262624; color: #faf9f5; }
+* { font-family: "Pretendard", "Noto Sans CJK KR", sans-serif; }
+frame, .frame, box.background { background: transparent; border: none; box-shadow: none; }
+entry, dropdown > button, combobox button, button {
+  background: #30302e; color: #faf9f5;
+  border: 1px solid #4a4a47; border-radius: 999px;
+  box-shadow: none; min-height: 40px; padding: 0 16px;
+}
+entry:focus-within { border: 2px solid #e6e6e6; }
+button:hover, dropdown > button:hover { background: #4a4a47; }
+button.suggested-action { background: #faf9f5; color: #262624; border-color: #faf9f5; }
+button.destructive-action { background: #30302e; color: #f38ba8; }
+label { color: #faf9f5; }
+label.dim-label, .dim-label { color: #9c9a92; }
+popover contents, popover.menu contents { background: #30302e; color: #faf9f5; border-radius: 12px; }

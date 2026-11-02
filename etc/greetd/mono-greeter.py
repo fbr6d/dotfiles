@@ -16,7 +16,9 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import GLib, Gtk
 
 USERNAME = "leejaeik"
-SESSION_CMD = ["start-hyprland"]
+# greetd joins the command's words with spaces and runs them through a shell, so
+# keep it a single path without spaces; the script blanks the console first.
+SESSION_CMD = ["/home/leejaeik/.local/bin/start-hyprland-quiet"]
 SESSION_ENV = ["XDG_SESSION_TYPE=wayland", "XDG_CURRENT_DESKTOP=Hyprland"]
 
 # Colors: monochrome dark (Claude dark-mode grays)
@@ -32,7 +34,7 @@ entry.password {
     background: #30302e;
     color: #faf9f5;
     caret-color: #faf9f5;
-    border: 1px solid #4a4a47;
+    border: 3px solid #4a4a47;
     border-radius: 999px;
     min-height: 54px;
     padding: 0 24px;
