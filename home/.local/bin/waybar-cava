@@ -1,8 +1,28 @@
-#!/usr/bin/env bash
-# Waybar custom module: turn cava's raw ascii frames (0-7 per bar) into block glyphs.
-bars="▁▂▃▄▅▆▇█"
-sed_expr="s/;//g"
-for i in $(seq 0 7); do
-    sed_expr="$sed_expr;s/$i/${bars:$i:1}/g"
-done
-exec cava -p "$HOME/.config/cava/waybar.conf" | sed -u "$sed_expr"
+#!/usr/bin/env python3
+# Waybar custom module: turn cava's raw ascii frames (0-7 per bar) into colored
+# block glyphs. Silent bars stay gray. Sounding bars take a color from the full
+# Catppuccin Mocha accent ring, picked by bar position + height and slowly
+# rotating over time, so the colors flow across the pill while music plays.
+import os
+import subprocess
+import sys
+import time
+
+GLYPHS = "▁▂▃▄▅▆▇█"
+SILENT = "#5a5a56"
+RING = ["#f5e0dc", "#f2cdcd", "#f5c2e7", "#cba6f7", "#f38ba8", "#eba0ac", "#fab387",
+        "#f9e2af", "#a6e3a1", "#94e2d5", "#89dceb", "#74c7ec", "#89b4fa", "#b4befe"]
+ROTATE_S = 0.4   # seconds per step of the color flow
+
+cava = subprocess.Popen(["cava", "-p", os.path.expanduser("~/.config/cava/waybar.conf")],
+                        stdout=subprocess.PIPE, text=True)
+for frame in cava.stdout:
+    levels = [int(v) for v in frame.strip().split(";") if v.isdigit()]
+    shift = int(time.monotonic() / ROTATE_S)
+    cells = []
+    for i, v in enumerate(levels):
+        v = min(v, 7)
+        color = SILENT if v == 0 else RING[(i + 2 * v + shift) % len(RING)]
+        cells.append(f"<span color='{color}'>{GLYPHS[v]}</span>")
+    sys.stdout.write("".join(cells) + "\n")
+    sys.stdout.flush()

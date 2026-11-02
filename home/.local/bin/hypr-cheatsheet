@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Translucent Hyprland keybind cheatsheet. Hyprland window rules (class
-# "local.hypr.cheatsheet") keep it floating and pinned on every workspace.
-# Drag it anywhere with the left mouse button.
+# "local.hypr.cheatsheet") keep it floating, pinned on every workspace and out
+# of the scrolling layout. Drag it anywhere with the left mouse button.
 # Usage: hypr-cheatsheet          start (no-op if already running)
 #        hypr-cheatsheet --toggle start, or stop if already running
 import json
@@ -43,26 +43,32 @@ SECTIONS = [
         ("SUPER + Space", "런처"),
         ("SUPER + E", "파일 관리자"),
         ("SUPER + Q", "창 닫기"),
+        ("SUPER + CTRL + Q", "잠금"),
         ("SUPER + SHIFT + E", "종료"),
     ]),
-    ("창", [
+    ("창 (스크롤링)", [
+        ("SUPER + ←→ / HL", "옆 칸으로"),
+        ("SUPER + ↑↓ / KJ", "칸 안에서 위·아래"),
+        ("+ SHIFT", "칸·창 옮기기"),
+        ("+ CTRL ←→", "칸 너비 ½ · ⅔ · 전체"),
+        ("+ CTRL ↑↓", "높이 조절"),
+        ("SUPER + , / .", "옆 칸에 합치기 · 빼기"),
+        ("SUPER + C", "가운데로"),
         ("SUPER + F / M", "전체화면 / 최대화"),
         ("SUPER + V", "플로팅"),
-        ("SUPER + SHIFT + T", "분할 방향"),
         ("SUPER + G / Tab", "그룹 / 다음 탭"),
-        ("SUPER + ←↑↓→ / HJKL", "포커스"),
-        ("+ SHIFT", "창 이동"),
-        ("+ CTRL", "크기 조절"),
+    ]),
+    ("보기", [
+        ("SUPER", "창 미리보기"),
+        ("ALT + Tab", "창 전환"),
+        ("SUPER + I", "리눅스 명령어 사전"),
+        ("SUPER + /", "이 창 숨기기"),
     ]),
     ("워크스페이스", [
         ("SUPER + 1‥0", "이동"),
         ("SUPER + SHIFT + 1‥0", "창 보내기"),
         ("SUPER + S", "스크래치패드"),
         ("SUPER + 휠", "앞 / 뒤"),
-    ]),
-    ("기타", [
-        ("SUPER + I", "리눅스 명령어 사전"),
-        ("SUPER + /", "이 창 숨기기"),
     ]),
 ]
 
@@ -75,14 +81,13 @@ window, window.background { background: transparent; }
     border-radius: 12px;
     padding: 15px 21px;
     font-family: "Pretendard";
-    font-size: 18px;
+    font-size: 16px;
 }
 .title   { color: #cba6f7; font-weight: bold; margin-top: 9px; }
 .title.first { margin-top: 0; }
-.key     { color: #89b4fa; font-family: "D2Coding"; font-size: 16px; }
+.key     { color: #89b4fa; font-family: "D2Coding"; font-size: 14px; }
 .desc    { color: #faf9f5; }
 """
-
 
 HYPR_SOCKET = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "hypr",
                            os.environ.get("HYPRLAND_INSTANCE_SIGNATURE", ""), ".socket.sock")

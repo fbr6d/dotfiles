@@ -1,0 +1,20 @@
+# hyprshell: window overview (tap SUPER) and window switcher (ALT+Tab)
+version = 4
+
+[windows]
+scale = 8.5          # how far real windows are scaled down in the overview
+items_per_row = 5
+
+[windows.overview]
+key = "Super_L"      # tap SUPER alone
+modifier = "super"
+filter_by = ["current_workspace"]
+
+[windows.overview.launcher]
+launch_modifier = "ctrl"
+width = 650
+max_items = 5
+show_when_empty = false
+
+# The switch (ALT+Tab) is off: hyprshell 4.10.8 can't read Hyprland 0.57's window
+# data (hyprshell issue #533), so ALT+Tab stays on hyprland.lua's own binding.

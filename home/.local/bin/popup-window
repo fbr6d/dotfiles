@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+# Show/hide an app window as a popup without special or named workspaces
+# (Hyprland 0.57 reports no id for those and hyprshell 4.10 then fails to list
+# any windows, see hyprshell issue #533). Hidden windows park on workspace 99.
+#   popup-window <match> <geometry> -- <command...>
+#     match      window class (case-insensitive) or initial-title prefix
+#     geometry   "x,y,w,h" in logical px, or "center:W%xH%" of the monitor
+# Visible on the current workspace -> park it on workspace 99 (hidden from the island).
+# Parked or elsewhere -> bring it to the current workspace, float and place it.
+# Not running -> launch the command, wait for the window, then place it.
+import json
+import subprocess
+import sys
+import time
+
+HIDDEN = 99
+
+
+def hypr(*args):
+    return subprocess.run(["hyprctl", *args], capture_output=True, text=True).stdout
+
+
+def dispatch(lua):
+    hypr("dispatch", lua)
+
+
+def find(match):
+    m = match.lower()
+    for c in json.loads(hypr("-j", "clients")):
+        if c["class"].lower() == m or c["initialTitle"].lower().startswith(m):
+            return c
+    return None
+
+
+def geometry(spec):
+    if spec.startswith("center:"):
+        fw, fh = (float(v.rstrip("%")) / 100 for v in spec[7:].split("x"))
+        mon = next(m for m in json.loads(hypr("-j", "monitors")) if m["focused"])
+        mw, mh = mon["width"] / mon["scale"], mon["height"] / mon["scale"]
+        w, h = mw * fw, mh * fh
+        return mon["x"] + (mw - w) / 2, mon["y"] + (mh - h) / 2, w, h
+    return tuple(float(v) for v in spec.split(","))
+
+
+def show(c, spec):
+    win = f'"address:{c["address"]}"'
+    ws = json.loads(hypr("-j", "activeworkspace"))["id"]
+    x, y, w, h = geometry(spec)
+    dispatch(f"hl.dsp.window.move({{ window = {win}, workspace = {ws}, follow = false }})")
+    dispatch(f'hl.dsp.window.float({{ window = {win}, action = "enable" }})')
+    dispatch(f"hl.dsp.window.resize({{ window = {win}, x = {int(w)}, y = {int(h)} }})")
+    dispatch(f"hl.dsp.window.move({{ window = {win}, x = {int(x)}, y = {int(y)} }})")
+    dispatch(f"hl.dsp.focus({{ window = {win} }})")
+    dispatch(f'hl.dsp.window.alter_zorder({{ window = {win}, mode = "top" }})')
+
+
+def main():
+    if len(sys.argv) < 5 or sys.argv[3] != "--":
+        sys.exit("usage: popup-window <match> <geometry> -- <command...>")
+    match, spec, cmd = sys.argv[1], sys.argv[2], sys.argv[4:]
+    c = find(match)
+    if c:
+        active = json.loads(hypr("-j", "activeworkspace"))["name"]
+        if c["workspace"]["name"] == active:
+            dispatch(f'hl.dsp.window.move({{ window = "address:{c["address"]}", '
+                     f'workspace = {HIDDEN}, follow = false }})')
+        else:
+            show(c, spec)
+        return
+    subprocess.Popen(cmd, start_new_session=True,
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for _ in range(150):   # some apps (Spotify) take a while and set their class late
+        time.sleep(0.2)
+        if (c := find(match)):
+            show(c, spec)
+            return
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,249 @@
+#!/usr/bin/env python3
+# Waybar custom module: "title · artist" (small, scrolling when long) followed by
+# the current line of synced lyrics for the Spotify track.
+# Lyrics come from LRCLIB (lrclib.net) and are cached per track. Tracks without
+# synced lyrics show just "title · artist"; the pill hides when Spotify is not playing.
+# When a new line changes the pill's width, the width eases from old to new over
+# a few frames: a growing pill reveals the new line left to right, a shrinking
+# pill trails hair-space padding that closes up.
+import hashlib
+import html
+import json
+import os
+import re
+import subprocess
+import threading
+import time
+import urllib.parse
+import urllib.request
+
+import gi
+
+gi.require_version("Pango", "1.0")
+gi.require_version("PangoCairo", "1.0")
+from gi.repository import Pango, PangoCairo
+
+CACHE = os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")), "waybar-lyrics")
+API = "https://lrclib.net/api"
+UA = "waybar-lyrics (personal desktop widget)"
+TICK_S = 0.2
+LEAD_S = 0.3        # show each line slightly early, like Spotify does
+RESIZE_FRAMES = 7   # width animation: frames x RESIZE_FRAME_S ~ 0.2 s
+RESIZE_FRAME_S = 0.03
+SCROLL_STEP_S = 0.25
+
+# Pixel budget for the whole text (info + gap + lyric) so the pill never reaches
+# the center island, even with the controls drawer open and 10 workspace dots:
+#   island left edge ~919 - bar margin/visualizer/controls/gaps ~228 - pill padding 32
+#   - safety margin  =>  620 px. Measured with the same fonts as style.css.
+MAX_TEXT_PX = 620
+INFO_PX = 170       # the title · artist window; longer text scrolls inside it
+INFO_FONT = "Pretendard SemiBold 12px"
+INFO_COLOR = "#9c9a92"
+GAP = "   "
+HAIR = " "     # pads the scrolling window to a steady width
+
+_CTX = PangoCairo.FontMap.get_default().create_context()
+
+
+def _font(desc, weight=None, px=None):
+    fd = Pango.FontDescription.from_string(desc)
+    if weight is not None:
+        fd.set_weight(weight)
+    if px is not None:
+        fd.set_absolute_size(px * Pango.SCALE)
+    return fd
+
+
+_LYRIC_FONT = _font("Pretendard", Pango.Weight.ULTRABOLD, 15)   # matches #custom-lyrics
+_LYRIC_ATTRS = Pango.AttrList()
+_LYRIC_ATTRS.insert(Pango.attr_letter_spacing_new(int(0.6 * Pango.SCALE)))
+_INFO_FONT = _font(INFO_FONT)
+
+
+def _px(text, font, attrs=None):
+    layout = Pango.Layout.new(_CTX)
+    layout.set_font_description(font)
+    if attrs:
+        layout.set_attributes(attrs)
+    layout.set_text(text, -1)
+    return layout.get_pixel_size()[0]
+
+
+lyric_px = lambda t: _px(t, _LYRIC_FONT, _LYRIC_ATTRS)
+info_px = lambda t: _px(t, _INFO_FONT)
+
+
+def fit(text, budget):
+    """Cut text to budget px of lyric font, ending in '...' when cut."""
+    if lyric_px(text) <= budget:
+        return text
+    lo, hi = 0, len(text)
+    while lo < hi:   # longest prefix that still fits with the dots
+        mid = (lo + hi + 1) // 2
+        if lyric_px(text[:mid].rstrip() + "...") <= budget:
+            lo = mid
+        else:
+            hi = mid - 1
+    return text[:lo].rstrip() + "..."
+
+
+def info_window(text, now):
+    """Static text if it fits INFO_PX, otherwise a scrolling window of it."""
+    if info_px(text) <= INFO_PX:
+        return text
+    loop = text + "     •     "
+    start = int(now / SCROLL_STEP_S) % len(loop)
+    ring = loop[start:] + loop[:start]
+    end = 0
+    while end < len(ring) and info_px(ring[:end + 1]) <= INFO_PX:
+        end += 1
+    window = ring[:end]
+    hair = max(info_px(HAIR), 1)
+    return window + HAIR * ((INFO_PX - info_px(window)) // hair)
+
+
+FMT = "{{status}}\t{{xesam:artist}}\t{{xesam:title}}\t{{xesam:album}}\t{{mpris:length}}\t{{position}}"
+TIMESTAMP = re.compile(r"\[(\d+):(\d+(?:\.\d+)?)\]")
+
+
+def player_state():
+    r = subprocess.run(["playerctl", "--player=spotify", "metadata", "--format", FMT],
+                       capture_output=True, text=True)
+    f = r.stdout.rstrip("\n").split("\t")
+    if r.returncode != 0 or len(f) != 6:
+        return None
+    status, artist, title, album, length, pos = f
+    to_s = lambda us: int(us) / 1e6 if us.isdigit() else 0.0
+    return {"status": status, "artist": artist, "title": title, "album": album,
+            "duration": to_s(length), "position": to_s(pos)}
+
+
+def parse_lrc(text):
+    lines = []
+    for raw in text.splitlines():
+        stamps = TIMESTAMP.findall(raw)
+        words = TIMESTAMP.sub("", raw).strip()
+        for m, s in stamps:
+            lines.append((int(m) * 60 + float(s), words))
+    return sorted(lines)
+
+
+def http_json(path, params):
+    url = f"{API}/{path}?" + urllib.parse.urlencode(params)
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return json.load(r)
+    except Exception:
+        return None
+
+
+def fetch_synced(track):
+    """Synced LRC text for the track, or "" if LRCLIB has none."""
+    hit = http_json("get", {"artist_name": track["artist"], "track_name": track["title"],
+                            "album_name": track["album"], "duration": round(track["duration"])})
+    if hit and hit.get("syncedLyrics"):
+        return hit["syncedLyrics"]
+    # Fall back to a search; take the closest-length result that has synced lyrics
+    found = http_json("search", {"artist_name": track["artist"], "track_name": track["title"]}) or []
+    found = [x for x in found if x.get("syncedLyrics")]
+    if not found:
+        return ""
+    best = min(found, key=lambda x: abs((x.get("duration") or 0) - track["duration"]))
+    return best["syncedLyrics"]
+
+
+class Lyrics:
+    def __init__(self):
+        self.key = None
+        self.lines = []
+
+    def load(self, track):
+        key = (track["artist"], track["title"])
+        if key == self.key:
+            return
+        self.key, self.lines = key, []
+        os.makedirs(CACHE, exist_ok=True)
+        path = os.path.join(CACHE, hashlib.sha1("\t".join(key).encode()).hexdigest() + ".lrc")
+        if os.path.exists(path):
+            with open(path) as f:
+                self.lines = parse_lrc(f.read())
+            return
+
+        def work():
+            text = fetch_synced(track)
+            with open(path, "w") as f:   # an empty file remembers "no lyrics"
+                f.write(text)
+            if self.key == key:
+                self.lines = parse_lrc(text)
+        threading.Thread(target=work, daemon=True).start()
+
+    def line_at(self, t):
+        current = ""
+        for start, words in self.lines:
+            if start > t + LEAD_S:
+                break
+            current = words
+        return current
+
+
+def emit(text, tooltip=""):
+    print(json.dumps({"text": text, "tooltip": tooltip, "class": "lyrics"}, ensure_ascii=False), flush=True)
+
+
+def markup(info, line):
+    return (f"<span font_desc='{INFO_FONT}' color='{INFO_COLOR}'>{html.escape(info)}</span>"
+            f"{GAP}{html.escape(line)}")
+
+
+def resize_frames(old, new):
+    """Lyric strings whose widths ease from old's width to new's width."""
+    old_px, new_px = lyric_px(old), lyric_px(new)
+    hair = max(lyric_px(HAIR), 1)
+    frames = []
+    for k in range(1, RESIZE_FRAMES):
+        e = 1 - (1 - k / RESIZE_FRAMES) ** 3          # ease-out cubic
+        target = old_px + (new_px - old_px) * e
+        if new_px > old_px:                            # growing: reveal the new line
+            end = 0
+            while end < len(new) and lyric_px(new[:end + 1]) <= target:
+                end += 1
+            shown = new[:end]
+        else:                                          # shrinking: pad, then close up
+            shown = new
+        frames.append(shown + HAIR * max(int((target - lyric_px(shown)) // hair), 0))
+    return frames
+
+
+def main():
+    lyrics = Lyrics()
+    last_text, last_line = None, None
+    while True:
+        st = player_state()
+        text, line, info, tooltip = "", None, "", ""
+        if st and st["title"]:
+            lyrics.load(st)
+            info_full = f"{st['title']} · {st['artist']}" if st["artist"] else st["title"]
+            if st["status"] == "Playing" and not lyrics.lines:
+                # No synced lyrics: show just the track, in the lyric font
+                text = html.escape(fit(info_full, MAX_TEXT_PX))
+                tooltip = html.escape(info_full)
+            elif st["status"] == "Playing":
+                info = info_window(info_full, time.monotonic())
+                budget = MAX_TEXT_PX - info_px(info) - lyric_px(GAP)
+                line = fit(lyrics.line_at(st["position"]) or "♪", budget)
+                text = markup(info, line)
+                tooltip = html.escape(info_full)
+        if text != last_text:
+            if line is not None and last_line is not None and line != last_line:
+                for frame in resize_frames(last_line, line):
+                    emit(markup(info, frame), tooltip)
+                    time.sleep(RESIZE_FRAME_S)
+            emit(text, tooltip)
+            last_text, last_line = text, line
+        time.sleep(TICK_S)
+
+
+if __name__ == "__main__":
+    main()

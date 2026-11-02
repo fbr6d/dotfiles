@@ -6,24 +6,34 @@
     "margin-top": 8,
     "margin-left": 8,
     "margin-right": 8,
-    "spacing": 6,
+    // GTK adds ~6px around each pill; spacing 8 makes the visible gap 14px
+    "spacing": 8,
 
     // Only the workspace island is shown; the other modules stay defined below.
     // To bring them back:
     //   "modules-left": ["clock"],
     //   "modules-right": ["network", "bluetooth", "wireplumber", "backlight", "battery", "tray"],
-    "modules-left": ["custom/cava"],
-    "modules-center": ["hyprland/workspaces"],
+    "modules-left": ["group/left", "custom/lyrics"],
+    "modules-center": ["custom/island"],
     "modules-right": ["clock"],
 
     // Menu button: opens the control center popup (Wi-Fi, Bluetooth, sound, display)
     "custom/control": {
         "format": "󰍜",
         "tooltip": false,
-        "on-click": "~/.local/bin/popup-toggle local.control.center ~/.local/bin/control-center"
+        "on-click": "swaync-client -t -sw"
     },
 
-    // Dynamic-island dots: one dot per existing workspace, the active one stretches
+    // Dynamic island: display-only workspace dots (one per workspace, the active one
+    // a white pill). Clicking anywhere on it opens the wallpaper picker.
+    "custom/island": {
+        "exec": "~/.local/bin/waybar-island",
+        "return-type": "json",
+        "restart-interval": 2,
+        "on-click": "~/.local/bin/popup-toggle waypaper waypaper"
+    },
+
+    // (old, clickable) dynamic-island dots, kept for reference
     "hyprland/workspaces": {
         "format": "",
         "show-special": false,
@@ -42,16 +52,49 @@
         "tooltip": false
     },
 
-    // Clock at the far right: click opens the control center popup
+    // Left: visualizer; hovering it slides out the Spotify controls (drawer).
+    // The controls also stay hidden while Spotify has no track.
+    "group/left": {
+        "orientation": "horizontal",
+        "drawer": {
+            "transition-duration": 300,
+            "transition-left-to-right": true,
+            "children-class": "media-drawer"
+        },
+        "modules": ["custom/cava", "custom/media-prev", "custom/media-play", "custom/media-next"]
+    },
+    "custom/media-prev": {
+        "exec": "~/.local/bin/waybar-media prev",
+        "return-type": "json",
+        "restart-interval": 5,
+        "on-click": "playerctl --player=spotify previous"
+    },
+    "custom/media-play": {
+        "exec": "~/.local/bin/waybar-media play",
+        "return-type": "json",
+        "restart-interval": 5,
+        "on-click": "playerctl --player=spotify play-pause"
+    },
+    "custom/media-next": {
+        "exec": "~/.local/bin/waybar-media next",
+        "return-type": "json",
+        "restart-interval": 5,
+        "on-click": "playerctl --player=spotify next"
+    },
+
+    // Synced lyrics (LRCLIB) for the Spotify track; hidden when there are none
+    "custom/lyrics": {
+        "exec": "~/.local/bin/waybar-lyrics",
+        "return-type": "json",
+        "restart-interval": 5,
+        "on-click": "~/.local/bin/spotify-popup"
+    },
+
+    // Clock at the far right: click toggles the swaync control center
     "clock": {
         "format": "{:%H:%M}",
-        "on-click": "~/.local/bin/popup-toggle local.control.center ~/.local/bin/control-center",
-        "tooltip-format": "<tt>{calendar}</tt>",
-        "calendar": {
-            "format": {
-                "today": "<span color='#cba6f7'><b>{}</b></span>"
-            }
-        }
+        "on-click": "swaync-client -t -sw",
+        "tooltip": false   // no calendar popup on hover
     },
 
     "network": {
@@ -59,7 +102,7 @@
         "format-ethernet": "󰈀  유선",
         "format-disconnected": "󰤭  연결 없음",
         "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
-        "on-click": "~/.local/bin/popup-toggle local.control.center ~/.local/bin/control-center"
+        "on-click": "swaync-client -t -sw"
     },
 
     "bluetooth": {
@@ -68,14 +111,14 @@
         "format-connected": "󰂱  {num_connections}",
         "tooltip-format-connected": "{device_enumerate}",
         "tooltip-format-enumerate-connected": "{device_alias}",
-        "on-click": "~/.local/bin/popup-toggle local.control.center ~/.local/bin/control-center"
+        "on-click": "swaync-client -t -sw"
     },
 
     "wireplumber": {
         "format": "{icon}  {volume}%",
         "format-muted": "󰝟  음소거",
         "format-icons": ["󰕿", "󰖀", "󰕾"],
-        "on-click": "~/.local/bin/popup-toggle local.control.center ~/.local/bin/control-center",
+        "on-click": "swaync-client -t -sw",
         "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "scroll-step": 5
     },

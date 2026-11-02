@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+# Waybar custom module: the center "dynamic island". Draws one gray dot per
+# existing workspace and a white pill for the active one, redrawn on every
+# Hyprland workspace event. Display only: clicking the island opens the
+# wallpaper picker (waybar config), it never switches workspaces.
+import json
+import os
+import socket
+import subprocess
+
+RUNTIME = os.environ.get("XDG_RUNTIME_DIR", "/tmp")
+SIG = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE", "")
+EVENTS = os.path.join(RUNTIME, "hypr", SIG, ".socket2.sock")
+WATCH = ("workspace", "createworkspace", "destroyworkspace", "focusedmon", "moveworkspace")
+
+DOT_FONT = "Noto Sans CJK KR 9px"   # U+25CF drawn ~8px wide
+DOT, GAP = "●", " "
+INACTIVE, ACTIVE = "#5a5a56", "#faf9f5"
+# The active pill is seven dots overlapped (~2px apart) so the edge is smooth, ~24px wide
+PILL = f"<span letter_spacing='-6000'>{DOT * 7}</span>"
+
+
+def hypr_json(what):
+    out = subprocess.run(["hyprctl", "-j", what], capture_output=True, text=True).stdout
+    try:
+        return json.loads(out)
+    except ValueError:
+        return None
+
+
+def render():
+    spaces = hypr_json("workspaces") or []
+    # 99 is where popups (Spotify, dictionary) park while hidden; not a real workspace
+    ids = sorted(w["id"] for w in spaces if isinstance(w.get("id"), int) and 0 < w["id"] < 99)
+    active = (hypr_json("activeworkspace") or {}).get("id")
+    parts = [f"<span color='{ACTIVE}'>{PILL}</span>" if i == active
+             else f"<span color='{INACTIVE}'>{DOT}</span>" for i in ids]
+    text = f"<span font_desc='{DOT_FONT}'>{(GAP * 2).join(parts)}</span>"
+    print(json.dumps({"text": text, "tooltip": False}), flush=True)
+
+
+render()
+with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
+    sock.connect(EVENTS)
+    for line in sock.makefile("r", encoding="utf-8", errors="replace"):
+        if line.split(">>", 1)[0] in WATCH:
+            render()

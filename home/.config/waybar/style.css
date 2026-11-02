@@ -7,6 +7,16 @@
     border-radius: 0;
 }
 
+/* Subtle emboss on every pill so it stands off the wallpaper: a soft light edge
+   on top and a dark edge at the bottom (inset only, so the 32px bar never clips
+   it and split pills like the media controls join without seams). */
+#custom-cava, #custom-lyrics, .modules-center, .modules-right #clock,
+#custom-media-prev, #custom-media-play, #custom-media-next {
+    box-shadow: inset 0 1px 0 rgba(250, 249, 245, 0.10),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.55),
+                inset 0 0 0 1px rgba(250, 249, 245, 0.03);
+}
+
 /* Bar itself is invisible; each module group is its own floating pill */
 window#waybar {
     background: transparent;
@@ -28,6 +38,31 @@ window#waybar {
     font-size: 13px;
 }
 #custom-cava:hover { background: #30302e; }
+
+/* Spotify control pill: the three buttons form one pill. The background sits on
+   the buttons (not the group) so nothing is left behind when they hide. */
+#custom-media-prev, #custom-media-play, #custom-media-next {
+    background: #141413;
+    color: #faf9f5;
+    padding: 0 2px;   /* glyph font, size and fill come from waybar-media's markup */
+}
+#custom-media-prev { border-radius: 16px 0 0 16px; padding-left: 10px; margin-left: 7px; }   /* 14px gap from the visualizer */
+#custom-media-next { border-radius: 0 16px 16px 0; padding-right: 10px; }
+/* Lyrics pill: small gray "title · artist" (set by waybar-lyrics markup), then the
+   current line. Width changes are animated by waybar-lyrics itself. */
+#custom-lyrics {
+    background: #141413;
+    color: #faf9f5;
+    border-radius: 16px;
+    padding: 0 16px;
+    font-family: "Pretendard";
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+}
+
+/* Monochrome hover: the hovered button dims to gray */
+#custom-media-prev:hover, #custom-media-play:hover, #custom-media-next:hover { color: #9c9a92; }
 
 /* Clock at the far right, same look as the island; click opens the control center */
 .modules-right { background: transparent; }
@@ -52,6 +87,9 @@ window#waybar {
     border-radius: 16px;
     padding: 0 19px;                      /* with one workspace, as wide as the clock pill */
 }
+#custom-island { padding: 0; }
+#custom-island:hover { color: inherit; }
+.modules-center:hover { background: #30302e; }   /* hint that the island is clickable */
 
 tooltip {
     background: #30302e;
@@ -86,3 +124,10 @@ tooltip label { color: #faf9f5; }
 #battery.charging, #battery.plugged { color: #a6e3a1; }
 #battery.warning:not(.charging) { color: #fab387; }
 #battery.critical:not(.charging) { color: #f38ba8; }
+
+tooltip {
+    opacity: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}

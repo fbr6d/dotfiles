@@ -67,13 +67,16 @@ local menu        = "rofi -show drun"
 hl.on("hyprland.start", function ()
   hl.exec_cmd("fcitx5 -d --replace")
   hl.exec_cmd("waybar")
-  hl.exec_cmd("~/.local/bin/hypr-cheatsheet")
+  hl.exec_cmd("swayosd-server")   -- volume/brightness popups
+  hl.exec_cmd("swaync")           -- control center + notifications (clock click)
+  hl.exec_cmd("hypridle")         -- lock after 10 min idle (~/.config/hypr/hypridle.conf)
+  hl.exec_cmd("awww-daemon")       -- wallpaper renderer
+  hl.exec_cmd("sleep 0.5; waypaper --restore")   -- last wallpaper / slideshow (island click)
+  hl.exec_cmd("hyprpm reload -n")   -- load hyprexpo (workspace overview, no key bound)
+  hl.exec_cmd("quickshell -c qs-hyprview")   -- window overview (SUPER tap)
+  hl.exec_cmd("~/.local/bin/hypr-cheatsheet")   -- keybind cheatsheet (SUPER+/)
+  hl.exec_cmd("~/.local/bin/miku-boot")         -- Miku greeting terminal, first login after boot only
 
-  -- Reopen the windows from the last session, then keep the snapshot fresh
-  hl.exec_cmd("sleep 1; ~/.local/bin/hypr-session restore")
-  hl.timer(function ()
-    hl.dispatch(hl.dsp.exec_cmd("~/.local/bin/hypr-session save"))
-  end, { timeout = 15000, type = "repeat" })
 end)
 
 -- Switch fcitx5 to English whenever a terminal gets focus
@@ -93,6 +96,9 @@ end)
 
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
+
+-- GTK3 apps: built-in dark Adwaita (the separate "Adwaita-dark" theme isn't installed)
+hl.env("GTK_THEME", "Adwaita:dark")
 
 -- Qt apps read light/dark from the desktop portal (follows gsettings color-scheme)
 hl.env("QT_QPA_PLATFORMTHEME", "xdgdesktopportal")
@@ -148,12 +154,12 @@ hl.config({
         },
 
         -- Set to true to enable resizing windows by clicking and dragging on borders and gaps
-        resize_on_border = false,
+        resize_on_border = true,   -- drag a floating window's edge to resize it
 
         -- Please see https://wiki.hypr.land/configuring/extra/tearing/ before you turn this on
         allow_tearing = false,
 
-        layout = "dwindle",
+        layout = "scrolling",   -- windows are full-height columns on a sideways-scrolling tape
     },
 
     decoration = {
@@ -167,6 +173,7 @@ hl.config({
         -- Darken unfocused windows so the active one stands out
         dim_inactive = true,
         dim_strength = 0.2,
+        dim_around   = 0.7,   -- backdrop of the window overview
 
         shadow = {
             enabled      = false,
@@ -270,7 +277,37 @@ hl.config({
 -- See https://wiki.hypr.land/configuring/layouts/scrolling-layout/ for more
 hl.config({
     scrolling = {
-        fullscreen_on_one_column = true,
+        fullscreen_on_one_column = true,       -- a lone window fills the screen
+        column_width             = 0.667,      -- new columns: 2/3 of the screen (small display)
+        explicit_column_widths   = "0.5, 0.667, 1.0",   -- SUPER+CTRL+left/right cycles these
+        focus_fit_method         = 0,          -- center the focused column
+    },
+})
+
+-- hyprexpo look: Claude dark backdrop, rounded live previews, white border on
+-- the current workspace (options: github.com/sandwichfarm/hyprexpo docs)
+hl.config({
+    plugin = {
+        hyprexpo = {
+            columns            = 3,
+            gaps_in            = 16,
+            gaps_out           = 48,
+            bg_col             = "rgb(141413)",
+            workspace_method   = "center current",
+            skip_empty         = 1,
+            dynamic_grid       = 1,   -- only workspaces that exist, no empty slots
+            fill_gaps          = 0,
+            tile_rounding      = 12,
+            border_width       = 2,
+            border_color         = "rgb(30302e)",
+            border_color_current = "rgb(faf9f5)",
+            border_color_focus   = "rgb(faf9f5)",   -- keyboard selection
+            border_color_hover   = "rgb(9c9a92)",
+            label_color_default  = "rgb(9c9a92)",
+            label_color_hover    = "rgb(faf9f5)",
+            label_color_focus    = "rgb(faf9f5)",
+            label_color_current  = "rgb(faf9f5)",
+        },
     },
 })
 
@@ -346,7 +383,7 @@ hl.bind(mainMod .. " + Return",    hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Q",         hl.dsp.window.close())
 hl.bind(mainMod .. " + E",         hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + space",     hl.dsp.exec_cmd(menu))
-hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("~/.local/bin/hypr-session save --now; command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
+hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
 
 -- Window state
 hl.bind(mainMod .. " + F",         hl.dsp.window.fullscreen({ mode = "fullscreen" }))
@@ -354,22 +391,55 @@ hl.bind(mainMod .. " + M",         hl.dsp.window.fullscreen({ mode = "maximized"
 hl.bind(mainMod .. " + V",         hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + P",         hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + T",         hl.dsp.exec_cmd(terminal, { float = true, size = "monitor_w*0.6 monitor_h*0.6", center = true }))
-hl.bind(mainMod .. " + SHIFT + T", hl.dsp.layout("togglesplit"))    -- dwindle only
+hl.bind(mainMod .. " + C",         hl.dsp.layout("center"))           -- center the focused column
 hl.bind(mainMod .. " + G",         hl.dsp.group.toggle())
 hl.bind(mainMod .. " + Tab",       hl.dsp.group.next())
-hl.bind(mainMod .. " + slash",     hl.dsp.exec_cmd("~/.local/bin/hypr-cheatsheet --toggle"))
-hl.bind(mainMod .. " + I",         hl.dsp.exec_cmd("~/.local/share/linux-cheatsheet/toggle.sh"))
 
--- Move focus / move windows / resize, with arrows or vim keys
-local dirs = { left = "h", right = "l", up = "k", down = "j" }
-local step = { left = { -40, 0 }, right = { 40, 0 }, up = { 0, -40 }, down = { 0, 40 } }
-for dir, vim in pairs(dirs) do
-    for _, key in ipairs({ dir, vim }) do
-        hl.bind(mainMod .. " + " .. key,          hl.dsp.focus({ direction = dir }))
-        hl.bind(mainMod .. " + SHIFT + " .. key,  hl.dsp.window.move({ direction = dir }))
-        hl.bind(mainMod .. " + CTRL + " .. key,   hl.dsp.window.resize({ x = step[dir][1], y = step[dir][2], relative = true }), { repeating = true })
+-- ALT+Tab / ALT+SHIFT+Tab: cycle windows and raise the focused one above the
+-- others (everything floats).
+local function cycle(forward)
+    return function ()
+        hl.dispatch(hl.dsp.window.cycle_next({ next = forward }))
+        hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top" }))
     end
 end
+hl.bind("ALT + Tab",         cycle(true))
+hl.bind("ALT + SHIFT + Tab", cycle(false))
+hl.bind(mainMod .. " + I",         hl.dsp.exec_cmd("~/.local/share/linux-cheatsheet/toggle.sh"))
+hl.bind(mainMod .. " + slash",     hl.dsp.exec_cmd("~/.local/bin/hypr-cheatsheet --toggle"))
+
+-- Tap SUPER alone: window overview of this workspace (qs-hyprview on Quickshell,
+-- ~/.config/quickshell/qs-hyprview). Click a window or type to filter; Esc closes.
+hl.bind("SUPER + Super_L", hl.dsp.exec_cmd("quickshell ipc -c qs-hyprview call expose toggle smartgrid"),
+        { release = true })
+
+-- Scrolling layout, with arrows or vim keys:
+--   SUPER + left/right        focus the neighbouring column (tape scrolls to it)
+--   SUPER + up/down           focus the window above/below in the same column
+--   SUPER+SHIFT + left/right  swap the column with its neighbour
+--   SUPER+SHIFT + up/down     move the window up/down within its column
+--   SUPER+CTRL + left/right   cycle the column width (1/2, 2/3, full)
+--   SUPER+CTRL + up/down      resize the window's height
+for _, k in ipairs({ { "left", "h", "l" }, { "right", "l", "r" } }) do
+    local dir, vim, lr = k[1], k[2], k[3]
+    local width = (lr == "r") and "+conf" or "-conf"
+    for _, key in ipairs({ dir, vim }) do
+        hl.bind(mainMod .. " + " .. key,         hl.dsp.layout("focus " .. lr))
+        hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.layout("swapcol " .. lr))
+        hl.bind(mainMod .. " + CTRL + " .. key,  hl.dsp.layout("colresize " .. width))
+    end
+end
+for _, k in ipairs({ { "up", "k", -40 }, { "down", "j", 40 } }) do
+    local dir, vim, dy = k[1], k[2], k[3]
+    for _, key in ipairs({ dir, vim }) do
+        hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ direction = dir }))
+        hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ direction = dir }))
+        hl.bind(mainMod .. " + CTRL + " .. key,  hl.dsp.window.resize({ x = 0, y = dy, relative = true }), { repeating = true })
+    end
+end
+-- Stack the window into the neighbouring column, or pop it out into its own
+hl.bind(mainMod .. " + comma",  hl.dsp.layout("consume_or_expel prev"))
+hl.bind(mainMod .. " + period", hl.dsp.layout("consume_or_expel next"))
 
 -- Switch workspaces with mainMod + [0-9]
 -- Move active window to a workspace with mainMod + SHIFT + [0-9]
@@ -392,12 +462,16 @@ hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 -- Laptop multimedia keys for volume and LCD brightness
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      { locked = true, repeating = true })
-hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     { locked = true, repeating = true })
-hl.bind("XF86AudioMicMute",     hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),   { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessUp",  hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"),                  { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"),                  { locked = true, repeating = true })
+-- swayosd changes the value and shows its popup in one step
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("swayosd-client --output-volume raise --max-volume 100"), { locked = true, repeating = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("swayosd-client --output-volume lower"),                  { locked = true, repeating = true })
+hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle"),            { locked = true, repeating = true })
+hl.bind("XF86AudioMicMute",     hl.dsp.exec_cmd("swayosd-client --input-volume mute-toggle"),             { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessUp",  hl.dsp.exec_cmd("swayosd-client --brightness raise"),                     { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("swayosd-client --brightness lower"),                     { locked = true, repeating = true })
+
+-- Lock screen (hyprlock), like macOS Ctrl+Cmd+Q
+hl.bind(mainMod .. " + CTRL + Q", hl.dsp.exec_cmd("loginctl lock-session"))
 
 -- Requires playerctl
 hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = true })
@@ -423,6 +497,7 @@ local suppressMaximizeRule = hl.window_rule({
 })
 -- suppressMaximizeRule:set_enabled(false)
 
+
 hl.window_rule({
     -- Fix some dragging issues with XWayland
     name  = "fix-xwayland-drags",
@@ -436,6 +511,16 @@ hl.window_rule({
     },
 
     no_focus = true,
+})
+
+-- qs-hyprview window overview (~/.config/quickshell/qs-hyprview): darken and
+-- blur everything behind the thumbnails
+hl.layer_rule({
+    name  = "expose-backdrop",
+    match = { namespace = "^quickshell:expose$" },
+
+    dim_around = true,
+    blur       = true,
 })
 
 -- Layer rules also return a handle.
@@ -457,16 +542,17 @@ hl.window_rule({
 
 -- Popups opened from waybar: float under the bar at the top right,
 -- and close as soon as focus moves to another window
+-- class -> where the popup opens (just under the pill that opened it)
 local popupClasses = {
-    ["local.control.center"] = true, -- ~/.local/bin/control-center
+    ["waypaper"]               = "monitor_w*0.5-window_w*0.5 48",         -- island, top center
 }
-for class in pairs(popupClasses) do
+for class, move in pairs(popupClasses) do
     hl.window_rule({
         name  = "popup-" .. class,
         match = { class = "^" .. class:gsub("%.", "\\.") .. "$" },
 
         float       = true,
-        move        = "monitor_w-window_w-8 48",
+        move        = move,
         border_size = 1,
         no_shadow   = true,
     })
@@ -482,30 +568,30 @@ hl.on("window.active", function (window)
   end
 end)
 
--- Linux command dictionary (~/.local/share/linux-cheatsheet): lives on its own
--- special workspace so SUPER+I can show and hide it
-hl.window_rule({
-    name  = "linux-cheatsheet",
-    match = { class = "^local\\.LinuxCheatsheet$" },
-
-    workspace = "special:linuxcheat",
-    float     = true,
-    size      = "monitor_w*0.8 monitor_h*0.9",
-    center    = true,
-})
-
--- Keybind cheatsheet (~/.local/bin/hypr-cheatsheet): floating, on every workspace, no focus on open/hover
+-- Keybind cheatsheet (~/.local/bin/hypr-cheatsheet): floating, on every workspace,
+-- no focus on open/hover, top right under waybar
 hl.window_rule({
     name  = "hypr-cheatsheet",
     match = { class = "^local\\.hypr\\.cheatsheet$" },
 
-    float          = true,
-    pin            = true,
+    float            = true,
+    pin              = true,
     no_initial_focus = true,
     no_follow_mouse  = true,
-    no_shadow      = true,
-    no_dim         = true,
-    border_size    = 0,
-    move           = "monitor_w-window_w-16 56", -- below waybar
+    no_shadow        = true,
+    no_dim           = true,
+    border_size      = 0,
+    move             = "monitor_w-window_w-16 56",
+})
+
+-- Linux command dictionary (~/.local/share/linux-cheatsheet): floats centered;
+-- SUPER+I shows/hides it via ~/.local/bin/popup-window
+hl.window_rule({
+    name  = "linux-cheatsheet",
+    match = { class = "^local\\.LinuxCheatsheet$" },
+
+    float     = true,
+    size      = "monitor_w*0.8 monitor_h*0.9",
+    center    = true,
 })
 

@@ -1,0 +1,239 @@
+#!/usr/bin/env python3
+# Start-up greeting: a pixel-art Hatsune Miku (true-color half blocks)
+# greets you by time of day and gives a warm note about the current weather.
+# Weather comes from Open-Meteo for LOCATION below; without a network it skips it.
+import datetime
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import unicodedata
+
+# Pixel art, one character per pixel ("." = transparent). Only the left half is
+# drawn; each row is mirrored so the chibi is perfectly symmetric (26 x 28 px).
+LEFT_HALF = [
+    "..........KKK",
+    "........KKTTT",
+    ".......KTTTTT",
+    "..RR..KTTTTTT",
+    ".RRRKKTTTTTTT",
+    ".RRKTTKTTTTTT",
+    "..KTTTKTTTtTT",
+    "..KTTKTTTtSSt",
+    ".KTTTKTTtSSSS",
+    ".KTTTKTtSSSSS",
+    ".KTTKKtSSKKSS",
+    ".KTTKKSSKEEKS",
+    ".KTTKKSSKEWKS",
+    ".KTTKKSSKeeKS",
+    ".KTTK.KSBBSSM",
+    ".KTTK..KSSSSS",
+    ".KTTK...KKSSS",
+    ".KTTK..KGGKKS",
+    ".KTTK.KGGGGKN",
+    "KTTTK.KGGGGGN",
+    "KTTK..KSKGGGN",
+    "KTTK..KSKGGGG",
+    "KTTK...KKDDDD",
+    ".KTK...KDDDDD",
+    ".KTK....KDDDD",
+    "..KK....KSSK.",
+    "........KDDK.",
+    ".......KKKKK.",
+]
+SPRITE = [row + row[::-1] for row in LEFT_HALF]
+
+PALETTE = {
+    "K": (43, 43, 58),     # outline
+    "T": (57, 197, 187),   # Miku teal hair
+    "t": (33, 143, 136),   # hair shadow
+    "S": (255, 228, 210),  # skin
+    "E": (31, 110, 120),   # eye
+    "e": (57, 197, 187),   # eye light
+    "W": (255, 255, 255),  # eye shine
+    "B": (255, 158, 181),  # blush
+    "M": (214, 92, 112),   # mouth
+    "R": (255, 77, 121),   # hair ties
+    "G": (205, 210, 220),  # gray top
+    "N": (57, 197, 187),   # teal tie
+    "D": (45, 45, 56),     # dark sleeves / skirt / boots
+}
+
+RESET = "\x1b[0m"
+
+# Picture used instead of the hand-drawn sprite when present
+PICTURE = os.path.expanduser("~/.local/share/miku-greeting/miku.png")
+PICTURE_PX = 56   # longest side in pixels; ready-made pixel art at or below this is used as is
+
+
+def picture_pixels(path, size):
+    """Picture as a pixel grid: scaled down so its longest side is `size` (pixel
+    art already that small is used 1:1); transparent pixels and a white
+    background (flood-filled from the edges) become None."""
+    import gi
+    gi.require_version("GdkPixbuf", "2.0")
+    from collections import deque
+    from gi.repository import GdkPixbuf
+
+    small = GdkPixbuf.Pixbuf.new_from_file(path)
+    w, h = small.get_width(), small.get_height()
+    if max(w, h) > size:
+        w, h = round(w * size / max(w, h)), round(h * size / max(w, h))
+        small = small.scale_simple(w, h, GdkPixbuf.InterpType.HYPER)
+    n, rs, raw = small.get_n_channels(), small.get_rowstride(), small.get_pixels()
+    grid = [[None if n == 4 and raw[y * rs + x * n + 3] < 100 else
+             tuple(raw[y * rs + x * n: y * rs + x * n + 3]) for x in range(w)] for y in range(h)]
+    light = lambda c: c is not None and min(c) > 225
+    q = deque((x, y) for y in range(h) for x in range(w)
+              if (x in (0, w - 1) or y in (0, h - 1)) and light(grid[y][x]))
+    seen = set(q)
+    while q:
+        x, y = q.popleft()
+        grid[y][x] = None
+        for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            if 0 <= nx < w and 0 <= ny < h and (nx, ny) not in seen and light(grid[ny][nx]):
+                seen.add((nx, ny))
+                q.append((nx, ny))
+    return grid
+
+
+def sprite_pixels(rows, scale=2):
+    width = max(len(r) for r in rows)
+    px = []
+    for r in rows:
+        line = [PALETTE.get(ch) for ch in r.ljust(width, ".")]
+        px.extend([[c for c in line for _ in range(scale)]] * scale)
+    return px
+
+
+def render_pixels(px):
+    """Upper-half blocks: one cell = 1 px wide, 2 px tall."""
+    px = [list(r) for r in px]
+    if len(px) % 2:
+        px.append([None] * len(px[0]))
+    out = []
+    for top, bottom in zip(px[0::2], px[1::2]):
+        cells = []
+        for a, b in zip(top, bottom):
+            if a is None and b is None:
+                cells.append(RESET + " ")
+            elif b is None:
+                cells.append(f"\x1b[49;38;2;{a[0]};{a[1]};{a[2]}m▀")
+            elif a is None:
+                cells.append(f"\x1b[49;38;2;{b[0]};{b[1]};{b[2]}m▄")
+            else:
+                cells.append(f"\x1b[38;2;{a[0]};{a[1]};{a[2]};48;2;{b[0]};{b[1]};{b[2]}m▀")
+        out.append("".join(cells) + RESET)
+    return out
+
+
+def time_greeting(now):
+    h = now.hour
+    if 5 <= h < 11:
+        return "좋은 아침이에요"
+    if 11 <= h < 17:
+        return "좋은 오후예요"
+    if 17 <= h < 22:
+        return "좋은 저녁이에요"
+    return "늦은 시간까지 수고 많아요"
+
+
+LOCATION = ("세종", 36.48, 127.29)   # name, latitude, longitude
+
+# WMO weather codes used by Open-Meteo
+WMO_KO = {0: "맑음", 1: "대체로 맑음", 2: "구름 조금", 3: "흐림", 45: "안개", 48: "안개",
+          51: "이슬비", 53: "이슬비", 55: "이슬비", 61: "비", 63: "비", 65: "강한 비",
+          66: "어는 비", 67: "어는 비", 71: "눈", 73: "눈", 75: "많은 눈", 77: "싸락눈",
+          80: "소나기", 81: "소나기", 82: "강한 소나기", 85: "눈", 86: "많은 눈",
+          95: "뇌우", 96: "뇌우", 99: "뇌우"}
+RAIN_CODES = {51, 53, 55, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99}
+SNOW_CODES = {71, 73, 75, 77, 85, 86}
+
+
+def weather():
+    name, lat, lon = LOCATION
+    url = (f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
+           "&current=temperature_2m,weather_code&timezone=auto")
+    try:
+        out = subprocess.run(["curl", "-s", "--max-time", "4", url],
+                             capture_output=True, text=True).stdout
+        cur = json.loads(out)["current"]
+        code = int(cur["weather_code"])
+        return round(cur["temperature_2m"]), WMO_KO.get(code, ""), name, code
+    except Exception:
+        return None
+
+
+def weather_message(temp, code):
+    if code in SNOW_CODES:
+        return "눈이 와요! 미끄러우니까 조심조심 다녀와요~"
+    if code in RAIN_CODES:
+        return "비가 와요. 우산 꼭 챙기고, 감기 조심해요!"
+    if temp <= 0:
+        return "많이 추워요! 목도리랑 장갑 꼭 챙겨요~"
+    if temp <= 8:
+        return "쌀쌀해요. 따뜻한 겉옷 입고 나가요!"
+    if temp <= 16:
+        return "선선한 날씨예요. 가벼운 겉옷이 딱이에요."
+    if temp <= 24:
+        return "딱 좋은 날씨예요! 오늘도 같이 힘내요~"
+    if temp <= 29:
+        return "조금 더워요. 물 자주 마시는 거 잊지 마요!"
+    return "엄청 더워요! 시원한 곳에서 쉬엄쉬엄 해요~"
+
+
+def text_width(s):
+    s = re.sub(r"\x1b\[[0-9;]*m", "", s)   # color codes take no space
+    return sum(2 if unicodedata.east_asian_width(ch) in "WF" else 1 for ch in s)
+
+
+def bubble(lines):
+    """Rounded speech bubble with a tail pointing left at Miku."""
+    w = max(text_width(l) for l in lines)
+    gray, teal = "\x1b[38;2;156;154;146m", "\x1b[38;2;57;197;187m"
+    out = [f"  {gray}╭{'─' * (w + 2)}╮{RESET}"]
+    for i, l in enumerate(lines):
+        tail = f"{gray}◀{RESET}" if i == 0 else " "
+        pad = " " * (w - text_width(l))
+        color = teal if i == 0 else ""
+        out.append(f" {tail}{gray}│{RESET} {color}\x1b[1m{l}{RESET}{pad} {gray}│{RESET}" if i == 0
+                   else f"  {gray}│{RESET} {l}{pad} {gray}│{RESET}")
+    out.append(f"  {gray}╰{'─' * (w + 2)}╯{RESET}")
+    return out
+
+
+def main():
+    now = datetime.datetime.now()
+    lines = [f"{time_greeting(now)}, 마스터!"]
+    w = weather()
+    if w:
+        temp, desc, area, code = w
+        lines.append(weather_message(temp, code))
+        lines.append(f"\x1b[2m{area} · {desc} · {temp}°C{RESET}")
+    else:
+        lines.append("오늘도 마스터 곁에서 응원할게요!")
+    lines.append(f"\x1b[2m{now:%Y년 %-m월 %-d일 %H:%M}{RESET}")
+
+    try:
+        pixels = picture_pixels(PICTURE, PICTURE_PX)
+    except Exception:   # no picture (or unreadable): the hand-drawn chibi
+        pixels = sprite_pixels(SPRITE)
+    art = render_pixels(pixels)
+    talk = bubble(lines)
+    # Put the bubble beside Miku's head
+    start = 3
+    cols = shutil.get_terminal_size((100, 30)).columns
+    art_w = len(pixels[0])
+    print()
+    for i, row in enumerate(art):
+        side = talk[i - start] if 0 <= i - start < len(talk) and cols > art_w + 30 else ""
+        print("  " + row + "  " + side)
+    if cols <= art_w + 30:   # narrow terminal: bubble below
+        print("\n".join(talk))
+    print()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# Minimal greetd greeter: solid background, centered user name and a rounded
-# password field. On success it starts Hyprland directly (no session picker).
+# Minimal greetd greeter: solid background and a centered, rounded password
+# field (no user name shown; it logs in USERNAME). On success it starts Hyprland directly (no session picker).
 # Runs under cage as the greetd "greeter" user. Without GREETD_SOCK it runs in
 # preview mode (any password is rejected except "demo").
 import json
@@ -119,9 +119,6 @@ class Greeter(Gtk.Application):
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=22,
                       halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER)
-        name = Gtk.Label(label=USERNAME)
-        name.add_css_class("name")
-
         self.entry = Gtk.PasswordEntry(show_peek_icon=False)
         self.entry.set_size_request(380, -1)
         self.entry.connect("activate", self.submit)
@@ -129,7 +126,6 @@ class Greeter(Gtk.Application):
         self.status = Gtk.Label(label="")
         self.status.add_css_class("status")
 
-        box.append(name)
         box.append(self.entry)
         box.append(self.status)
         win.set_child(box)

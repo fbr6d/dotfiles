@@ -1,3 +1,5 @@
 claude-desktop
+hyprshell-bin
+waypaper
 yay
 yay-debug

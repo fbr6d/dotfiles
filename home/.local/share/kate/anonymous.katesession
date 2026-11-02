@@ -1,5 +1,5 @@
 [Document 0]
-URL=file:///home/leejaeik/.config/kitty/kitty.conf
+URL=file:///home/leejaeik/Documents/Untitled Document
 
 [Kate Plugins]
 bookmarksplugin=false
@@ -41,23 +41,23 @@ textfilterplugin=true
 
 [MainWindow0]
 Active ViewSpace=0
-Kate-MDI-H-Splitter=0,980,0
+Kate-MDI-H-Splitter=0,600,0
 Kate-MDI-Sidebar-0-Bar-0-TvList=kate_private_plugin_katefiletreeplugin,kateproject,kateprojectgit,lspclient_symbol_outline
 Kate-MDI-Sidebar-0-LastSize=200
 Kate-MDI-Sidebar-0-SectSizes=0
-Kate-MDI-Sidebar-0-Splitter=513
+Kate-MDI-Sidebar-0-Splitter=400
 Kate-MDI-Sidebar-1-Bar-0-TvList=
 Kate-MDI-Sidebar-1-LastSize=200
 Kate-MDI-Sidebar-1-SectSizes=0
-Kate-MDI-Sidebar-1-Splitter=513
+Kate-MDI-Sidebar-1-Splitter=400
 Kate-MDI-Sidebar-2-Bar-0-TvList=
 Kate-MDI-Sidebar-2-LastSize=200
 Kate-MDI-Sidebar-2-SectSizes=0
-Kate-MDI-Sidebar-2-Splitter=980
+Kate-MDI-Sidebar-2-Splitter=600
 Kate-MDI-Sidebar-3-Bar-0-TvList=output,diagnostics,kate_plugin_katesearch,kateprojectinfo,kate_private_plugin_katekonsoleplugin
 Kate-MDI-Sidebar-3-LastSize=200
 Kate-MDI-Sidebar-3-SectSizes=0
-Kate-MDI-Sidebar-3-Splitter=654
+Kate-MDI-Sidebar-3-Splitter=352
 Kate-MDI-Sidebar-Style=2
 Kate-MDI-Sidebar-Visible=true
 Kate-MDI-ToolView-diagnostics-Position=3
@@ -87,7 +87,7 @@ Kate-MDI-ToolView-lspclient_symbol_outline-Visible=false
 Kate-MDI-ToolView-output-Position=3
 Kate-MDI-ToolView-output-Show-Button-In-Sidebar=true
 Kate-MDI-ToolView-output-Visible=false
-Kate-MDI-V-Splitter=0,513,0
+Kate-MDI-V-Splitter=0,400,0
 
 [MainWindow0 Settings]
 WindowState=10
@@ -95,7 +95,7 @@ WindowState=10
 [MainWindow0-Splitter 0]
 Children=MainWindow0-ViewSpace 0
 Orientation=1
-Sizes=980
+Sizes=600
 
 [MainWindow0-ViewSpace 0]
 Active View=0
@@ -104,8 +104,8 @@ Documents=0
 View 0=0
 
 [MainWindow0-ViewSpace 0 0]
-CursorColumn=21
-CursorLine=9
+CursorColumn=221
+CursorLine=0
 
 [Open Documents]
 Count=1
@@ -144,6 +144,8 @@ UseRegExp=false
 File1[$e]=$HOME/.config/hypr/hyprland.lua
 File2[$e]=/etc/fonts/local.conf
 File3[$e]=$HOME/.config/kitty/kitty.conf
+File4[$e]=$HOME/Documents/Untitled Document
 Name1[$e]=hyprland.lua
 Name2[$e]=local.conf
 Name3[$e]=kitty.conf
+Name4[$e]=Untitled Document
