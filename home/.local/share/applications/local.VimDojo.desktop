@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Vim 수련장
+Comment=진짜 vim으로 하는 기초 레슨과 매일 바뀌는 챌린지 10개
+Exec=kitty --class local.VimDojo --title "Vim 수련장" -e /home/leejaeik/.local/share/vimdojo/vimdojo.py
+Icon=gvim
+Terminal=false
+Categories=Education;
+Keywords=vim;vi;practice;연습;
+StartupWMClass=local.VimDojo

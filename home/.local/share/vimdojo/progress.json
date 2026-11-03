@@ -1,0 +1,24 @@
+{
+ "lessons": {
+  "lesson01": {
+   "keys": 14,
+   "stars": 2
+  },
+  "lesson02": {
+   "keys": 19,
+   "stars": 2
+  },
+  "lesson03": {
+   "keys": 47,
+   "stars": 3
+  },
+  "lesson04": {
+   "keys": 7,
+   "stars": 2
+  },
+  "lesson05": {
+   "keys": 13,
+   "stars": 3
+  }
+ }
+}
