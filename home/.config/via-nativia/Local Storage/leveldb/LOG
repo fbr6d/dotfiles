@@ -1,0 +1,5 @@
+2026/11/03-09:10:25.815 5cdc Creating DB /home/leejaeik/.config/via-nativia/Local Storage/leveldb since it was missing.
+2026/11/03-09:10:25.874 5cdc Reusing MANIFEST /home/leejaeik/.config/via-nativia/Local Storage/leveldb/MANIFEST-000001
+2026/11/03-09:11:26.718 5cdc Level-0 table #5: started
+2026/11/03-09:11:26.737 5cdc Level-0 table #5: 29534 bytes OK
+2026/11/03-09:11:26.773 5cdc Delete type=0 #3

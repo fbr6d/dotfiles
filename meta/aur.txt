@@ -1,5 +1,6 @@
 claude-desktop
 hyprshell-bin
+overskride-bin
 waypaper
 yay
 yay-debug

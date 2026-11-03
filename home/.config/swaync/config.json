@@ -58,6 +58,10 @@
           "update-command": "sh -c 'bluetoothctl show | grep -q \"Powered: yes\" && echo true || echo false'"
         },
         {
+          "label": "󰂱  기기 연결",
+          "command": "sh -c 'swaync-client -cp; overskride'"
+        },
+        {
           "label": "󰂛  방해 금지",
           "type": "toggle",
           "command": "sh -c 'swaync-client -d -sw'",

@@ -131,3 +131,16 @@ tooltip {
     border: none;
     box-shadow: none;
 }
+
+/* Tray (background apps), slid out from the clock on hover */
+.modules-right #tray {
+    background: #141413;
+    border-radius: 16px;
+    padding: 0 12px;
+    margin-right: 6px;
+    box-shadow: inset 0 1px 0 rgba(250, 249, 245, 0.10),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.55),
+                inset 0 0 0 1px rgba(250, 249, 245, 0.03);
+}
+#tray menu { background: #30302e; color: #faf9f5; border: 1px solid #4a4a47; border-radius: 8px; }
+#tray > .needs-attention { -gtk-icon-effect: highlight; }

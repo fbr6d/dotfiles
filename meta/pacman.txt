@@ -2,6 +2,7 @@ apple-bcm-firmware-fetcher
 apple-t2-audio-config
 arch-mact2-mirrorlist
 arch-mact2-rankmirrors
+arm-none-eabi-gdb
 awww
 base
 base-devel
@@ -15,6 +16,7 @@ btrfs-progs
 cage
 cava
 chafa
+chromium
 cmake
 efibootmgr
 fastfetch
@@ -39,6 +41,7 @@ hypridle
 hyprland
 hyprlock
 hyprpm
+hyprpolkitagent
 inotify-tools
 kate
 kitty
@@ -56,6 +59,8 @@ nautilus
 ncdu
 networkmanager
 noto-fonts-cjk
+openocd
+picocom
 pipewire
 pipewire-pulse
 pipewire-zeroconf

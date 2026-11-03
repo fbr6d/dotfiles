@@ -15,7 +15,7 @@
     //   "modules-right": ["network", "bluetooth", "wireplumber", "backlight", "battery", "tray"],
     "modules-left": ["group/left", "custom/lyrics"],
     "modules-center": ["custom/island"],
-    "modules-right": ["clock"],
+    "modules-right": ["group/right"],
 
     // Menu button: opens the control center popup (Wi-Fi, Bluetooth, sound, display)
     "custom/control": {
@@ -54,6 +54,17 @@
 
     // Left: visualizer; hovering it slides out the Spotify controls (drawer).
     // The controls also stay hidden while Spotify has no track.
+    // Right: clock; hovering it slides out the tray (background apps, e.g. LocalSend)
+    // to its left. swaync has no tray, so it lives here next to the control center button.
+    "group/right": {
+        "orientation": "horizontal",
+        "drawer": {
+            "transition-duration": 300,
+            "transition-left-to-right": false,
+            "children-class": "tray-drawer"
+        },
+        "modules": ["clock", "tray"]
+    },
     "group/left": {
         "orientation": "horizontal",
         "drawer": {

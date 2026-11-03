@@ -1,0 +1,6 @@
+[Unit]
+Description=Ask whether to back up settings and home files to GitHub
+
+[Service]
+Type=oneshot
+ExecStart=%h/dotfiles/backup-prompt.sh

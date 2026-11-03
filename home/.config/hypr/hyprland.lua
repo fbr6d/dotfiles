@@ -69,12 +69,14 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd("waybar")
   hl.exec_cmd("swayosd-server")   -- volume/brightness popups
   hl.exec_cmd("swaync")           -- control center + notifications (clock click)
+  hl.exec_cmd("systemctl --user start hyprpolkitagent")   -- password prompts for apps asking for admin rights (pkexec)
   hl.exec_cmd("hypridle")         -- lock after 10 min idle (~/.config/hypr/hypridle.conf)
   hl.exec_cmd("awww-daemon")       -- wallpaper renderer
   hl.exec_cmd("sleep 0.5; waypaper --restore")   -- last wallpaper / slideshow (island click)
   hl.exec_cmd("hyprpm reload -n")   -- load hyprexpo (workspace overview, no key bound)
   hl.exec_cmd("quickshell -c qs-hyprview")   -- window overview (SUPER tap)
   hl.exec_cmd("~/.local/bin/miku-boot")         -- Miku greeting terminal, first login after boot only
+  hl.exec_cmd("/opt/localsend/localsend --hidden")   -- LocalSend in the tray (Hyprland does not run ~/.config/autostart)
 
 end)
 
@@ -608,3 +610,13 @@ hl.window_rule({
     center    = true,
 })
 
+
+-- Overskride (Bluetooth devices, opened from the control center): floating, centered
+hl.window_rule({
+    name  = "overskride",
+    match = { class = "^io\\.github\\.kaii_lb\\.Overskride$" },
+
+    float  = true,
+    size   = "900 640",
+    center = true,
+})
