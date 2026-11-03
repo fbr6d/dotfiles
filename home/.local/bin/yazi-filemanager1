@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+# org.freedesktop.FileManager1 on the session bus, backed by yazi in kitty.
+# Apps call this for "Show in folder" / "Open containing folder"; Nautilus
+# used to answer it. Activated by
+# ~/.local/share/dbus-1/services/org.freedesktop.FileManager1.service.
+import subprocess
+
+import gi
+
+gi.require_version("Gio", "2.0")
+from gi.repository import Gio, GLib
+
+NAME = "org.freedesktop.FileManager1"
+PATH = "/org/freedesktop/FileManager1"
+XML = """
+<node>
+  <interface name="org.freedesktop.FileManager1">
+    <method name="ShowFolders">
+      <arg type="as" name="URIs" direction="in"/>
+      <arg type="s" name="StartupId" direction="in"/>
+    </method>
+    <method name="ShowItems">
+      <arg type="as" name="URIs" direction="in"/>
+      <arg type="s" name="StartupId" direction="in"/>
+    </method>
+    <method name="ShowItemProperties">
+      <arg type="as" name="URIs" direction="in"/>
+      <arg type="s" name="StartupId" direction="in"/>
+    </method>
+  </interface>
+</node>
+"""
+
+
+def to_path(uri):
+    return Gio.File.new_for_uri(uri).get_path() or uri
+
+
+def open_yazi(path):
+    # yazi given a file opens its folder with the file hovered
+    subprocess.Popen(["kitty", "--class", "yazi", "-e", "yazi", path],
+                     start_new_session=True)
+
+
+def on_call(conn, sender, path, iface, method, params, invocation):
+    uris, _startup_id = params.unpack()
+    for uri in uris:
+        open_yazi(to_path(uri))
+    invocation.return_value(None)
+
+
+def on_bus(conn, name):
+    node = Gio.DBusNodeInfo.new_for_xml(XML)
+    conn.register_object(PATH, node.interfaces[0], on_call, None, None)
+
+
+loop = GLib.MainLoop()
+Gio.bus_own_name(Gio.BusType.SESSION, NAME, Gio.BusNameOwnerFlags.NONE,
+                 on_bus, None, lambda *_: loop.quit())
+loop.run()

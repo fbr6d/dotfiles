@@ -2,9 +2,10 @@ configuration {
     modi:               "drun,run,window";
     show-icons:         true;
     font:               "Pretendard 13";
-    display-drun:       "앱";
-    display-run:        "실행";
-    display-window:     "창";
+    /* Mode name on the left of the search box, one Catppuccin Mocha color per mode */
+    display-drun:        "<span foreground='#89b4fa'>앱</span>";
+    display-run:         "<span foreground='#a6e3a1'>실행</span>";
+    display-window:      "<span foreground='#fab387'>창</span>";
     drun-display-format: "{name}";
 }
 

@@ -45,7 +45,7 @@ hl.monitor({
 
 -- Set programs that you use
 local terminal    = "kitty"
-local fileManager = "kitty --class yazi -e yazi"   -- terminal file manager (Nautilus still opens folders from other apps)
+local fileManager = "kitty --class yazi -e yazi"   -- terminal file manager (also used for "show in folder" via ~/.local/bin/yazi-filemanager1)
 local menu        = "rofi -show drun"
 
 
@@ -73,8 +73,6 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd("hypridle")         -- lock after 10 min idle (~/.config/hypr/hypridle.conf)
   hl.exec_cmd("awww-daemon")       -- wallpaper renderer
   hl.exec_cmd("sleep 0.5; waypaper --restore")   -- last wallpaper / slideshow (island click)
-  hl.exec_cmd("hyprpm reload -n")   -- load hyprexpo (workspace overview, no key bound)
-  hl.exec_cmd("quickshell -c qs-hyprview")   -- window overview (SUPER tap)
   hl.exec_cmd("~/.local/bin/miku-boot")         -- Miku greeting terminal, first login after boot only
   hl.exec_cmd("/opt/localsend/localsend --hidden")   -- LocalSend in the tray (Hyprland does not run ~/.config/autostart)
   hl.exec_cmd("clipse -listen")   -- clipboard history (SUPER+SHIFT+V opens it)
@@ -101,9 +99,17 @@ hl.env("HYPRCURSOR_SIZE", "24")
 
 -- GTK3 apps: built-in dark Adwaita (the separate "Adwaita-dark" theme isn't installed)
 hl.env("GTK_THEME", "Adwaita:dark")
+hl.env("EDITOR", "nvim")   -- default editor for apps started from the desktop (yazi, git, ...)
+hl.env("VISUAL", "nvim")
 
 -- Qt apps read light/dark from the desktop portal (follows gsettings color-scheme)
 hl.env("QT_QPA_PLATFORMTHEME", "xdgdesktopportal")
+
+-- Java/AWT apps (Ghidra): without this they draw only a strip of a tiled window
+hl.env("_JAVA_AWT_WM_NONREPARENTING", "1")
+-- XWayland apps render at native resolution (see xwayland.force_zero_scaling), so
+-- Ghidra scales itself to match the 1.25 monitor scale
+hl.env("GHIDRA_GUI_JAVA_OPTIONS", "-Dsun.java2d.uiScale=1.25")
 
 -- fcitx5 input method
 hl.env("XMODIFIERS", "@im=fcitx")
@@ -286,33 +292,6 @@ hl.config({
     },
 })
 
--- hyprexpo look: Claude dark backdrop, rounded live previews, white border on
--- the current workspace (options: github.com/sandwichfarm/hyprexpo docs)
-hl.config({
-    plugin = {
-        hyprexpo = {
-            columns            = 3,
-            gaps_in            = 16,
-            gaps_out           = 48,
-            bg_col             = "rgb(141413)",
-            workspace_method   = "center current",
-            skip_empty         = 1,
-            dynamic_grid       = 1,   -- only workspaces that exist, no empty slots
-            fill_gaps          = 0,
-            tile_rounding      = 12,
-            border_width       = 2,
-            border_color         = "rgb(30302e)",
-            border_color_current = "rgb(faf9f5)",
-            border_color_focus   = "rgb(faf9f5)",   -- keyboard selection
-            border_color_hover   = "rgb(9c9a92)",
-            label_color_default  = "rgb(9c9a92)",
-            label_color_hover    = "rgb(faf9f5)",
-            label_color_focus    = "rgb(faf9f5)",
-            label_color_current  = "rgb(faf9f5)",
-        },
-    },
-})
-
 ----------------
 ----  MISC  ----
 ----------------
@@ -323,6 +302,14 @@ hl.config({
         disable_hyprland_logo   = true,  -- If true disables the random hyprland logo / anime girl background. :(
         background_color        = "rgb(" .. theme.base .. ")",
         font_family             = "Pretendard",
+    },
+})
+
+-- XWayland apps draw at native resolution instead of being upscaled (blurry)
+-- by the 1.25 monitor scale; each app has to scale itself (see GHIDRA_GUI_JAVA_OPTIONS)
+hl.config({
+    xwayland = {
+        force_zero_scaling = true,
     },
 })
 
@@ -410,11 +397,6 @@ hl.bind("ALT + Tab",         cycle(true))
 hl.bind("ALT + SHIFT + Tab", cycle(false))
 hl.bind(mainMod .. " + I",         hl.dsp.exec_cmd("~/.local/share/linux-cheatsheet/toggle.sh"))
 hl.bind(mainMod .. " + slash",     hl.dsp.exec_cmd("~/.local/bin/hypr-cheatsheet --toggle"))
-
--- Tap SUPER alone: window overview of this workspace (qs-hyprview on Quickshell,
--- ~/.config/quickshell/qs-hyprview). Click a window or type to filter; Esc closes.
-hl.bind("SUPER + Super_L", hl.dsp.exec_cmd("quickshell ipc -c qs-hyprview call expose toggle smartgrid"),
-        { release = true })
 
 -- Scrolling layout, with arrows or vim keys:
 --   SUPER + left/right        focus the neighbouring column (tape scrolls to it)

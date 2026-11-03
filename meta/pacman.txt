@@ -29,6 +29,7 @@ ffmpeg
 ffmpegthumbnailer
 fish
 fzf
+ghidra
 ghostty
 git
 github-cli
@@ -48,6 +49,7 @@ hyprpm
 hyprpolkitagent
 imagemagick
 inotify-tools
+jdk21-openjdk
 jq
 kate
 kitty
@@ -67,7 +69,9 @@ ncdu
 neovim
 networkmanager
 noto-fonts-cjk
+noto-fonts-emoji
 openocd
+papers
 picocom
 pipewire
 pipewire-pulse
@@ -79,6 +83,7 @@ quickshell
 resvg
 ripgrep
 rofi
+rustup
 snap-pac
 snapper
 spotify-launcher

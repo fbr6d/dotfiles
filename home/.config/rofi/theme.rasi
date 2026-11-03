@@ -30,7 +30,7 @@ inputbar {
     spacing:          10px;
     children:         [ prompt, entry ];
 }
-prompt   { text-color: @accent; }
+prompt   { text-color: @accent; markup: true; }   /* mode colors come from display-* in config.rasi */
 entry    { placeholder: "검색"; placeholder-color: @fg-dim; }
 
 listview { lines: 8; columns: 1; fixed-height: false; scrollbar: false; spacing: 4px; }

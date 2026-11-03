@@ -1,0 +1,4 @@
+# Overrides on top of yazi's defaults
+[mgr]
+sort_by        = "extension"   # files with the same extension (same icon) stay together
+sort_dir_first = true          # folders first
