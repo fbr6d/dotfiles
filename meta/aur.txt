@@ -2,6 +2,7 @@ claude-desktop
 clipse
 hyprshell-bin
 overskride-bin
+teamviewer
 waypaper
 yay
 yay-debug

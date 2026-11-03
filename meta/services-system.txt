@@ -8,6 +8,7 @@ NetworkManager-wait-online.service
 NetworkManager.service
 systemd-resolved.service
 t2fanrd.service
+teamviewerd.service
 systemd-resolved-monitor.socket
 systemd-resolved-varlink.socket
 systemd-userdbd.socket
