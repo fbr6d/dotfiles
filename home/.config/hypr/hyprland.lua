@@ -337,7 +337,7 @@ hl.config({
         kb_options = "",
         kb_rules   = "",
 
-        follow_mouse = 1,
+        follow_mouse = 2,   -- click to focus: passing over a peeking column no longer scrolls to it
 
         sensitivity = 0, -- -1.0 - 1.0, 0 means no modification.
 
