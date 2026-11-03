@@ -4,9 +4,20 @@
 
 -- F1: searchable list of every key mapping (LazyVim's built-in keymaps picker),
 -- the same key that shows kitty's and yazi's shortcut lists
-vim.keymap.set({ "n", "i", "v" }, "<F1>", function() Snacks.picker.keymaps() end, { desc = "Shortcut list" })
+vim.keymap.set({ "n", "i", "v" }, "<F1>", function()
+  Snacks.picker.keymaps()
+end, { desc = "Shortcut list" })
 
 -- x / X delete characters without copying them (black-hole register), so they
 -- don't overwrite the clipboard
 vim.keymap.set({ "n", "x" }, "x", '"_x', { desc = "Delete char (no copy)" })
 vim.keymap.set({ "n", "x" }, "X", '"_X', { desc = "Delete char before (no copy)" })
+
+-- Tab / SHift Tab for auto complete
+vim.keymap.set("i", "<Tab>", function()
+  return vim.fn.pumvisible() == 1 and "<C-n>" or "<Tab>"
+end, { expr = true, noremap = true })
+
+vim.keymap.set("i", "<S-Tab>", function()
+  return vim.fn.pumvisible() == 1 and "<C-p>" or "<S-Tab>"
+end, { expr = true, noremap = true })
