@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#1e1e2e"/>
+  <g fill="#f74c00">
+    <ellipse cx="64" cy="76" rx="38" ry="24"/>
+    <circle cx="22" cy="52" r="10"/><circle cx="106" cy="52" r="10"/>
+    <rect x="18" y="58" width="10" height="16" rx="5"/><rect x="100" y="58" width="10" height="16" rx="5"/>
+    <rect x="30" y="94" width="8" height="18" rx="4" transform="rotate(20 34 94)"/>
+    <rect x="90" y="94" width="8" height="18" rx="4" transform="rotate(-20 94 94)"/>
+    <rect x="48" y="98" width="8" height="16" rx="4"/><rect x="72" y="98" width="8" height="16" rx="4"/>
+    <rect x="50" y="40" width="5" height="16" rx="2.5"/><rect x="73" y="40" width="5" height="16" rx="2.5"/>
+  </g>
+  <circle cx="52.5" cy="38" r="7" fill="#fff"/><circle cx="75.5" cy="38" r="7" fill="#fff"/>
+  <circle cx="53.5" cy="39" r="3.5" fill="#1e1e2e"/><circle cx="76.5" cy="39" r="3.5" fill="#1e1e2e"/>
+  <text x="64" y="84" font-family="monospace" font-weight="bold" font-size="22" text-anchor="middle" fill="#1e1e2e">rq</text>
+</svg>
