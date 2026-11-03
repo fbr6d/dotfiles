@@ -108,8 +108,8 @@ hl.env("QT_QPA_PLATFORMTHEME", "xdgdesktopportal")
 -- Java/AWT apps (Ghidra): without this they draw only a strip of a tiled window
 hl.env("_JAVA_AWT_WM_NONREPARENTING", "1")
 -- XWayland apps render at native resolution (see xwayland.force_zero_scaling), so
--- Ghidra scales itself to match the 1.25 monitor scale
-hl.env("GHIDRA_GUI_JAVA_OPTIONS", "-Dsun.java2d.uiScale=1.25")
+-- Ghidra scales itself 2x (Java on Linux only does integer uiScale)
+hl.env("GHIDRA_GUI_JAVA_OPTIONS", "-Dsun.java2d.uiScale=2")
 
 -- fcitx5 input method
 hl.env("XMODIFIERS", "@im=fcitx")

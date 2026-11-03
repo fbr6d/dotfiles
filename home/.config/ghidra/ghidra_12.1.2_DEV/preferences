@@ -1,7 +1,14 @@
 #User Preferences
-#Tue Nov 03 14:53:30 KST 2026
+#Tue Nov 03 14:55:53 KST 2026
+G_FILE_CHOOSER.HEIGHT.Open\ a\ Ghidra\ Project=600
+G_FILE_CHOOSER.VIEW_STYLE.Open\ a\ Ghidra\ Project=SimpleView
+G_FILE_CHOOSER.WIDTH.Open\ a\ Ghidra\ Project=800
 GhidraShowWhatsNew=false
-RecentProjects=
+LastOpenedProject=/home/leejaeik/ghidra-projects/CMS32C030
+LastSelectedProjectDirectory=/home/leejaeik/ghidra-projects
+ProjectDirectory=/home/leejaeik/ghidra-projects/
+RECENT_0=/home/leejaeik/ghidra-projects
+RecentProjects=/home/leejaeik/ghidra-projects/CMS32C030
 SHOW.HELP.NAVIGATION.AID=true
 SHOW_TIPS=false
 TIP_INDEX=2

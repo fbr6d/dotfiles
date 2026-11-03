@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Created-By: 21.0.13.0.3 (Arch Linux)
+Tool: Bnd-7.0.0.202310060912
+Bnd-LastModified: 1793685339448
+Import-Package: ghidra.app.decompiler,ghidra.app.script,ghidra.program.m
+ odel.address,ghidra.program.model.data,ghidra.program.model.listing,ghi
+ dra.program.model.mem,ghidra.program.model.symbol,ghidra.util.task,java
+ .io,java.lang,java.lang.invoke,java.util,ghidra.app.plugin.core.osgi
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version>=21))"
+Bundle-SymbolicName: b34a818b
+Bundle-Version: 1.0
+Bundle-Name: b34a818b
+Bundle-Activator: GeneratedActivator
+

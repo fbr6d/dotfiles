@@ -1,0 +1,1 @@
+- [ASTRO firmware backup](astro-firmware-backup.md) — where the verified CMS32C030 + ext flash originals live, what is still missing
