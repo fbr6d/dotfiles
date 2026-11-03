@@ -31,6 +31,15 @@ place() {
 
 if want packages; then
     say "Installing packages"
+    # Extra repos (e.g. arch-mact2, slsrepo) must exist before installing from them.
+    if [[ -f "$REPO/etc/pacman.conf" ]]; then
+        tmp=$(mktemp -d) && mkdir -p "$tmp/etc"
+        cp -a "$REPO/etc/pacman.conf" "$tmp/etc/"
+        [[ -d "$REPO/etc/pacman.d" ]] && cp -a "$REPO/etc/pacman.d" "$tmp/etc/"
+        place "$tmp/etc" /etc sudo
+        # A repo whose mirrorlist package isn't installed yet still needs that file: placed above.
+        sudo pacman -Sy
+    fi
     # Skip names no longer in the repos instead of failing the whole install.
     mapfile -t pkgs < <(comm -12 <(sort "$REPO/meta/pacman.txt") <(pacman -Slq | sort -u))
     sudo pacman -Syu --needed "${pkgs[@]}"
@@ -79,8 +88,18 @@ fi
 
 if want etc && [[ -d "$REPO/etc" ]]; then
     say "Restoring /etc files (needs sudo)"
-    place "$REPO/etc" /etc sudo
+    # Boot files depend on the hardware; show them instead of overwriting.
+    tmp=$(mktemp -d) && cp -a "$REPO/etc/." "$tmp/"
+    rm -f "$tmp/default/grub" "$tmp/mkinitcpio.conf"
+    place "$tmp" /etc sudo
     sudo systemctl daemon-reload
+    for f in default/grub mkinitcpio.conf; do
+        if [[ -f "$REPO/etc/$f" ]] && ! cmp -s "$REPO/etc/$f" "/etc/$f"; then
+            echo "Not applied (boot-critical): /etc/$f differs from the backup. Compare with:"
+            echo "  diff /etc/$f $REPO/etc/$f"
+            echo "  then: sudo cp $REPO/etc/$f /etc/$f && sudo mkinitcpio -P / sudo grub-mkconfig -o /boot/grub/grub.cfg"
+        fi
+    done
 fi
 
 if want services; then

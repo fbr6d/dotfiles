@@ -84,6 +84,12 @@ ZEN_KEEP = [
     "handlers.json", "search.json.mozlz4", "xulstore.json", "zen-themes.json",
     "zen-keyboard-shortcuts.json", "times.json", "compatibility.ini",
 ]
+# Edited /etc files tied to this machine's disks/users; restoring them elsewhere breaks things.
+ETC_MACHINE_ONLY = {
+    "/etc/fstab", "/etc/crypttab", "/etc/passwd", "/etc/group", "/etc/shadow", "/etc/gshadow",
+    "/etc/subuid", "/etc/subgid", "/etc/shells", "/etc/resolv.conf", "/etc/hostname",
+    "/etc/hosts", "/etc/machine-id", "/etc/sudoers",
+}
 # Patterns that look like real credentials; the backup aborts if any match.
 SECRET_RE = re.compile(
     rb"(ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|gho_[A-Za-z0-9]{30,}"
@@ -237,13 +243,12 @@ def backup_etc():
         p = Path("/etc") / d
         if p.is_dir():
             copy(p, out / d, Path("/etc"), set())
-    # Package-owned config files the user edited.
+    # Package-owned config files the user edited ("/etc/x [modified]" in pacman -Qii).
     res = run("pacman", "-Qii", check=False)
-    for line in res.stdout.splitlines():
-        if line.startswith("MODIFIED"):
-            p = Path(line.split(None, 1)[1].strip())
-            if p.is_file():
-                copy(p, out / p.relative_to("/etc"))
+    for m in re.finditer(r"(/etc/\S+) \[modified\]", res.stdout):
+        p = Path(m.group(1))
+        if p.as_posix() not in ETC_MACHINE_ONLY and p.is_file():
+            copy(p, out / p.relative_to("/etc"))
 
 
 def backup_meta():
