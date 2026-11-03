@@ -19,6 +19,90 @@
   "lesson05": {
    "keys": 13,
    "stars": 3
+  },
+  "lesson06": {
+   "keys": 7,
+   "stars": 3
+  },
+  "lesson07": {
+   "keys": 19,
+   "stars": 3
+  },
+  "lesson08": {
+   "keys": 13,
+   "stars": 3
+  },
+  "lesson09": {
+   "keys": 20,
+   "stars": 3
+  },
+  "lesson10": {
+   "keys": 8,
+   "stars": 3
+  },
+  "lesson11": {
+   "keys": 12,
+   "stars": 3
+  },
+  "lesson12": {
+   "keys": 13,
+   "stars": 2
+  },
+  "lesson13": {
+   "keys": 14,
+   "stars": 3
+  },
+  "lesson14": {
+   "keys": 16,
+   "stars": 2
+  },
+  "lesson15": {
+   "keys": 12,
+   "stars": 2
+  }
+ },
+ "daily": {
+  "2026-11-03": {
+   "grid": {
+    "keys": 23,
+    "stars": 2
+   },
+   "indent": {
+    "keys": 15,
+    "stars": 1
+   },
+   "join": {
+    "keys": 9,
+    "stars": 2
+   },
+   "swap": {
+    "keys": 24,
+    "stars": 2
+   },
+   "incr": {
+    "keys": 9,
+    "stars": 3
+   },
+   "case": {
+    "keys": 21,
+    "stars": 1
+   },
+   "textobj": {
+    "keys": 23,
+    "stars": 3
+   },
+   "typo": {
+    "keys": 17,
+    "stars": 3
+   },
+   "gen": {
+    "keys": 10,
+    "stars": 3
+   },
+   "search": {
+    "keys": 21,
+    "stars": 3
+   }
   }
  }
 }

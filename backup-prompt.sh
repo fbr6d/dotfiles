@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Ask with a desktop notification whether to back up now; run both backups on "yes".
-# Started every 30 minutes by ~/.config/systemd/user/dotfiles-backup-prompt.timer.
-# Stays quiet when nothing changed since the last backup.
+# Run both backups and report the result in a desktop notification.
+# Started every hour by ~/.config/systemd/user/dotfiles-backup-prompt.timer.
+# Does nothing (and shows nothing) when nothing changed since the last backup.
 set -uo pipefail
 
 DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
@@ -22,12 +22,6 @@ changed() {
 
 changed || exit 0
 
-answer=$(notify-send --app-name="Backup" --icon=document-save --expire-time=300000 --wait \
-    --action=yes="백업" --action=no="나중에" \
-    "설정 백업" "마지막 백업 이후 바뀐 파일이 있어요. 지금 GitHub에 백업할까요?")
-[[ "$answer" == yes ]] || exit 0
-
-notify-send --app-name="Backup" --icon=document-save "백업 중…" "설정과 홈 파일을 올리고 있어요."
 out1=$("$DIR/backup.py" 2>&1); rc1=$?
 out2=$("$DIR/home_backup.py" 2>&1); rc2=$?
 

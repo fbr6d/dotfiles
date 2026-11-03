@@ -1,9 +1,9 @@
 [Unit]
-Description=Ask about a backup every 30 minutes
+Description=Back up to GitHub every hour
 
 [Timer]
-OnStartupSec=30min
-OnUnitActiveSec=30min
+OnStartupSec=1h
+OnUnitActiveSec=1h
 
 [Install]
 WantedBy=timers.target

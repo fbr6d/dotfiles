@@ -51,6 +51,7 @@ inotify-tools
 jq
 kate
 kitty
+lazygit
 libgirepository
 libicns
 librsvg
@@ -63,6 +64,7 @@ meson
 nano
 nautilus
 ncdu
+neovim
 networkmanager
 noto-fonts-cjk
 openocd
@@ -88,9 +90,11 @@ t2fanrd
 tesseract
 tesseract-data-eng
 tex-gyre-fonts
+tree-sitter-cli
 ttf-material-symbols-variable
 ttf-nerd-fonts-symbols
 ttf-nerd-fonts-symbols-mono
+unzip
 vim
 waybar
 webkit2gtk-4.1
