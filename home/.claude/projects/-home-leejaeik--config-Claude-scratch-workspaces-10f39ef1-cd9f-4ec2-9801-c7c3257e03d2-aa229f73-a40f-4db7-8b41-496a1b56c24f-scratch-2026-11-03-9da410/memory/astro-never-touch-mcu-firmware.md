@@ -2,13 +2,10 @@
 name: astro-never-touch-mcu-firmware
 description: "User forbids any change to the ASTRO board's MCU (CMS32C030) firmware; only external-flash image edits are allowed"
 metadata:
-  node_type: memory
   type: feedback
-  originSessionId: 3c492edc-4120-4fe0-aac1-a7f78e051589
-  modified: 2026-11-03T08:28:09.182Z
 ---
 
-Never modify, patch, or reflash the ASTRO vape's MCU firmware (CMS32C030 main flash), not even a 48-byte table edit. Customisation is limited to the external SPI flash images, and each image must keep its original RLE word length and address.
+Never modify, patch, or reflash the ASTRO board's MCU firmware (CMS32C030 main flash), not even a 48-byte table edit. Customisation is limited to the external SPI flash images, and each image must keep its original RLE word length and address.
 
 **Why:** the user believes the firmware also handles battery/power logic, so any firmware change or bug is an unacceptable safety risk (said 2026-11-03).
 

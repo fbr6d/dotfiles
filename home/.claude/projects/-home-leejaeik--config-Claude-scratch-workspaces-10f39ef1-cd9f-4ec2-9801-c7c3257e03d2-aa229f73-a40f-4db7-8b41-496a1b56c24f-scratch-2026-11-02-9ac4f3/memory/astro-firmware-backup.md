@@ -1,6 +1,6 @@
 ---
 name: astro-firmware-backup
-description: "Where the verified original ASTRO vape (CMS32C030) MCU + external flash dumps are backed up, and what is still missing"
+description: "Where the verified original ASTRO (CMS32C030) dev board MCU + external flash dumps are backed up, and what is still missing"
 metadata:
   node_type: memory
   type: project

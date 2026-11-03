@@ -1,0 +1,4 @@
+- [ASTRO firmware backup](astro-firmware-backup.md) — where the verified CMS32C030 + ext flash originals live, what is still missing
+- [Never touch ASTRO MCU firmware](astro-never-touch-mcu-firmware.md) — only external-flash images may change, each within its original slot
+- [ASTRO theme progress](astro-theme-progress.md) — latest build v15, made by tools/build_theme.sh
+- [ASTRO device context](astro-device-context.md) — user says: open-source dev board, used only for testing
