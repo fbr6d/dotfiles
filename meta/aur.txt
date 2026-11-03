@@ -1,4 +1,5 @@
 claude-desktop
+clipse
 hyprshell-bin
 overskride-bin
 waypaper

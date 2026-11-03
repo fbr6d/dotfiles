@@ -1,3 +1,4 @@
+7zip
 apple-bcm-firmware-fetcher
 apple-t2-audio-config
 arch-mact2-mirrorlist
@@ -23,8 +24,11 @@ fastfetch
 fcitx5
 fcitx5-configtool
 fcitx5-hangul
+fd
 ffmpeg
+ffmpegthumbnailer
 fish
+fzf
 ghostty
 git
 github-cli
@@ -42,7 +46,9 @@ hyprland
 hyprlock
 hyprpm
 hyprpolkitagent
+imagemagick
 inotify-tools
+jq
 kate
 kitty
 libgirepository
@@ -68,6 +74,8 @@ plymouth
 python-gobject
 python-pillow
 quickshell
+resvg
+ripgrep
 rofi
 snap-pac
 snapper
@@ -87,4 +95,7 @@ waybar
 webkit2gtk-4.1
 wget
 wireplumber
+wl-clipboard
+yazi
 zen-browser-bin
+zoxide

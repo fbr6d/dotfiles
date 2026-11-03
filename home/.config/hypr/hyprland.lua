@@ -45,7 +45,7 @@ hl.monitor({
 
 -- Set programs that you use
 local terminal    = "kitty"
-local fileManager = "nautilus --new-window"
+local fileManager = "kitty --class yazi -e yazi"   -- terminal file manager (Nautilus still opens folders from other apps)
 local menu        = "rofi -show drun"
 
 
@@ -77,6 +77,7 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd("quickshell -c qs-hyprview")   -- window overview (SUPER tap)
   hl.exec_cmd("~/.local/bin/miku-boot")         -- Miku greeting terminal, first login after boot only
   hl.exec_cmd("/opt/localsend/localsend --hidden")   -- LocalSend in the tray (Hyprland does not run ~/.config/autostart)
+  hl.exec_cmd("clipse -listen")   -- clipboard history (SUPER+SHIFT+V opens it)
 
 end)
 
@@ -390,6 +391,7 @@ hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("command -v hyprshutdown >/de
 hl.bind(mainMod .. " + F",         hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 hl.bind(mainMod .. " + M",         hl.dsp.window.fullscreen({ mode = "maximized" }))
 hl.bind(mainMod .. " + V",         hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("kitty --class clipse -e clipse"))   -- clipboard history
 hl.bind(mainMod .. " + P",         hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + T",         hl.dsp.exec_cmd(terminal, { float = true, size = "monitor_w*0.6 monitor_h*0.6", center = true }))
 hl.bind(mainMod .. " + C",         hl.dsp.layout("center"))           -- center the focused column
@@ -618,5 +620,15 @@ hl.window_rule({
 
     float  = true,
     size   = "900 640",
+    center = true,
+})
+
+-- clipse (clipboard history, SUPER+SHIFT+V): floating, centered
+hl.window_rule({
+    name  = "clipse",
+    match = { class = "^clipse$" },
+
+    float  = true,
+    size   = "720 640",
     center = true,
 })

@@ -57,6 +57,7 @@ SECTIONS = [
         ("SUPER + C", "가운데로"),
         ("SUPER + F / M", "전체화면 / 최대화"),
         ("SUPER + V", "플로팅"),
+        ("SUPER + SHIFT + V", "클립보드 기록"),
         ("SUPER + G / Tab", "그룹 / 다음 탭"),
     ]),
     ("보기", [

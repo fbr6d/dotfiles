@@ -1,0 +1,15 @@
+# Extra keys on top of yazi's defaults
+[[mgr.prepend_keymap]]
+on   = [ "g", "p" ]
+run  = '''shell -- p="$(wl-paste --no-newline)"; p="${p#file://}"; case "$p" in "~"*) p="$HOME${p#\~}";; esac; if [ -d "$p" ]; then ya emit cd "$p"; else ya emit reveal "$p"; fi'''
+desc = "Go to the path in the clipboard"
+
+[[mgr.prepend_keymap]]
+on   = "!"
+run  = 'shell "$SHELL" --block'
+desc = "Open a shell here (exit to come back)"
+
+[[mgr.prepend_keymap]]
+on   = "T"
+run  = 'shell -- kitty --detach --directory "$PWD"'
+desc = "Open a new terminal window here"
