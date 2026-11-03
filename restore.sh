@@ -93,6 +93,7 @@ if want etc && [[ -d "$REPO/etc" ]]; then
     rm -f "$tmp/default/grub" "$tmp/mkinitcpio.conf"
     place "$tmp" /etc sudo
     sudo systemctl daemon-reload
+    [[ -f "$REPO/etc/locale.gen" ]] && sudo locale-gen
     for f in default/grub mkinitcpio.conf; do
         if [[ -f "$REPO/etc/$f" ]] && ! cmp -s "$REPO/etc/$f" "/etc/$f"; then
             echo "Not applied (boot-critical): /etc/$f differs from the backup. Compare with:"
