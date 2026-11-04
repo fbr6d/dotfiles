@@ -2,7 +2,7 @@
 -- otherwise a normal tab); pick items with Ctrl+n / Ctrl+p or the arrow keys.
 -- Kept simple: only code (LSP), file paths and snippets are suggested (no words
 -- from the buffer), no gray ghost text. The selected item's documentation
--- opens beside the menu (Korean for Rust std, see config/rust_doc_ko.lua).
+-- opens beside the menu.
 -- Each item shows its kind (Function, Struct, Variable, ...) and type details.
 
 -- Basic snippets kept per filetype (friendly-snippets prefixes); other

@@ -101,7 +101,6 @@ return {
   ["Toggle Mini Pairs"] = "괄호 자동 짝 켜기/끄기 (Mini Pairs)",
   ["Toggle Git Signs"] = "Git 변경 표시 켜기/끄기 (Git Signs)",
   ["Toggle Flash Search"] = "Flash 검색 켜기/끄기",
-  ["Toggle Korean Rust Docs"] = "Rust 문서 한국어 번역 켜기/끄기",
 
   -- Terminal / git
   ["Terminal (Root Dir)"] = "터미널 (프로젝트 루트)",
