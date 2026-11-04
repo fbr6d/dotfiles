@@ -1,0 +1,63 @@
+#!/bin/sh
+# Let Claude Code use sudo for an hour at a time, renewed from a notification.
+#
+# Needs /etc/sudoers.d/claude-sudo-share (timestamp_type=global): after you type
+# your password once, every program of yours (Claude's shell too) can use sudo
+# without asking until the time runs out.
+#
+#   claude-sudo on      ask for the password (small kitty window), allow for 1 hour
+#   claude-sudo off     revoke now and stop the reminders
+#   claude-sudo status  print true/false (control center toggle)
+#   claude-sudo remind  (timer) 55 min after a renewal: notification with
+#                       a "연장" button; no answer in 5 min → revoked
+state="${XDG_STATE_HOME:-$HOME/.local/state}/claude-sudo-on"
+unit=claude-sudo-remind
+
+stop_timer() {
+    systemctl --user stop "$unit.timer" "$unit.service" >/dev/null 2>&1
+}
+
+revoke() {
+    stop_timer
+    rm -f "$state"
+    sudo -K
+}
+
+case "$1" in
+    on)
+        swaync-client -cp >/dev/null 2>&1   # close the control center first
+        if kitty --class local.claude-sudo --title "Claude sudo 권한" \
+            sh -c 'echo "Claude에 1시간 동안 sudo 권한을 줍니다."; sudo -v'; then
+            mkdir -p "$(dirname "$state")"
+            touch "$state"
+            stop_timer
+            systemd-run --user --quiet --unit="$unit" --on-active=55m "$0" remind
+            notify-send -a "Claude sudo" -i security-high "Claude sudo 켜짐" "1시간 동안 허용합니다. 55분 뒤에 연장할지 물어봅니다."
+        else
+            revoke
+            notify-send -a "Claude sudo" -i security-low "Claude sudo 꺼짐" "비밀번호를 입력하지 않아 켜지 않았습니다."
+        fi
+        ;;
+    off)
+        revoke
+        notify-send -a "Claude sudo" -i security-low "Claude sudo 꺼짐" "sudo 권한을 지금 거둬들였습니다."
+        ;;
+    status)
+        [ -f "$state" ] && sudo -n true 2>/dev/null && echo true || echo false
+        ;;
+    remind)
+        [ -f "$state" ] || exit 0
+        answer=$(timeout 300 notify-send -a "Claude sudo" -i security-medium -u critical \
+            -A renew="연장 (1시간)" -A off="끄기" \
+            "Claude sudo 곧 만료" "5분 안에 연장하지 않으면 sudo 권한을 거둬들입니다.")
+        if [ "$answer" = renew ]; then
+            exec "$0" on
+        fi
+        revoke
+        notify-send -a "Claude sudo" -i security-low "Claude sudo 꺼짐" "연장하지 않아 sudo 권한을 거둬들였습니다."
+        ;;
+    *)
+        echo "usage: claude-sudo on|off|status|remind" >&2
+        exit 2
+        ;;
+esac

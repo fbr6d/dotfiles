@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=YouTube
+Comment=YouTube (youtube.com) in a Chromium app window; stays signed in through Chromium's profile
+Exec=chromium --ozone-platform=wayland --app=https://www.youtube.com
+Icon=/home/leejaeik/.local/share/icons/youtube.png
+Type=Application
+Categories=AudioVideo;Video;

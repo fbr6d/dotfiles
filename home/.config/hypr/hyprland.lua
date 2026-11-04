@@ -574,6 +574,24 @@ hl.window_rule({
     maximize = true,
 })
 
+-- YouTube web app (~/.local/share/applications/youtube.desktop): opens maximized
+hl.window_rule({
+    name  = "youtube",
+    match = { class = "^chrome-www\\.youtube\\.com__-Default$" },
+
+    maximize = true,
+})
+
+-- Claude sudo password prompt (~/.local/bin/claude-sudo on): small window, centered
+hl.window_rule({
+    name  = "claude-sudo",
+    match = { class = "^local\\.claude-sudo$" },
+
+    float  = true,
+    size   = "560 160",
+    center = true,
+})
+
 -- Keybind cheatsheet (~/.local/bin/hypr-cheatsheet, not started at login; SUPER+/
 -- shows/hides it): floating, on every workspace,
 -- no focus on open/hover, top right under waybar

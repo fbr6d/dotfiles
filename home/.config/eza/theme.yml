@@ -1,0 +1,44 @@
+# Every folder gets the same plain folder icon: eza gives some folder names
+# their own icon (Documents, .config, .git, src, ...), overridden here by name.
+# The list is eza's DIRECTORY_ICONS table (src/output/icons.rs, v0.23.5).
+filenames:
+  ".config": { icon: { glyph: "" } }
+  ".exercism": { icon: { glyph: "" } }
+  ".git": { icon: { glyph: "" } }
+  ".github": { icon: { glyph: "" } }
+  ".npm": { icon: { glyph: "" } }
+  ".opam": { icon: { glyph: "" } }
+  ".ssh": { icon: { glyph: "" } }
+  ".Trash": { icon: { glyph: "" } }
+  "build": { icon: { glyph: "" } }
+  "config": { icon: { glyph: "" } }
+  "Contacts": { icon: { glyph: "" } }
+  "cron.d": { icon: { glyph: "" } }
+  "cron.daily": { icon: { glyph: "" } }
+  "cron.hourly": { icon: { glyph: "" } }
+  "cron.minutely": { icon: { glyph: "" } }
+  "cron.monthly": { icon: { glyph: "" } }
+  "cron.weekly": { icon: { glyph: "" } }
+  "Desktop": { icon: { glyph: "" } }
+  "Documents": { icon: { glyph: "" } }
+  "Downloads": { icon: { glyph: "" } }
+  "etc": { icon: { glyph: "" } }
+  "Favorites": { icon: { glyph: "" } }
+  "hidden": { icon: { glyph: "" } }
+  "home": { icon: { glyph: "" } }
+  "include": { icon: { glyph: "" } }
+  "Mail": { icon: { glyph: "" } }
+  "Movies": { icon: { glyph: "" } }
+  "Music": { icon: { glyph: "" } }
+  "node_modules": { icon: { glyph: "" } }
+  "npm_cache": { icon: { glyph: "" } }
+  "pacman.d": { icon: { glyph: "" } }
+  "pam.d": { icon: { glyph: "" } }
+  "Pictures": { icon: { glyph: "" } }
+  "src": { icon: { glyph: "" } }
+  "ssh": { icon: { glyph: "" } }
+  "sudoers.d": { icon: { glyph: "" } }
+  "Videos": { icon: { glyph: "" } }
+  "xbps.d": { icon: { glyph: "" } }
+  "xorg.conf.d": { icon: { glyph: "" } }
+  "cabal": { icon: { glyph: "" } }

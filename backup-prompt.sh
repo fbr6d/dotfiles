@@ -27,12 +27,12 @@ out2=$("$DIR/home_backup.py" 2>&1); rc2=$?
 
 if (( rc1 == 0 && rc2 == 0 )); then
     touch "$STAMP"
-    notify-send --app-name="Backup" --icon=emblem-ok-symbolic "백업 완료" \
+    notify-send --transient --app-name="Backup" --icon=emblem-ok-symbolic "백업 완료" \
         "설정: $(tail -n2 <<<"$out1" | head -n1)
 홈: $(tail -n2 <<<"$out2" | head -n1)"
 else
     # Most likely the secret scan stopped it; ask Claude ("설정 백업해줘") to sort it out.
-    notify-send --app-name="Backup" --urgency=critical --icon=dialog-error "백업 실패" \
+    notify-send --transient --app-name="Backup" --urgency=critical --icon=dialog-error "백업 실패" \
         "$( ((rc1)) && tail -n4 <<<"$out1")
 $( ((rc2)) && tail -n4 <<<"$out2")"
 fi
