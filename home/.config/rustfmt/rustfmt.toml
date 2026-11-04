@@ -1,0 +1,4 @@
+# Global rustfmt settings (used when a project has no rustfmt.toml of its own)
+# Method chains with two or more calls (a.b().c()) go one call per line;
+# a single call like s.len() stays on one line
+chain_width = 0

@@ -2,7 +2,7 @@
 Type=Application
 Name=RustQuest
 Comment=nvim 으로 풀며 배우는 Rust — 기초부터 OS 개발까지
-Exec=kitty --class local.RustQuest --title RustQuest --directory "/home/leejaeik/rustquest" -e "/home/leejaeik/.local/bin/rq" menu
+Exec=kitty --class local.RustQuest --title RustQuest --directory "/home/leejaeik/rustquest" -e "/home/leejaeik/.local/bin/rq" start
 Icon=rustquest
 Terminal=false
 Categories=Education;Development;
