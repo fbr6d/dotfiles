@@ -1,1 +1,2 @@
 - [Prefer existing programs](prefer-existing-programs.md) — check off-the-shelf first; ask before building custom
+- [Korean app settings](korean-app-settings.md) — on every app install, report whether a Korean UI setting exists

@@ -66,12 +66,6 @@
           "type": "toggle",
           "command": "sh -c 'swaync-client -d -sw'",
           "update-command": "sh -c 'swaync-client -D -sw'"
-        },
-        {
-          "label": "󰒃  Claude sudo",
-          "type": "toggle",
-          "command": "sh -c '[ \"$SWAYNC_TOGGLE_STATE\" = true ] && setsid -f ~/.local/bin/claude-sudo on || setsid -f ~/.local/bin/claude-sudo off'",
-          "update-command": "sh -c '~/.local/bin/claude-sudo status'"
         }
       ]
     },

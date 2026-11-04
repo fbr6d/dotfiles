@@ -1,0 +1,28 @@
+# Theme: monochrome dark (Claude dark-mode grays), Catppuccin Mocha only for
+# highlighted text — same palette as kitty/theme.conf
+gui:
+  language: ko # Korean menus and key hints
+  nerdFontsVersion: "3" # file icons (Symbols Nerd Font, as in eza/yazi)
+  border: rounded
+  showRandomTip: false
+  theme:
+    activeBorderColor: ["#cba6f7", bold] # focused panel: Mocha mauve
+    inactiveBorderColor: ["#4a4a47"]
+    searchingActiveBorderColor: ["#f9e2af", bold]
+    optionsTextColor: ["#9c9a92"] # key hints on the bottom line
+    selectedLineBgColor: ["#30302e"] # cursor line
+    inactiveViewSelectedLineBgColor: ["#1f1e1d"]
+    cherryPickedCommitFgColor: ["#89b4fa"]
+    cherryPickedCommitBgColor: ["#4a4a47"]
+    markedBaseCommitFgColor: ["#89b4fa"]
+    markedBaseCommitBgColor: ["#4a4a47"]
+    unstagedChangesColor: ["#f38ba8"]
+    defaultFgColor: ["#faf9f5"]
+    authorColors:
+      "*": "#b4befe"
+    branchColorPatterns:
+      "^(main|master)$": "#a6e3a1"
+
+# Started outside a repo (launcher): show the recent-repositories list instead of
+# asking to create a new repo
+notARepository: skip

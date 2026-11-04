@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Lazygit
+Comment=Git client in the terminal (kitty); opens the recent-repositories list outside a repo
+Exec=kitty --class lazygit --title lazygit -d /home/leejaeik lazygit
+Icon=/home/leejaeik/.local/share/icons/lazygit.png
+Type=Application
+Categories=Development;RevisionControl;
+Keywords=git;

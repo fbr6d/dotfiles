@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=세모이 타자 연습
+GenericName=Semoe Typing
+Comment=세벌식 모아치기 e 자리 연습과 모아치기 연습
+Exec=chromium --ozone-platform=wayland --enable-wayland-ime --wayland-text-input-version=3 --user-data-dir=/home/leejaeik/.local/share/semoe-typing/profile --no-first-run --app=file:///home/leejaeik/.local/share/semoe-typing/semoe-typing.html
+Icon=/home/leejaeik/.local/share/semoe-typing/icon.svg
+Terminal=false
+Categories=Education;
+Keywords=semoe;sebeolsik;moachigi;typing;hangul;taja;세모이;세벌식;모아치기;타자;연습;
+StartupWMClass=chrome-__home_leejaeik_.local_share_semoe-typing_semoe-typing.html-Default
