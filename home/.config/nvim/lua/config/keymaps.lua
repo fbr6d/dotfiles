@@ -2,6 +2,9 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 
+-- Key descriptions in Korean (which-key popup, F1 list); see config/keymap_ko.lua
+require("config.keymap_ko_apply").setup()
+
 -- F1: searchable list of every key mapping (LazyVim's built-in keymaps picker),
 -- the same key that shows kitty's and yazi's shortcut lists
 vim.keymap.set({ "n", "i", "v" }, "<F1>", function()

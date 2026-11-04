@@ -63,6 +63,8 @@ CONFIG_EXTRA = [
 ]
 # File/dir name patterns skipped everywhere.
 GLOB_DENY = [
+    # A nested .git makes the backup repo store only a link, not the folder's files.
+    ".git",
     "*.bak-*", "*.bak", "*.removed", "*.orig", "*~", "*.swp", "*.log", "*.lock",
     "lock", ".parentlock", "__pycache__", "*.pyc", "Cache", "cache", "Caches",
     "CachedData", "GPUCache", "Code Cache", "*history*", "*.sqlite*",
