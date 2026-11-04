@@ -5,10 +5,14 @@
 -- Key descriptions in Korean (which-key popup, F1 list); see config/keymap_ko.lua
 require("config.keymap_ko_apply").setup()
 
+-- Korean Rust std docs in the hover popup (K); <leader>uk toggles
+require("config.rust_doc_ko").setup()
+
 -- F1: searchable list of every key mapping (LazyVim's built-in keymaps picker),
 -- the same key that shows kitty's and yazi's shortcut lists
 vim.keymap.set({ "n", "i", "v" }, "<F1>", function()
-  Snacks.picker.keymaps()
+  -- list across the full width (descriptions fit), source preview below it
+  Snacks.picker.keymaps({ layout = { preset = "vertical" } })
 end, { desc = "Shortcut list" })
 
 -- F2: show / hide inferred types next to the code (LSP inlay hints, same as <leader>uh)

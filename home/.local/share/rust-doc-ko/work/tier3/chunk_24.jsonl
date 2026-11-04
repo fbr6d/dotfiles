@@ -1,0 +1,211 @@
+{"id": "373c4c5941bb", "src": "core/src/str/traits.rs:472", "en": "Implements substring slicing with syntax `&self[begin ..]` or `&mut self[begin ..]`."}
+{"id": "3092e717fbba", "src": "core/src/str/traits.rs:472", "en": "Returns a slice of the given string from the byte range \\[`begin`, `len`). Equivalent to `&self[begin .. len]` or `&mut self[begin .. len]`."}
+{"id": "e2a29284e80e", "src": "core/src/str/traits.rs:472", "en": "Panics if `begin` does not point to the starting byte offset of a character (as defined by `is_char_boundary`), or if `begin > len`."}
+{"id": "50b80dbb0d8d", "src": "core/src/str/traits.rs:599", "en": "Implements substring slicing with syntax `&self[begin ..= end]` or `&mut self[begin ..= end]`."}
+{"id": "a98bfd6b40b0", "src": "core/src/str/traits.rs:599", "en": "Returns a slice of the given string from the byte range [`begin`, `end`]. Equivalent to `&self [begin .. end + 1]` or `&mut self[begin .. end + 1]`, except if `end` has the maximum value for `usize`."}
+{"id": "70504fdc4c0e", "src": "core/src/str/traits.rs:599", "en": "Panics if `begin` does not point to the starting byte offset of a character (as defined by `is_char_boundary`), if `end` does not point to the ending byte offset of a character (`end + 1` is either a starting byte offset or equal to `len`), if `begin > end`, or if `end >= len`."}
+{"id": "6ac4ad5d6699", "src": "core/src/str/traits.rs:705", "en": "Implements substring slicing with syntax `&self[..= end]` or `&mut self[..= end]`."}
+{"id": "bc7019b79b4b", "src": "core/src/str/traits.rs:705", "en": "Returns a slice of the given string from the byte range \\[0, `end`\\]. Equivalent to `&self [0 .. end + 1]`, except if `end` has the maximum value for `usize`."}
+{"id": "4990452aa3c1", "src": "core/src/str/traits.rs:705", "en": "Panics if `end` does not point to the ending byte offset of a character (`end + 1` is either a starting byte offset as defined by `is_char_boundary`, or equal to `len`), or if `end >= len`."}
+{"id": "3fe1a56e5c38", "src": "core/src/str/traits.rs:751", "en": "Implements substring slicing with syntax `&self[..= last]` or `&mut self[..= last]`."}
+{"id": "c285b760ea7a", "src": "core/src/str/traits.rs:751", "en": "Returns a slice of the given string from the byte range \\[0, `last`\\]. Equivalent to `&self [0 .. last + 1]`, except if `last` has the maximum value for `usize`."}
+{"id": "76a92ac2fc3e", "src": "core/src/str/traits.rs:751", "en": "Panics if `last` does not point to the ending byte offset of a character (`last + 1` is either a starting byte offset as defined by `is_char_boundary`, or equal to `len`), or if `last >= len`."}
+{"id": "2e9bfbc9e7b5", "src": "core/src/str/traits.rs:797", "en": "Parse a value from a string"}
+{"id": "4011c92ae5f6", "src": "core/src/str/traits.rs:797", "en": "`FromStr`'s `from_str` method is often used implicitly, through `str`'s `parse` method. See `parse`'s documentation for examples."}
+{"id": "9d63d11dae29", "src": "core/src/str/traits.rs:797", "en": "`from_str`: FromStr::from_str `parse`: str::parse"}
+{"id": "ffcfaf35944b", "src": "core/src/str/traits.rs:797", "en": "`FromStr` does not have a lifetime parameter, and so you can only parse types that do not contain a lifetime parameter themselves. In other words, you can parse an `i32` with `FromStr`, but not a `&i32`. You can parse a struct that contains an `i32`, but not one that contains an `&i32`."}
+{"id": "a51b7bb0c54d", "src": "core/src/str/traits.rs:797", "en": "Input format and round-tripping"}
+{"id": "404b1c548f2e", "src": "core/src/str/traits.rs:797", "en": "The input format expected by a type's `FromStr` implementation depends on the type. Check the type's documentation for the input formats it knows how to parse. Note that the input format of a type's `FromStr` implementation might not necessarily accept the output format of its `Display` implementation, and even if it does, the `Display` implementation may not be lossless so the round-trip may lose information."}
+{"id": "1bf6f041bde6", "src": "core/src/str/traits.rs:797", "en": "Basic implementation of `FromStr` on an example `Point` type:"}
+{"id": "bda6f38466d2", "src": "core/src/str/traits.rs:869", "en": "The associated error which can be returned from parsing."}
+{"id": "812cff834403", "src": "core/src/str/traits.rs:873", "en": "Parses a string `s` to return a value of this type."}
+{"id": "762b26e71a0c", "src": "core/src/str/traits.rs:873", "en": "If parsing succeeds, return the value inside `Ok`, otherwise when the string is ill-formatted return an error specific to the inside `Err`. The error type is specific to the implementation of the trait."}
+{"id": "3ff901f320a2", "src": "core/src/str/traits.rs:873", "en": "Basic usage with `i32`, a type that implements `FromStr`:"}
+{"id": "09af8f7a79f0", "src": "core/src/str/traits.rs:900", "en": "Parse a `bool` from a string."}
+{"id": "b71b99996938", "src": "core/src/str/traits.rs:900", "en": "The only accepted values are `\"true\"` and `\"false\"`. Any other input will return an error."}
+{"id": "409f11fdc476", "src": "core/src/str/traits.rs:900", "en": "Note, in many cases, the `.parse()` method on `str` is more proper."}
+{"id": "a5a9f0300d89", "src": "core/src/str/validations.rs:1", "en": "Operations related to UTF-8 validation."}
+{"id": "ebe7f704672b", "src": "core/src/str/validations.rs:6", "en": "Returns the initial codepoint accumulator for the first byte. The first byte is special, only want bottom 5 bits for width 2, 4 bits for width 3, and 3 bits for width 4."}
+{"id": "5930fddc0965", "src": "core/src/str/validations.rs:14", "en": "Returns the value of `ch` updated with continuation byte `byte`."}
+{"id": "c16058d67d4f", "src": "core/src/str/validations.rs:20", "en": "Checks whether the byte is a UTF-8 continuation byte (i.e., starts with the bits `10`)."}
+{"id": "48c8ff8a9b34", "src": "core/src/str/validations.rs:27", "en": "Reads the next code point out of a byte iterator (assuming a UTF-8-like encoding)."}
+{"id": "a036c38d9608", "src": "core/src/str/validations.rs:27", "en": "`bytes` must produce a valid UTF-8-like (UTF-8 or WTF-8) string"}
+{"id": "ea1c2e3dabf2", "src": "core/src/str/validations.rs:71", "en": "Reads the last code point out of a byte iterator (assuming a UTF-8-like encoding)."}
+{"id": "0354b879291f", "src": "core/src/str/validations.rs:116", "en": "Returns `true` if any byte in the word `x` is nonascii (>= 128)."}
+{"id": "6962ea4eca5c", "src": "core/src/str/validations.rs:122", "en": "Walks through `v` checking that it's a valid UTF-8 sequence, returning `Ok(())` in that case, or, if it is invalid, `Err(err)`."}
+{"id": "a7f6919f8275", "src": "core/src/str/validations.rs:274", "en": "Given a first byte, determines how many bytes are in this UTF-8 character."}
+{"id": "038f54d26828", "src": "core/src/str/validations.rs:282", "en": "Mask of the value bits of a continuation byte."}
+{"id": "275e15e280ce", "src": "core/src/slice/ascii.rs:1", "en": "Operations on ASCII `[u8]`."}
+{"id": "88158147e0fa", "src": "core/src/slice/ascii.rs:11", "en": "Checks if all bytes in this slice are within the ASCII range."}
+{"id": "f02a52e60825", "src": "core/src/slice/ascii.rs:11", "en": "An empty slice returns `true`."}
+{"id": "9223854936e4", "src": "core/src/slice/ascii.rs:22", "en": "If this slice `is_ascii`, returns it as a slice of ASCII characters, otherwise returns `None`."}
+{"id": "87ae0e309ea3", "src": "core/src/slice/ascii.rs:36", "en": "Converts this slice of bytes into a slice of ASCII characters, without checking whether they're valid."}
+{"id": "4ae137fec847", "src": "core/src/slice/ascii.rs:36", "en": "Every byte in the slice must be in `0..=127`, or else this is UB."}
+{"id": "a15e4c659612", "src": "core/src/slice/ascii.rs:52", "en": "Checks that two slices are an ASCII case-insensitive match."}
+{"id": "af5c334519b0", "src": "core/src/slice/ascii.rs:83", "en": "ASCII case-insensitive equality check without chunk-at-a-time optimization."}
+{"id": "47abd007fa58", "src": "core/src/slice/ascii.rs:105", "en": "Optimized version of `eq_ignore_ascii_case` to process chunks at a time."}
+{"id": "a8af590ba3de", "src": "core/src/slice/ascii.rs:105", "en": "Platforms that have SIMD instructions may benefit from this implementation over `eq_ignore_ascii_case_simple`."}
+{"id": "bed6e21c97db", "src": "core/src/slice/ascii.rs:105", "en": "The caller must guarantee that the slices are equal in length, and the slice lengths are greater than or equal to `N` bytes."}
+{"id": "946ec2a78356", "src": "core/src/slice/ascii.rs:167", "en": "Converts this slice to its ASCII upper case equivalent in-place."}
+{"id": "ba3bfc4bff2c", "src": "core/src/slice/ascii.rs:167", "en": "`to_ascii_uppercase`: #method.to_ascii_uppercase"}
+{"id": "7c71e4ad3242", "src": "core/src/slice/ascii.rs:189", "en": "Converts this slice to its ASCII lower case equivalent in-place."}
+{"id": "9942b4fd50d1", "src": "core/src/slice/ascii.rs:189", "en": "`to_ascii_lowercase`: #method.to_ascii_lowercase"}
+{"id": "424a9291d5c0", "src": "core/src/slice/ascii.rs:211", "en": "Returns an iterator that produces an escaped version of this slice, treating it as an ASCII string."}
+{"id": "63c4653c3ec5", "src": "core/src/slice/ascii.rs:228", "en": "Returns a byte slice with leading ASCII whitespace bytes removed."}
+{"id": "b0df8e8de3e0", "src": "core/src/slice/ascii.rs:228", "en": "'Whitespace' refers to the definition used by `u8::is_ascii_whitespace`. Importantly, this definition excludes the `\\0x0B` byte even though it has the Unicode `White_Space` property and is removed by `str::trim_start`."}
+{"id": "70fb89733f27", "src": "core/src/slice/ascii.rs:228", "en": "`White_Space`: https://www.unicode.org/reports/tr44/#White_Space"}
+{"id": "54d2cbab4f09", "src": "core/src/slice/ascii.rs:261", "en": "Returns a byte slice with trailing ASCII whitespace bytes removed."}
+{"id": "505052191164", "src": "core/src/slice/ascii.rs:261", "en": "'Whitespace' refers to the definition used by `u8::is_ascii_whitespace`. Importantly, this definition excludes the `\\0x0B` byte even though it has the Unicode `White_Space` property and is removed by `str::trim_end`."}
+{"id": "074b9df68121", "src": "core/src/slice/ascii.rs:294", "en": "Returns a byte slice with leading and trailing ASCII whitespace bytes removed."}
+{"id": "b465cd55bf88", "src": "core/src/slice/ascii.rs:294", "en": "'Whitespace' refers to the definition used by `u8::is_ascii_whitespace`. Importantly, this definition excludes the `\\0x0B` byte even though it has the Unicode `White_Space` property and is removed by `str::trim`."}
+{"id": "aa4e7e03742c", "src": "core/src/slice/ascii.rs:326", "en": "An iterator over the escaped version of a byte slice."}
+{"id": "2a89fcc6fd8c", "src": "core/src/slice/ascii.rs:326", "en": "This `struct` is created by the `slice::escape_ascii` method. See its documentation for more information."}
+{"id": "55551296c6e9", "src": "core/src/slice/ascii.rs:428", "en": "ASCII test *without* the chunk-at-a-time optimizations."}
+{"id": "3334b2f6b9e4", "src": "core/src/slice/ascii.rs:428", "en": "This is carefully structured to produce nice small code -- it's smaller in `-O` than what the \"obvious\" ways produces under `-C opt-level=s`. If you touch it, be sure to run (and update if needed) the assembly test."}
+{"id": "3691e79b93ec", "src": "core/src/slice/ascii.rs:446", "en": "Optimized ASCII test that will use usize-at-a-time operations instead of byte-at-a-time operations (when possible)."}
+{"id": "c1b8b9c51f9f", "src": "core/src/slice/ascii.rs:446", "en": "The algorithm we use here is pretty simple. If `s` is too short, we just check each byte and be done with it. Otherwise:"}
+{"id": "fa9c9ffc0d1a", "src": "core/src/slice/ascii.rs:446", "en": "- Read the first word with an unaligned load. - Align the pointer, read subsequent words until end with aligned loads. - Read the last `usize` from `s` with an unaligned load."}
+{"id": "1cca2122960d", "src": "core/src/slice/ascii.rs:446", "en": "If any of these loads produces something for which `contains_nonascii` (above) returns true, then we know the answer is false."}
+{"id": "8da20e9a79e8", "src": "core/src/slice/ascii.rs:473", "en": "Returns `true` if any byte in the word `v` is nonascii (>= 128). Snarfed from `../str/mod.rs`, which does something similar for utf8 validation."}
+{"id": "b65f21831c60", "src": "core/src/slice/ascii.rs:560", "en": "Chunk size for SSE2 vectorized ASCII checking (4x 16-byte loads)."}
+{"id": "77a9f140255a", "src": "core/src/slice/ascii.rs:594", "en": "Chunk size for NEON vectorized ASCII checking (4x 16-byte loads)."}
+{"id": "151eb5308e06", "src": "core/src/slice/ascii.rs:598", "en": "Width of a single NEON vector, used to vectorize the tail left over by the unrolled `NEON_CHUNK_SIZE` loop."}
+{"id": "4c137e8c5a9b", "src": "core/src/slice/ascii.rs:645", "en": "Uses explicit SIMD intrinsics to prevent LLVM from auto-vectorizing with broken code (e.g., AVX-512 on x86-64 that extracts mask bits one-by-one)."}
+{"id": "9575d723416d", "src": "core/src/slice/ascii.rs:688", "en": "ASCII test optimized to use the `vmskltz.b` instruction on `loongarch64`."}
+{"id": "24f3e248cbca", "src": "core/src/slice/ascii.rs:688", "en": "Other platforms are not likely to benefit from this code structure, so they use SWAR techniques to test for ASCII in `usize`-sized chunks."}
+{"id": "4901b6600b33", "src": "core/src/slice/cmp.rs:1", "en": "Comparison traits for `[T]`."}
+{"id": "6db553ba83f4", "src": "core/src/slice/cmp.rs:35", "en": "Implements comparison of slices lexicographically."}
+{"id": "6b57e7d72dd8", "src": "core/src/slice/cmp.rs:109", "en": "`lhs` and `rhs` are both readable for `len` elements"}
+{"id": "f0db2440d6f9", "src": "core/src/slice/cmp.rs:299", "en": "Marks that a type should be treated as an unsigned byte for comparisons."}
+{"id": "703260fac528", "src": "core/src/slice/cmp.rs:299", "en": "* The type must be readable as an `u8`, meaning it has to have the same layout as `u8` and always be initialized. * For every `x` and `y` of this type, `Ord(x, y)` must return the same value as `Ord::cmp(transmute::<_, u8>(x), transmute::<_, u8>(y))`."}
+{"id": "37c86733e7a5", "src": "core/src/slice/index.rs:1", "en": "Indexing implementations for `[T]`."}
+{"id": "2fcfddbae217", "src": "core/src/slice/index.rs:106", "en": "A helper trait used for indexing operations."}
+{"id": "54c2c269ce77", "src": "core/src/slice/index.rs:106", "en": "Implementations of this trait have to promise that if the argument to `get_unchecked(_mut)` is a safe reference, then so is the result."}
+{"id": "4e5a226f1cb2", "src": "core/src/slice/index.rs:125", "en": "The output type returned by methods."}
+{"id": "96f8947e6907", "src": "core/src/slice/index.rs:129", "en": "Returns a shared reference to the output at this location, if in bounds."}
+{"id": "78c13747e31a", "src": "core/src/slice/index.rs:134", "en": "Returns a mutable reference to the output at this location, if in bounds."}
+{"id": "f4966217a7b9", "src": "core/src/slice/index.rs:139", "en": "Returns a pointer to the output at this location, without performing any bounds checking."}
+{"id": "319a0f8c3894", "src": "core/src/slice/index.rs:139", "en": "Calling this method with an out-of-bounds index or a dangling `slice` pointer is *[undefined behavior]* even if the resulting pointer is not used."}
+{"id": "a1b8291a1e20", "src": "core/src/slice/index.rs:151", "en": "Returns a mutable pointer to the output at this location, without performing any bounds checking."}
+{"id": "2cdbc5391bd7", "src": "core/src/slice/index.rs:163", "en": "Returns a shared reference to the output at this location, panicking if out of bounds."}
+{"id": "a0a7c9ac753c", "src": "core/src/slice/index.rs:169", "en": "Returns a mutable reference to the output at this location, panicking if out of bounds."}
+{"id": "3a7f0988281b", "src": "core/src/slice/index.rs:176", "en": "The methods `index` and `index_mut` panic if the index is out of bounds."}
+{"id": "1b2d5a25c7a4", "src": "core/src/slice/index.rs:249", "en": "Because `IndexRange` guarantees `start <= end`, fewer checks are needed here than there are for a general `Range<usize>` (which might be `100..3`)."}
+{"id": "cbab780edb7e", "src": "core/src/slice/index.rs:326", "en": "The methods `index` and `index_mut` panic if: - the start of the range is greater than the end of the range or - the end of the range is out of bounds."}
+{"id": "11a9f0147864", "src": "core/src/slice/index.rs:472", "en": "The methods `index` and `index_mut` panic if the end of the range is out of bounds."}
+{"id": "3c56f80a040b", "src": "core/src/slice/index.rs:513", "en": "The methods `index` and `index_mut` panic if the start of the range is out of bounds."}
+{"id": "c69a67e35656", "src": "core/src/slice/index.rs:831", "en": "Performs bounds checking of a range."}
+{"id": "043dbc06a9c0", "src": "core/src/slice/index.rs:831", "en": "This method is similar to `Index::index` for slices, but it returns a `Range` equivalent to `range`. You can use this method to turn any range into `start` and `end` values."}
+{"id": "77fe87c44fb3", "src": "core/src/slice/index.rs:831", "en": "`bounds` is the range of the slice to use for bounds checking. It should be a `RangeTo` range that ends at the length of the slice."}
+{"id": "7b773c1fa3bf", "src": "core/src/slice/index.rs:831", "en": "The returned `Range` is safe to pass to `slice::get_unchecked` and `slice::get_unchecked_mut` for slices with the given range."}
+{"id": "e20985b80602", "src": "core/src/slice/index.rs:831", "en": "`Range`: ops::Range `RangeTo`: ops::RangeTo `slice::get_unchecked`: slice::get_unchecked `slice::get_unchecked_mut`: slice::get_unchecked_mut"}
+{"id": "16d1b2487559", "src": "core/src/slice/index.rs:831", "en": "Panics if `range` would be out of bounds."}
+{"id": "6828bbc434da", "src": "core/src/slice/index.rs:831", "en": "Panics when `Index::index` would panic:"}
+{"id": "8058b7869cf6", "src": "core/src/slice/index.rs:831", "en": "`Index::index`: ops::Index::index"}
+{"id": "9155296e2e21", "src": "core/src/slice/index.rs:904", "en": "Performs bounds checking of a range without panicking."}
+{"id": "9b983843c8ec", "src": "core/src/slice/index.rs:904", "en": "This is a version of `range()` that returns `None` instead of panicking."}
+{"id": "e1b07c56f1a3", "src": "core/src/slice/index.rs:904", "en": "Returns `None` when `Index::index` would panic:"}
+{"id": "a9e66d2b01b3", "src": "core/src/slice/index.rs:944", "en": "Converts a pair of `ops::Bound`s into `ops::Range` without performing any bounds checking or (in debug) overflow checking."}
+{"id": "f9ee7fe40647", "src": "core/src/slice/index.rs:964", "en": "Converts pair of `ops::Bound`s into `ops::Range`. Returns `None` on overflowing indices."}
+{"id": "5157c39934a8", "src": "core/src/slice/index.rs:997", "en": "Converts pair of `ops::Bound`s into `ops::Range`. Panics on overflowing indices."}
+{"id": "18c91c8671d5", "src": "core/src/slice/iter.rs:1", "en": "Definitions of a bunch of iterators for `[T]`."}
+{"id": "b9cb7da282b6", "src": "core/src/slice/iter.rs:38", "en": "Immutable slice iterator"}
+{"id": "e82ff61e4c76", "src": "core/src/slice/iter.rs:38", "en": "This struct is created by the `iter` method on [slices]."}
+{"id": "0ac1afc846f7", "src": "core/src/slice/iter.rs:38", "en": "`iter`: slice::iter [slices]: slice"}
+{"id": "fec8d0d81174", "src": "core/src/slice/iter.rs:68", "en": "The pointer to the next element to return, or the past-the-end location if the iterator is empty."}
+{"id": "54f0a74d7cb8", "src": "core/src/slice/iter.rs:68", "en": "This address will be used for all ZST elements, never changed."}
+{"id": "49cd39df56ad", "src": "core/src/slice/iter.rs:73", "en": "For non-ZSTs, the non-null pointer to the past-the-end element."}
+{"id": "1f68644eb7a1", "src": "core/src/slice/iter.rs:73", "en": "For ZSTs, this is `ptr::without_provenance_mut(len)`."}
+{"id": "807698746e1b", "src": "core/src/slice/iter.rs:166", "en": "Mutable slice iterator."}
+{"id": "536962b5c038", "src": "core/src/slice/iter.rs:166", "en": "This struct is created by the `iter_mut` method on [slices]."}
+{"id": "951ab00a8087", "src": "core/src/slice/iter.rs:166", "en": "`iter_mut`: slice::iter_mut [slices]: slice"}
+{"id": "5d052263023c", "src": "core/src/slice/iter.rs:315", "en": "Views the underlying data as a mutable subslice of the original data."}
+{"id": "429b0433af84", "src": "core/src/slice/iter.rs:371", "en": "An internal abstraction over the splitting iterators, so that splitn, splitn_mut etc can be implemented once."}
+{"id": "ac726b6088bd", "src": "core/src/slice/iter.rs:375", "en": "Marks the underlying iterator as complete, extracting the remaining portion of the slice."}
+{"id": "6a41aa74d34f", "src": "core/src/slice/iter.rs:380", "en": "An iterator over subslices separated by elements that match a predicate function."}
+{"id": "dc0662b6900e", "src": "core/src/slice/iter.rs:380", "en": "This struct is created by the `split` method on [slices]."}
+{"id": "f609ef27b481", "src": "core/src/slice/iter.rs:380", "en": "`split`: slice::split [slices]: slice"}
+{"id": "0a877a19fd97", "src": "core/src/slice/iter.rs:415", "en": "Returns a slice which contains items not yet handled by split."}
+{"id": "fd58de5e458b", "src": "core/src/slice/iter.rs:535", "en": "An iterator over subslices separated by elements that match a predicate function. Unlike `Split`, it contains the matched part as a terminator of the subslice."}
+{"id": "5f621ee89955", "src": "core/src/slice/iter.rs:535", "en": "This struct is created by the `split_inclusive` method on [slices]."}
+{"id": "2fd3fbd9820d", "src": "core/src/slice/iter.rs:535", "en": "`split_inclusive`: slice::split_inclusive [slices]: slice"}
+{"id": "13bde4a7aa68", "src": "core/src/slice/iter.rs:660", "en": "An iterator over the mutable subslices of the vector which are separated by elements that match `pred`."}
+{"id": "a3de5f41d51b", "src": "core/src/slice/iter.rs:660", "en": "This struct is created by the `split_mut` method on [slices]."}
+{"id": "5edd6217643f", "src": "core/src/slice/iter.rs:660", "en": "`split_mut`: slice::split_mut [slices]: slice"}
+{"id": "c09d5ed5dee9", "src": "core/src/slice/iter.rs:788", "en": "An iterator over the mutable subslices of the vector which are separated by elements that match `pred`. Unlike `SplitMut`, it contains the matched parts in the ends of the subslices."}
+{"id": "319bfd171f60", "src": "core/src/slice/iter.rs:788", "en": "This struct is created by the `split_inclusive_mut` method on [slices]."}
+{"id": "032eac1b015d", "src": "core/src/slice/iter.rs:788", "en": "`split_inclusive_mut`: slice::split_inclusive_mut [slices]: slice"}
+{"id": "7f751853b227", "src": "core/src/slice/iter.rs:913", "en": "An iterator over subslices separated by elements that match a predicate function, starting from the end of the slice."}
+{"id": "e9a23e2956a1", "src": "core/src/slice/iter.rs:913", "en": "This struct is created by the `rsplit` method on [slices]."}
+{"id": "9bb5b51cfe2f", "src": "core/src/slice/iter.rs:913", "en": "`rsplit`: slice::rsplit [slices]: slice"}
+{"id": "077ba0dc63eb", "src": "core/src/slice/iter.rs:1013", "en": "An iterator over the subslices of the vector which are separated by elements that match `pred`, starting from the end of the slice."}
+{"id": "8e30b48b657b", "src": "core/src/slice/iter.rs:1013", "en": "This struct is created by the `rsplit_mut` method on [slices]."}
+{"id": "f43404c5591e", "src": "core/src/slice/iter.rs:1013", "en": "`rsplit_mut`: slice::rsplit_mut [slices]: slice"}
+{"id": "0a79b4876581", "src": "core/src/slice/iter.rs:1099", "en": "An private iterator over subslices separated by elements that match a predicate function, splitting at most a fixed number of times."}
+{"id": "24b57b67d678", "src": "core/src/slice/iter.rs:1136", "en": "An iterator over subslices separated by elements that match a predicate function, limited to a given number of splits."}
+{"id": "4a4290ec3f58", "src": "core/src/slice/iter.rs:1136", "en": "This struct is created by the `splitn` method on [slices]."}
+{"id": "c693fe63c9de", "src": "core/src/slice/iter.rs:1136", "en": "`splitn`: slice::splitn [slices]: slice"}
+{"id": "ba3bd9fb0e96", "src": "core/src/slice/iter.rs:1179", "en": "An iterator over subslices separated by elements that match a predicate function, limited to a given number of splits, starting from the end of the slice."}
+{"id": "f5b3f5bc1084", "src": "core/src/slice/iter.rs:1179", "en": "This struct is created by the `rsplitn` method on [slices]."}
+{"id": "bb8753ba37b0", "src": "core/src/slice/iter.rs:1179", "en": "`rsplitn`: slice::rsplitn [slices]: slice"}
+{"id": "8c0bc8643e2b", "src": "core/src/slice/iter.rs:1223", "en": "This struct is created by the `splitn_mut` method on [slices]."}
+{"id": "b5ce5431cef8", "src": "core/src/slice/iter.rs:1223", "en": "`splitn_mut`: slice::splitn_mut [slices]: slice"}
+{"id": "58d3420e501e", "src": "core/src/slice/iter.rs:1263", "en": "This struct is created by the `rsplitn_mut` method on [slices]."}
+{"id": "e2d8118be9ac", "src": "core/src/slice/iter.rs:1263", "en": "`rsplitn_mut`: slice::rsplitn_mut [slices]: slice"}
+{"id": "190c2304694e", "src": "core/src/slice/iter.rs:1309", "en": "An iterator over overlapping subslices of length `size`."}
+{"id": "0b57d06fc1d6", "src": "core/src/slice/iter.rs:1309", "en": "This struct is created by the `windows` method on [slices]."}
+{"id": "b861717434e1", "src": "core/src/slice/iter.rs:1309", "en": "`windows`: slice::windows [slices]: slice"}
+{"id": "1858d2cf4913", "src": "core/src/slice/iter.rs:1454", "en": "An iterator over a slice in (non-overlapping) chunks (`chunk_size` elements at a time), starting at the beginning of the slice."}
+{"id": "2c72e3065d1c", "src": "core/src/slice/iter.rs:1454", "en": "When the slice len is not evenly divided by the chunk size, the last slice of the iteration will be the remainder."}
+{"id": "520066d05ba1", "src": "core/src/slice/iter.rs:1454", "en": "This struct is created by the `chunks` method on [slices]."}
+{"id": "f62ba8578b98", "src": "core/src/slice/iter.rs:1454", "en": "`chunks`: slice::chunks [slices]: slice"}
+{"id": "0a2d9280f074", "src": "core/src/slice/iter.rs:1634", "en": "An iterator over a slice in (non-overlapping) mutable chunks (`chunk_size` elements at a time), starting at the beginning of the slice."}
+{"id": "5c5c0635b6d8", "src": "core/src/slice/iter.rs:1634", "en": "This struct is created by the `chunks_mut` method on [slices]."}
+{"id": "4b6976f537cd", "src": "core/src/slice/iter.rs:1634", "en": "`chunks_mut`: slice::chunks_mut [slices]: slice"}
+{"id": "6e896f0dc124", "src": "core/src/slice/iter.rs:1655", "en": "This slice pointer must point at a valid region of `T` with at least length `v.len()`. Normally, those requirements would mean that we could instead use a `&mut [T]` here, but we cannot because `__iterator_get_unchecked` needs to return `&mut [T]`, which guarantees certain aliasing properties that we cannot uphold if we hold on to the full original `&mut [T]`. Wrapping a raw slice instead lets us hand out non-overlapping `&mut [T]` subslices of the slice we wrap."}
+{"id": "3fd3539d7b2e", "src": "core/src/slice/iter.rs:1816", "en": "When the slice len is not evenly divided by the chunk size, the last up to `chunk_size-1` elements will be omitted but can be retrieved from the `remainder` function from the iterator."}
+{"id": "3bad56ddc93b", "src": "core/src/slice/iter.rs:1816", "en": "This struct is created by the `chunks_exact` method on [slices]."}
+{"id": "f9f28eb06b3b", "src": "core/src/slice/iter.rs:1816", "en": "`chunks_exact`: slice::chunks_exact `remainder`: ChunksExact::remainder [slices]: slice"}
+{"id": "3383fb162dfc", "src": "core/src/slice/iter.rs:1857", "en": "Returns the remainder of the original slice that is not going to be returned by the iterator. The returned slice has at most `chunk_size-1` elements."}
+{"id": "4cc82c00f09f", "src": "core/src/slice/iter.rs:1989", "en": "When the slice len is not evenly divided by the chunk size, the last up to `chunk_size-1` elements will be omitted but can be retrieved from the `into_remainder` function from the iterator."}
+{"id": "c92bd52e2baa", "src": "core/src/slice/iter.rs:1989", "en": "This struct is created by the `chunks_exact_mut` method on [slices]."}
+{"id": "007dc7af21d9", "src": "core/src/slice/iter.rs:1989", "en": "`chunks_exact_mut`: slice::chunks_exact_mut `into_remainder`: ChunksExactMut::into_remainder [slices]: slice"}
+{"id": "a2cb17a156fd", "src": "core/src/slice/iter.rs:2158", "en": "A windowed iterator over a slice in overlapping chunks (`N` elements at a time), starting at the beginning of the slice"}
+{"id": "4c96cc2bc43b", "src": "core/src/slice/iter.rs:2158", "en": "This struct is created by the `array_windows` method on [slices]."}
+{"id": "492c40e0993a", "src": "core/src/slice/iter.rs:2158", "en": "`array_windows`: slice::array_windows [slices]: slice"}
+{"id": "9973a563c258", "src": "core/src/slice/iter.rs:2285", "en": "An iterator over a slice in (non-overlapping) chunks (`chunk_size` elements at a time), starting at the end of the slice."}
+{"id": "0e6593b427b4", "src": "core/src/slice/iter.rs:2285", "en": "This struct is created by the `rchunks` method on [slices]."}
+{"id": "c16a6e642bc5", "src": "core/src/slice/iter.rs:2285", "en": "`rchunks`: slice::rchunks [slices]: slice"}
+{"id": "e67346606b99", "src": "core/src/slice/iter.rs:2449", "en": "An iterator over a slice in (non-overlapping) mutable chunks (`chunk_size` elements at a time), starting at the end of the slice."}
+{"id": "bd9a720d1841", "src": "core/src/slice/iter.rs:2449", "en": "This struct is created by the `rchunks_mut` method on [slices]."}
+{"id": "b24751cf8ac6", "src": "core/src/slice/iter.rs:2449", "en": "`rchunks_mut`: slice::rchunks_mut [slices]: slice"}
+{"id": "bab376296c64", "src": "core/src/slice/iter.rs:2626", "en": "This struct is created by the `rchunks_exact` method on [slices]."}
+{"id": "57ee82258709", "src": "core/src/slice/iter.rs:2626", "en": "`rchunks_exact`: slice::rchunks_exact `remainder`: RChunksExact::remainder [slices]: slice"}
+{"id": "93f92f3ecbb8", "src": "core/src/slice/iter.rs:2806", "en": "This struct is created by the `rchunks_exact_mut` method on [slices]."}
+{"id": "8608f40867a5", "src": "core/src/slice/iter.rs:2806", "en": "`rchunks_exact_mut`: slice::rchunks_exact_mut `into_remainder`: RChunksExactMut::into_remainder [slices]: slice"}
+{"id": "4e678bf623d9", "src": "core/src/slice/iter.rs:3005", "en": "An iterator over slice in (non-overlapping) chunks separated by a predicate."}
+{"id": "97ffd79a8e62", "src": "core/src/slice/iter.rs:3005", "en": "This struct is created by the `chunk_by` method on [slices]."}
+{"id": "171c2585ddc6", "src": "core/src/slice/iter.rs:3005", "en": "`chunk_by`: slice::chunk_by [slices]: slice"}
+{"id": "3878b26e64af", "src": "core/src/slice/iter.rs:3112", "en": "An iterator over slice in (non-overlapping) mutable chunks separated by a predicate."}
+{"id": "00583ba3155e", "src": "core/src/slice/iter.rs:3112", "en": "This struct is created by the `chunk_by_mut` method on [slices]."}
+{"id": "08f87f27bb1d", "src": "core/src/slice/iter.rs:3112", "en": "`chunk_by_mut`: slice::chunk_by_mut [slices]: slice"}
+{"id": "f89cb7178b1e", "src": "core/src/slice/memchr.rs:10", "en": "Returns `true` if `x` contains any zero byte."}
+{"id": "2b7dea51deeb", "src": "core/src/slice/memchr.rs:10", "en": "From *Matters Computational*, J. Arndt:"}
+{"id": "841d10dba4c5", "src": "core/src/slice/memchr.rs:10", "en": "\"The idea is to subtract one from each of the bytes and then look for bytes where the borrow propagated all the way to the most significant bit.\""}
+{"id": "6e738c22664e", "src": "core/src/slice/memchr.rs:22", "en": "Returns the first index matching the byte `x` in `text`."}
+{"id": "5ecae6cce89d", "src": "core/src/slice/memchr.rs:111", "en": "Returns the last index matching the byte `x` in `text`."}
+{"id": "0f3ff48e5ea5", "src": "core/src/slice/raw.rs:1", "en": "Free functions to create `&[T]` and `&mut [T]`."}
+{"id": "ea94791ea16d", "src": "core/src/slice/raw.rs:6", "en": "Forms a slice from a pointer and a length."}
+{"id": "c03f1bc5060a", "src": "core/src/slice/raw.rs:6", "en": "The `len` argument is the number of **elements**, not the number of bytes."}
+{"id": "7ed45a49ac54", "src": "core/src/slice/raw.rs:6", "en": "* `data` must be non-null, [valid] for reads for `len * size_of::<T>()` many bytes, and it must be properly aligned. This means in particular:"}
+{"id": "7759ac84925d", "src": "core/src/slice/raw.rs:6", "en": "* The entire memory range of this slice must be contained within a single allocation! Slices can never span across multiple allocations. See below for an example incorrectly not taking this into account. * `data` must be non-null and aligned even for zero-length slices or slices of ZSTs. One reason for this is that enum layout optimizations may rely on references (including slices of any length) being aligned and non-null to distinguish them from other data. You can obtain a pointer that is usable as `data` for zero-length slices using `NonNull::dangling()`."}
+{"id": "0d51e8abb075", "src": "core/src/slice/raw.rs:6", "en": "* `data` must point to `len` consecutive properly initialized values of type `T`."}
+{"id": "92ee52504552", "src": "core/src/slice/raw.rs:6", "en": "* The memory referenced by the returned slice must not be mutated for the duration of lifetime `'a`, except inside an `UnsafeCell`."}
+{"id": "bcd690cc4bd6", "src": "core/src/slice/raw.rs:6", "en": "* The total size `len * size_of::<T>()` of the slice must be no larger than `isize::MAX`, and adding that size to `data` must not \"wrap around\" the address space. See the safety documentation of `pointer::offset`."}
+{"id": "09dbd187de70", "src": "core/src/slice/raw.rs:6", "en": "Caveat"}
+{"id": "7914129f994f", "src": "core/src/slice/raw.rs:6", "en": "The lifetime for the returned slice is inferred from its usage. To prevent accidental misuse, it's suggested to tie the lifetime to whichever source lifetime is safe in the context, such as by providing a helper function taking the lifetime of a host value for the slice, or by explicit annotation."}
+{"id": "2a70492a6aef", "src": "core/src/slice/raw.rs:6", "en": "Incorrect usage"}
+{"id": "50f75fa8acec", "src": "core/src/slice/raw.rs:6", "en": "The following `join_slices` function is **unsound** ⚠️"}
+{"id": "61271104bab5", "src": "core/src/slice/raw.rs:6", "en": "FFI: Handling null pointers"}
+{"id": "743851e89748", "src": "core/src/slice/raw.rs:6", "en": "In languages such as C++, pointers to empty collections are not guaranteed to be non-null. When accepting such pointers, they have to be checked for null-ness to avoid undefined behavior."}
+{"id": "4f4a067b0f0f", "src": "core/src/slice/raw.rs:6", "en": "[valid]: ptr#safety `NonNull::dangling()`: ptr::NonNull::dangling"}

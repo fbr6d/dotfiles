@@ -1,0 +1,161 @@
+{"id": "08cd641a822f", "src": "std/src/fs.rs:52", "en": "An instance of a `File` can be read and/or written depending on what options it was opened with. Files also implement `Seek` to alter the logical cursor that the file contains internally."}
+{"id": "ca5e41412ebe", "src": "std/src/fs.rs:52", "en": "Files are automatically closed when they go out of scope. Errors detected on closing are ignored by the implementation of `Drop`. Use the method `sync_all` if these errors must be manually handled."}
+{"id": "1b5e9e12019e", "src": "std/src/fs.rs:52", "en": "`File` does not buffer reads and writes. For efficiency, consider wrapping the file in a `BufReader` or `BufWriter` when performing many small `read` or `write` calls, unless unbuffered reads and writes are required."}
+{"id": "f3c593f12f5d", "src": "std/src/fs.rs:52", "en": "Creates a new file and write bytes to it (you can also use `write`):"}
+{"id": "3cd12cdabc1c", "src": "std/src/fs.rs:52", "en": "Reads the contents of a file into a `String` (you can also use `read`):"}
+{"id": "6ae6f0a0332b", "src": "std/src/fs.rs:52", "en": "Using a buffered `Read`er:"}
+{"id": "13b18a555c12", "src": "std/src/fs.rs:52", "en": "Note that, although read and write methods require a `&mut File`, because of the interfaces for `Read` and `Write`, the holder of a `&File` can still modify the file, either through methods that take `&File` or by retrieving the underlying OS object and modifying the file that way. Additionally, many operating systems allow concurrent modification of files by different processes. Avoid assuming that holding a `&File` means that the file will not change."}
+{"id": "dd7f3b7b47b4", "src": "std/src/fs.rs:52", "en": "On Windows, the implementation of `Read` and `Write` traits for `File` perform synchronous I/O operations. Therefore the underlying file must not have been opened for asynchronous I/O (e.g. by using `FILE_FLAG_OVERLAPPED`)."}
+{"id": "c88c6c57ece5", "src": "std/src/fs.rs:52", "en": "`BufReader`: io::BufReader `BufWriter`: io::BufWriter `sync_all`: File::sync_all `write`: File::write `read`: File::read"}
+{"id": "df7cc2f451b9", "src": "std/src/fs.rs:139", "en": "An enumeration of possible errors which can occur while trying to acquire a lock from the `try_lock` method and `try_lock_shared` method on a `File`."}
+{"id": "7ca319b7959c", "src": "std/src/fs.rs:139", "en": "`try_lock`: File::try_lock `try_lock_shared`: File::try_lock_shared"}
+{"id": "28755b5470d1", "src": "std/src/fs.rs:146", "en": "The lock could not be acquired due to an I/O error on the file. The standard library will not return an `ErrorKind::WouldBlock` error inside `TryLockError::Error`"}
+{"id": "d7e4997dd2d6", "src": "std/src/fs.rs:146", "en": "`ErrorKind::WouldBlock`: io::ErrorKind::WouldBlock"}
+{"id": "3b2ab4cc6297", "src": "std/src/fs.rs:151", "en": "The lock could not be acquired at this time because it is held by another handle/process."}
+{"id": "963255a9bad0", "src": "std/src/fs.rs:155", "en": "An object providing access to a directory on the filesystem."}
+{"id": "b52c6343447a", "src": "std/src/fs.rs:155", "en": "Directories are automatically closed when they go out of scope. Errors detected on closing are ignored by the implementation of `Drop`."}
+{"id": "1a0516411489", "src": "std/src/fs.rs:155", "en": "On supported systems (including Windows and some UNIX-based OSes), this function acquires a handle/file descriptor for the directory. This allows functions like `Dir::open_file` to avoid [TOCTOU] errors when the directory itself is being moved."}
+{"id": "a011e45d2bf4", "src": "std/src/fs.rs:155", "en": "On other systems, it stores an absolute path (see `canonicalize()`). In the latter case, no [TOCTOU] guarantees are made."}
+{"id": "36c1c06f925d", "src": "std/src/fs.rs:155", "en": "Opens a directory and then a file inside it."}
+{"id": "b9a9e406caba", "src": "std/src/fs.rs:155", "en": "[TOCTOU]: self#time-of-check-to-time-of-use-toctou"}
+{"id": "6fbea655dc15", "src": "std/src/fs.rs:192", "en": "Metadata information about a file."}
+{"id": "9e45098be622", "src": "std/src/fs.rs:192", "en": "This structure is returned from the `metadata` or `symlink_metadata` function or method and represents known metadata about a file such as its permissions, size, modification times, etc."}
+{"id": "d19530e5d03b", "src": "std/src/fs.rs:202", "en": "Iterator over the entries in a directory."}
+{"id": "533a0235c094", "src": "std/src/fs.rs:202", "en": "This iterator is returned from the `read_dir` function of this module and will yield instances of <code>[io::Result]<[DirEntry]></code>. Through a `DirEntry` information like the entry's path and possibly other metadata can be learned."}
+{"id": "1ef92817d2fa", "src": "std/src/fs.rs:202", "en": "The order in which this iterator returns entries is platform and filesystem dependent."}
+{"id": "e5883efeeb23", "src": "std/src/fs.rs:202", "en": "This `io::Result` will be an `Err` if an error occurred while fetching the next entry from the OS."}
+{"id": "191c13405ca8", "src": "std/src/fs.rs:219", "en": "Entries returned by the `ReadDir` iterator."}
+{"id": "d48f54a4e3c9", "src": "std/src/fs.rs:219", "en": "An instance of `DirEntry` represents an entry inside of a directory on the filesystem. Each entry can be inspected via methods to learn about the full path or possibly other metadata through per-platform extension traits."}
+{"id": "41fb2862fc8e", "src": "std/src/fs.rs:219", "en": "On Unix, the `DirEntry` struct contains an internal reference to the open directory. Holding `DirEntry` objects will consume a file handle even after the `ReadDir` iterator is dropped."}
+{"id": "9863b7cbd794", "src": "std/src/fs.rs:219", "en": "[changes]: io#platform-specific-behavior"}
+{"id": "502d9e6ffaa6", "src": "std/src/fs.rs:237", "en": "Options and flags which can be used to configure how a file is opened."}
+{"id": "e972c57faef2", "src": "std/src/fs.rs:237", "en": "This builder exposes the ability to configure how a `File` is opened and what operations are permitted on the open file. The `File::open` and `File::create` methods are aliases for commonly used options using this builder."}
+{"id": "626d50e49c46", "src": "std/src/fs.rs:237", "en": "Generally speaking, when using `OpenOptions`, you'll first call `OpenOptions::new`, then chain calls to methods to set each option, then call `OpenOptions::open`, passing the path of the file you're trying to open. This will give you a `io::Result` with a `File` inside that you can further operate on."}
+{"id": "d0521aae78e8", "src": "std/src/fs.rs:237", "en": "Opening a file to read:"}
+{"id": "45d6a023e7aa", "src": "std/src/fs.rs:237", "en": "Opening a file for both reading and writing, as well as creating it if it doesn't exist:"}
+{"id": "3f4beedb144a", "src": "std/src/fs.rs:277", "en": "Representation of the various timestamps on a file."}
+{"id": "08d2b8261ee5", "src": "std/src/fs.rs:283", "en": "Representation of the various permissions on a file."}
+{"id": "fdacff7203f5", "src": "std/src/fs.rs:283", "en": "This module only currently provides one bit of information, `Permissions::readonly`, which is exposed on all currently supported platforms. Unix-specific functionality, such as mode bits, is available through the `PermissionsExt` trait."}
+{"id": "860d4d52b0d4", "src": "std/src/fs.rs:283", "en": "`PermissionsExt`: crate::os::unix::fs::PermissionsExt"}
+{"id": "7bc6f3edd3bc", "src": "std/src/fs.rs:296", "en": "A structure representing a type of file with accessors for each file type. It is returned by `Metadata::file_type` method."}
+{"id": "164e9f9ed41b", "src": "std/src/fs.rs:303", "en": "A builder used to create directories in various manners."}
+{"id": "533f834501c9", "src": "std/src/fs.rs:303", "en": "This builder also supports platform-specific options."}
+{"id": "80bf5ff9e269", "src": "std/src/fs.rs:314", "en": "Reads the entire contents of a file into a bytes vector."}
+{"id": "07a8c16d4838", "src": "std/src/fs.rs:314", "en": "This is a convenience function for using `File::open` and `read_to_end` with fewer imports and without an intermediate variable."}
+{"id": "14455e579f18", "src": "std/src/fs.rs:314", "en": "`read_to_end`: Read::read_to_end"}
+{"id": "f09645805126", "src": "std/src/fs.rs:314", "en": "This function will return an error if `path` does not already exist. Other errors may also be returned according to `OpenOptions::open`."}
+{"id": "de413af9a024", "src": "std/src/fs.rs:314", "en": "While reading from the file, this function handles `io::ErrorKind::Interrupted` with automatic retries. See [io::Read] documentation for details."}
+{"id": "71b7299f0d87", "src": "std/src/fs.rs:352", "en": "Reads the entire contents of a file into a string."}
+{"id": "be1ca27ef4fe", "src": "std/src/fs.rs:352", "en": "This is a convenience function for using `File::open` and `read_to_string` with fewer imports and without an intermediate variable."}
+{"id": "68c28344712c", "src": "std/src/fs.rs:352", "en": "`read_to_string`: Read::read_to_string"}
+{"id": "4535696653d6", "src": "std/src/fs.rs:352", "en": "If the contents of the file are not valid UTF-8, then an error will also be returned."}
+{"id": "1cdf3145363b", "src": "std/src/fs.rs:395", "en": "Writes a slice as the entire contents of a file."}
+{"id": "0e2de984561c", "src": "std/src/fs.rs:395", "en": "This function will create a file if it does not exist, and will entirely replace its contents if it does."}
+{"id": "7f8d9113fe44", "src": "std/src/fs.rs:395", "en": "Depending on the platform, this function may fail if the full directory path does not exist."}
+{"id": "6ac8301d69e4", "src": "std/src/fs.rs:395", "en": "This is a convenience function for using `File::create` and `write_all` with fewer imports."}
+{"id": "3a9eb8c254d0", "src": "std/src/fs.rs:395", "en": "`write_all`: Write::write_all"}
+{"id": "37113cecf66e", "src": "std/src/fs.rs:427", "en": "Changes the timestamps of the file or directory at the specified path."}
+{"id": "c9a7ea281422", "src": "std/src/fs.rs:427", "en": "This function will attempt to set the access and modification times to the times specified. If the path refers to a symbolic link, this function will follow the link and change the timestamps of the target file."}
+{"id": "42b99b02eca2", "src": "std/src/fs.rs:427", "en": "This function currently corresponds to the `utimensat` function on Unix platforms, the `setattrlist` function on Apple platforms, and the `SetFileTime` function on Windows."}
+{"id": "bedbd55ef27c", "src": "std/src/fs.rs:427", "en": "This function will return an error if the user lacks permission to change timestamps on the target file or symlink. It may also return an error if the OS does not support it."}
+{"id": "85a94e28e515", "src": "std/src/fs.rs:466", "en": "Changes the timestamps of the file or symlink at the specified path."}
+{"id": "f8a2fd2e082d", "src": "std/src/fs.rs:466", "en": "This function will attempt to set the access and modification times to the times specified. Differ from `set_times`, if the path refers to a symbolic link, this function will change the timestamps of the symlink itself, not the target file."}
+{"id": "76b311a5bf6c", "src": "std/src/fs.rs:466", "en": "This function currently corresponds to the `utimensat` function with `AT_SYMLINK_NOFOLLOW` on Unix platforms, the `setattrlist` function with `FSOPT_NOFOLLOW` on Apple platforms, and the `SetFileTime` function on Windows."}
+{"id": "3e149a02e4c5", "src": "std/src/fs.rs:541", "en": "Attempts to open a file in read-only mode."}
+{"id": "c4c6a6cd9e5f", "src": "std/src/fs.rs:541", "en": "See the `OpenOptions::open` method for more details."}
+{"id": "8b9566b14a13", "src": "std/src/fs.rs:541", "en": "If you only need to read the entire file contents, consider `std::fs::read()` or `std::fs::read_to_string()` instead."}
+{"id": "068e19686448", "src": "std/src/fs.rs:572", "en": "Attempts to open a file in read-only mode with buffering."}
+{"id": "4ca027d0595c", "src": "std/src/fs.rs:572", "en": "See the `OpenOptions::open` method, the `BufReader` type, and the `BufRead` trait for more details."}
+{"id": "56ae587b8008", "src": "std/src/fs.rs:572", "en": "This function will return an error if `path` does not already exist, or if memory allocation fails for the new buffer. Other errors may also be returned according to `OpenOptions::open`."}
+{"id": "1ebe50b26242", "src": "std/src/fs.rs:609", "en": "Opens a file in write-only mode."}
+{"id": "f65976cf8345", "src": "std/src/fs.rs:609", "en": "This function will create a file if it does not exist, and will truncate it if it does."}
+{"id": "5ecc35787b12", "src": "std/src/fs.rs:609", "en": "Depending on the platform, this function may fail if the full directory path does not exist. See the `OpenOptions::open` function for more details."}
+{"id": "b4e879442517", "src": "std/src/fs.rs:609", "en": "See also `std::fs::write()` for a simple function to create a file with some given data."}
+{"id": "a82d972d1d4f", "src": "std/src/fs.rs:638", "en": "Opens a file in write-only mode with buffering."}
+{"id": "7ea4aaeb9f0d", "src": "std/src/fs.rs:638", "en": "See the `OpenOptions::open` method and the `BufWriter` type for more details."}
+{"id": "255a93091c51", "src": "std/src/fs.rs:675", "en": "Creates a new file in read-write mode; error if the file exists."}
+{"id": "4a5b155cc34f", "src": "std/src/fs.rs:675", "en": "This function will create a file if it does not exist, or return an error if it does. This way, if the call succeeds, the file returned is guaranteed to be new. If a file exists at the target location, creating a new file will fail with `AlreadyExists` or another error based on the situation. See `OpenOptions::open` for a non-exhaustive list of likely errors."}
+{"id": "9d2b7bde2b02", "src": "std/src/fs.rs:675", "en": "This option is useful because it is atomic. Otherwise between checking whether a file exists and creating a new one, the file may have been created by another process (a [TOCTOU] race condition / attack)."}
+{"id": "b37cf1f90a13", "src": "std/src/fs.rs:675", "en": "This can also be written using `File::options().read(true).write(true).create_new(true).open(...)`."}
+{"id": "f2ab093ee781", "src": "std/src/fs.rs:675", "en": "`AlreadyExists`: crate::io::ErrorKind::AlreadyExists [TOCTOU]: self#time-of-check-to-time-of-use-toctou"}
+{"id": "ac8f84ee4c1b", "src": "std/src/fs.rs:710", "en": "Returns a new OpenOptions object."}
+{"id": "a5b1498b7f06", "src": "std/src/fs.rs:710", "en": "This function returns a new OpenOptions object that you can use to open or create a file with specific options if `open()` or `create()` are not appropriate."}
+{"id": "52ed1a823f3c", "src": "std/src/fs.rs:710", "en": "It is equivalent to `OpenOptions::new()`, but allows you to write more readable code. Instead of `OpenOptions::new().append(true).open(\"example.log\")`, you can write `File::options().append(true).open(\"example.log\")`. This also avoids the need to import `OpenOptions`."}
+{"id": "230015617d49", "src": "std/src/fs.rs:710", "en": "See the `OpenOptions::new` function for more details."}
+{"id": "ba349a41469a", "src": "std/src/fs.rs:743", "en": "Attempts to sync all OS-internal file content and metadata to disk."}
+{"id": "d633c453ad14", "src": "std/src/fs.rs:743", "en": "This function will attempt to ensure that all in-memory data reaches the filesystem before returning."}
+{"id": "20eabed6d9b8", "src": "std/src/fs.rs:743", "en": "This can be used to handle errors that would otherwise only be caught when the `File` is closed, as dropping a `File` will ignore all errors. Note, however, that `sync_all` is generally more expensive than closing a file by dropping it, because the latter is not required to block until the data has been written to the filesystem."}
+{"id": "20bec369b8cb", "src": "std/src/fs.rs:743", "en": "If synchronizing the metadata is not required, use `sync_data` instead."}
+{"id": "c83bfca810f5", "src": "std/src/fs.rs:743", "en": "`sync_data`: File::sync_data"}
+{"id": "77033c0dfaba", "src": "std/src/fs.rs:778", "en": "This function is similar to `sync_all`, except that it might not synchronize file metadata to the filesystem."}
+{"id": "abc319fa8d54", "src": "std/src/fs.rs:778", "en": "This is intended for use cases that must synchronize content, but don't need the metadata on disk. The goal of this method is to reduce disk operations."}
+{"id": "1ac4f47327af", "src": "std/src/fs.rs:778", "en": "Note that some platforms may simply implement this in terms of `sync_all`."}
+{"id": "ce297f8db709", "src": "std/src/fs.rs:778", "en": "`sync_all`: File::sync_all"}
+{"id": "b577c4768112", "src": "std/src/fs.rs:810", "en": "Acquire an exclusive lock on the file. Blocks until the lock can be acquired."}
+{"id": "6fc184b815c7", "src": "std/src/fs.rs:810", "en": "This acquires an exclusive lock. No *other* file handle to this file, in this or any other process, may acquire another lock. If this file handle/descriptor, or a clone of it, already holds a lock, the exact behavior is unspecified and platform dependent, including the possibility that it will deadlock. However, if this method returns, then an exclusive lock is held."}
+{"id": "67c66e09e149", "src": "std/src/fs.rs:810", "en": "This lock may be advisory or mandatory. This lock is meant to interact with `lock`, `try_lock`, `lock_shared`, `try_lock_shared`, and `unlock`. Its interactions with other methods, such as `read` and `write` are platform specific, and it may or may not cause non-lockholders to block."}
+{"id": "9d8533c7e35c", "src": "std/src/fs.rs:810", "en": "If the file is not open for writing, it is unspecified whether this function returns an error."}
+{"id": "643978c15fe4", "src": "std/src/fs.rs:810", "en": "The lock will be released when this file (along with any other file descriptors/handles duplicated or inherited from it) is closed, or if the `unlock` method is called."}
+{"id": "e46789c5616c", "src": "std/src/fs.rs:810", "en": "This function currently corresponds to the `flock` function on Unix with the `LOCK_EX` flag, and the `LockFileEx` function on Windows with the `LOCKFILE_EXCLUSIVE_LOCK` flag. Note that, this [may change in the future][changes]."}
+{"id": "e8efc8d61492", "src": "std/src/fs.rs:810", "en": "On Windows, locking a file will fail if the file is opened only for append. To lock a file, open it with one of `.read(true)`, `.read(true).append(true)`, or `.write(true)`."}
+{"id": "3a2acf657d4e", "src": "std/src/fs.rs:810", "en": "`lock`: File::lock `lock_shared`: File::lock_shared `try_lock`: File::try_lock `try_lock_shared`: File::try_lock_shared `unlock`: File::unlock `read`: Read::read `write`: Write::write"}
+{"id": "01f931d9d504", "src": "std/src/fs.rs:863", "en": "Acquire a shared (non-exclusive) lock on the file. Blocks until the lock can be acquired."}
+{"id": "efcc95ccbd41", "src": "std/src/fs.rs:863", "en": "This acquires a shared lock. More than one file handle to this file, in this or any other process, may hold a shared lock, but no *other* file handle may hold an exclusive lock at the same time. If this file handle/descriptor, or a clone of it, already holds a lock, the exact behavior is unspecified and platform dependent, including the possibility that it will deadlock. However, if this method returns, then a shared lock is held."}
+{"id": "01601e2e89a8", "src": "std/src/fs.rs:863", "en": "This function currently corresponds to the `flock` function on Unix with the `LOCK_SH` flag, and the `LockFileEx` function on Windows. Note that, this [may change in the future][changes]."}
+{"id": "0ec0cb1deb61", "src": "std/src/fs.rs:915", "en": "Try to acquire an exclusive lock on the file."}
+{"id": "ec792a5155e0", "src": "std/src/fs.rs:915", "en": "Returns `Err(TryLockError::WouldBlock)` if a different lock is already held on this file (via another handle/descriptor)."}
+{"id": "5fa6494d6b17", "src": "std/src/fs.rs:915", "en": "This acquires an exclusive lock; no other file handle to this file, in this or any other process, may acquire another lock."}
+{"id": "944ef5ae7892", "src": "std/src/fs.rs:915", "en": "If this file handle/descriptor, or a clone of it, already holds a lock, the exact behavior is unspecified and platform dependent, including the possibility that it will deadlock. However, if this method returns `Ok(())`, then it has acquired an exclusive lock."}
+{"id": "d3eb41955582", "src": "std/src/fs.rs:915", "en": "This function currently corresponds to the `flock` function on Unix with the `LOCK_EX` and `LOCK_NB` flags, and the `LockFileEx` function on Windows with the `LOCKFILE_EXCLUSIVE_LOCK` and `LOCKFILE_FAIL_IMMEDIATELY` flags. Note that, this [may change in the future][changes]."}
+{"id": "d44245f2907e", "src": "std/src/fs.rs:980", "en": "Try to acquire a shared (non-exclusive) lock on the file."}
+{"id": "ad2d1c2966c3", "src": "std/src/fs.rs:980", "en": "This acquires a shared lock; more than one file handle, in this or any other process, may hold a shared lock, but none may hold an exclusive lock at the same time."}
+{"id": "142fb1abc6fa", "src": "std/src/fs.rs:980", "en": "If this file handle, or a clone of it, already holds a lock, the exact behavior is unspecified and platform dependent, including the possibility that it will deadlock. However, if this method returns `Ok(())`, then it has acquired a shared lock."}
+{"id": "5fc8dbd0c8aa", "src": "std/src/fs.rs:980", "en": "This function currently corresponds to the `flock` function on Unix with the `LOCK_SH` and `LOCK_NB` flags, and the `LockFileEx` function on Windows with the `LOCKFILE_FAIL_IMMEDIATELY` flag. Note that, this [may change in the future][changes]."}
+{"id": "5675f0cff226", "src": "std/src/fs.rs:1044", "en": "Release all locks on the file."}
+{"id": "7161a7f2bc11", "src": "std/src/fs.rs:1044", "en": "All locks are released when the file (along with any other file descriptors/handles duplicated or inherited from it) is closed. This method allows releasing locks without closing the file."}
+{"id": "715ce800d4ed", "src": "std/src/fs.rs:1044", "en": "If no lock is currently held via this file descriptor/handle, this method may return an error, or may return successfully without taking any action."}
+{"id": "fc8a0b95c966", "src": "std/src/fs.rs:1044", "en": "This function currently corresponds to the `flock` function on Unix with the `LOCK_UN` flag, and the `UnlockFile` function on Windows. Note that, this [may change in the future][changes]."}
+{"id": "6c84d660d239", "src": "std/src/fs.rs:1081", "en": "Truncates or extends the underlying file, updating the size of this file to become `size`."}
+{"id": "9b389fb5ca0d", "src": "std/src/fs.rs:1081", "en": "If the `size` is less than the current file's size, then the file will be shrunk. If it is greater than the current file's size, then the file will be extended to `size` and have all of the intermediate data filled in with 0s."}
+{"id": "55a4d79c2d54", "src": "std/src/fs.rs:1081", "en": "The file's cursor isn't changed. In particular, if the cursor was at the end and the file is shrunk using this operation, the cursor will now be past the end."}
+{"id": "7c1a39efe9e1", "src": "std/src/fs.rs:1081", "en": "This function will return an error if the file is not opened for writing. Also, `std::io::ErrorKind::InvalidInput` will be returned if the desired length would cause an overflow due to the implementation specifics."}
+{"id": "f640d91b5ad0", "src": "std/src/fs.rs:1081", "en": "Note that this method alters the content of the underlying file, even though it takes `&self` rather than `&mut self`."}
+{"id": "f8e07bb8773f", "src": "std/src/fs.rs:1119", "en": "Queries metadata about the underlying file."}
+{"id": "08e931d1a010", "src": "std/src/fs.rs:1137", "en": "Creates a new `File` instance that shares the same underlying file handle as the existing `File` instance. Reads, writes, and seeks will affect both `File` instances simultaneously."}
+{"id": "0915fbece817", "src": "std/src/fs.rs:1137", "en": "Creates two handles for a file named `foo.txt`:"}
+{"id": "d1cd552f4c6a", "src": "std/src/fs.rs:1137", "en": "Assuming there’s a file named `foo.txt` with contents `abcdef\\n`, create two handles, seek one of them, and read the remaining bytes from the other handle:"}
+{"id": "61711d1fe8d7", "src": "std/src/fs.rs:1181", "en": "Changes the permissions on the underlying file."}
+{"id": "a80caf5543ba", "src": "std/src/fs.rs:1181", "en": "This function currently corresponds to the `fchmod` function on Unix and the `SetFileInformationByHandle` function on Windows. Note that, this [may change in the future][changes]."}
+{"id": "dbf84289e9d9", "src": "std/src/fs.rs:1181", "en": "This function will return an error if the user lacks permission change attributes on the underlying file. It may also return an error in other os-specific unspecified cases."}
+{"id": "4ca2a9460212", "src": "std/src/fs.rs:1181", "en": "Note that this method alters the permissions of the underlying file, even though it takes `&self` rather than `&mut self`."}
+{"id": "3324f1db62b2", "src": "std/src/fs.rs:1219", "en": "Changes the timestamps of the underlying file."}
+{"id": "b5c028a513eb", "src": "std/src/fs.rs:1219", "en": "This function currently corresponds to the `futimens` function on Unix (falling back to `futimes` on macOS before 10.13) and the `SetFileTime` function on Windows. Note that this [may change in the future][changes]."}
+{"id": "fb3a6742d92e", "src": "std/src/fs.rs:1219", "en": "On most platforms, including UNIX and Windows platforms, this function can also change the timestamps of a directory. To get a `File` representing a directory in order to call `set_times`, open the directory with `File::open` without attempting to obtain write permission."}
+{"id": "001c7d59d599", "src": "std/src/fs.rs:1219", "en": "This function will return an error if the user lacks permission to change timestamps on the underlying file. It may also return an error in other os-specific unspecified cases."}
+{"id": "4c11c06c519b", "src": "std/src/fs.rs:1219", "en": "This function may return an error if the operating system lacks support to change one or more of the timestamps set in the `FileTimes` structure."}
+{"id": "dfddc3f7388c", "src": "std/src/fs.rs:1266", "en": "Changes the modification time of the underlying file."}
+{"id": "1fbd98ef1e56", "src": "std/src/fs.rs:1266", "en": "This is an alias for `set_times(FileTimes::new().set_modified(time))`."}
+{"id": "3c98bed0b3ff", "src": "std/src/fs.rs:1306", "en": "Indicates how much extra capacity is needed to read the rest of the file."}
+{"id": "3f48ccdf0004", "src": "std/src/fs.rs:1317", "en": "Reads some bytes from the file."}
+{"id": "1e90dbff3719", "src": "std/src/fs.rs:1317", "en": "See `Read::read` docs for more info."}
+{"id": "45231b3efd9f", "src": "std/src/fs.rs:1317", "en": "This function currently corresponds to the `read` function on Unix and the `NtReadFile` function on Windows. Note that this [may change in the future][changes]."}
+{"id": "c4d7db75e04b", "src": "std/src/fs.rs:1333", "en": "Like `read`, except that it reads into a slice of buffers."}
+{"id": "77bedb29df60", "src": "std/src/fs.rs:1333", "en": "See `Read::read_vectored` docs for more info."}
+{"id": "2fc89ec00ff3", "src": "std/src/fs.rs:1333", "en": "This function currently corresponds to the `readv` function on Unix and falls back to the `read` implementation on Windows. Note that this [may change in the future][changes]."}
+{"id": "80e0a3fedd02", "src": "std/src/fs.rs:1354", "en": "Determines if `File` has an efficient `read_vectored` implementation."}
+{"id": "1949c13275ef", "src": "std/src/fs.rs:1354", "en": "See `Read::is_read_vectored` docs for more info."}
+{"id": "43c794573375", "src": "std/src/fs.rs:1354", "en": "This function currently returns `true` on Unix and `false` on Windows. Note that this [may change in the future][changes]."}
+{"id": "7c30c2f9c777", "src": "std/src/fs.rs:1385", "en": "Writes some bytes to the file."}
+{"id": "33eefdb221b4", "src": "std/src/fs.rs:1385", "en": "See `Write::write` docs for more info."}
+{"id": "78b03fb2f549", "src": "std/src/fs.rs:1385", "en": "This function currently corresponds to the `write` function on Unix and the `NtWriteFile` function on Windows. Note that this [may change in the future][changes]."}
+{"id": "91327a58db35", "src": "std/src/fs.rs:1400", "en": "Like `write`, except that it writes into a slice of buffers."}
+{"id": "caf26f3690a7", "src": "std/src/fs.rs:1400", "en": "See `Write::write_vectored` docs for more info."}
+{"id": "dcd98f4efffa", "src": "std/src/fs.rs:1400", "en": "This function currently corresponds to the `writev` function on Unix and falls back to the `write` implementation on Windows. Note that this [may change in the future][changes]."}
+{"id": "a4af824fa329", "src": "std/src/fs.rs:1415", "en": "Determines if `File` has an efficient `write_vectored` implementation."}
+{"id": "5e0d7186029d", "src": "std/src/fs.rs:1415", "en": "See `Write::is_write_vectored` docs for more info."}
+{"id": "4565e73ea4c1", "src": "std/src/fs.rs:1430", "en": "Flushes the file, ensuring that all intermediately buffered contents reach their destination."}
+{"id": "c8106bfc2677", "src": "std/src/fs.rs:1430", "en": "See `Write::flush` docs for more info."}
+{"id": "e0223a936d0a", "src": "std/src/fs.rs:1430", "en": "Since a `File` structure doesn't contain any buffers, this function is currently a no-op on Unix and Windows. Note that this [may change in the future][changes]."}
+{"id": "97f6827d1f5e", "src": "std/src/fs.rs:1449", "en": "Seek to an offset, in bytes in a file."}
+{"id": "7417ecb18c08", "src": "std/src/fs.rs:1449", "en": "See `Seek::seek` docs for more info."}
+{"id": "eca4e7e2aae6", "src": "std/src/fs.rs:1449", "en": "This function currently corresponds to the `lseek64` function on Unix and the `SetFilePointerEx` function on Windows. Note that this [may change in the future][changes]."}

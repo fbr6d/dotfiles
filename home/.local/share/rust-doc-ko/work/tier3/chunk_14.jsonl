@@ -1,0 +1,179 @@
+{"id": "fdff73d0299b", "src": "std/src/sync/mpmc/waker.rs:26", "en": "A list of select operations."}
+{"id": "1a4f701d12f8", "src": "std/src/sync/mpmc/waker.rs:29", "en": "A list of operations waiting to be ready."}
+{"id": "4c54b68aed7b", "src": "std/src/sync/mpmc/waker.rs:34", "en": "Creates a new `Waker`."}
+{"id": "ccca96f43b3e", "src": "std/src/sync/mpmc/waker.rs:40", "en": "Registers a select operation."}
+{"id": "829ffd65b011", "src": "std/src/sync/mpmc/waker.rs:46", "en": "Registers a select operation and a packet."}
+{"id": "b570fd5ada26", "src": "std/src/sync/mpmc/waker.rs:52", "en": "Unregisters a select operation."}
+{"id": "148ce7248b51", "src": "std/src/sync/mpmc/waker.rs:65", "en": "Attempts to find another thread's entry, select the operation, and wake it up."}
+{"id": "846f2d0bbf9e", "src": "std/src/sync/mpmc/waker.rs:96", "en": "Notifies all operations waiting to be ready."}
+{"id": "7fd5480e1af0", "src": "std/src/sync/mpmc/waker.rs:106", "en": "Notifies all registered operations that the channel is disconnected."}
+{"id": "a6358f3d4efd", "src": "std/src/sync/mpmc/waker.rs:132", "en": "A waker that can be shared among threads without locking."}
+{"id": "994bbb951bb5", "src": "std/src/sync/mpmc/waker.rs:132", "en": "This is a simple wrapper around `Waker` that internally uses a mutex for synchronization."}
+{"id": "21eeb5654c11", "src": "std/src/sync/mpmc/waker.rs:136", "en": "The inner `Waker`."}
+{"id": "ec2cf47a0dc2", "src": "std/src/sync/mpmc/waker.rs:139", "en": "`true` if the waker is empty."}
+{"id": "0478e9de741a", "src": "std/src/sync/mpmc/waker.rs:144", "en": "Creates a new `SyncWaker`."}
+{"id": "0d8abb431f36", "src": "std/src/sync/mpmc/waker.rs:150", "en": "Registers the current thread with an operation."}
+{"id": "a28cd92835a4", "src": "std/src/sync/mpmc/waker.rs:159", "en": "Unregisters an operation previously registered by the current thread."}
+{"id": "8b8c3053aaf8", "src": "std/src/sync/mpmc/waker.rs:169", "en": "Attempts to find one thread (not the current one), select its operation, and wake it up."}
+{"id": "c3dcf19a1d37", "src": "std/src/sync/mpmc/waker.rs:185", "en": "Notifies all threads that the channel is disconnected."}
+{"id": "e8f6a377c3c3", "src": "std/src/sync/mpmc/waker.rs:202", "en": "Returns a unique id for the current thread."}
+{"id": "d40060e5e305", "src": "std/src/sync/mpmc/zero.rs:1", "en": "This kind of channel is also known as *rendezvous* channel."}
+{"id": "83ac095868e1", "src": "std/src/sync/mpmc/zero.rs:17", "en": "A pointer to a packet."}
+{"id": "3bda2715d348", "src": "std/src/sync/mpmc/zero.rs:32", "en": "A slot for passing one message from a sender to a receiver."}
+{"id": "0de6b05fd922", "src": "std/src/sync/mpmc/zero.rs:34", "en": "Equals `true` if the packet is allocated on the stack."}
+{"id": "73fb611af3c7", "src": "std/src/sync/mpmc/zero.rs:37", "en": "Equals `true` once the packet is ready for reading or writing."}
+{"id": "54dcbdd8c485", "src": "std/src/sync/mpmc/zero.rs:45", "en": "Creates an empty packet on the stack."}
+{"id": "397cf15d8193", "src": "std/src/sync/mpmc/zero.rs:50", "en": "Creates a packet on the stack, containing a message."}
+{"id": "012c9855bd0e", "src": "std/src/sync/mpmc/zero.rs:55", "en": "Waits until the packet becomes ready for reading or writing."}
+{"id": "64ef98766d2f", "src": "std/src/sync/mpmc/zero.rs:64", "en": "Inner representation of a zero-capacity channel."}
+{"id": "eee2606c35d9", "src": "std/src/sync/mpmc/zero.rs:66", "en": "Senders waiting to pair up with a receive operation."}
+{"id": "4f2d89f5c516", "src": "std/src/sync/mpmc/zero.rs:69", "en": "Receivers waiting to pair up with a send operation."}
+{"id": "d4dd9605b09c", "src": "std/src/sync/mpmc/zero.rs:72", "en": "Equals `true` when the channel is disconnected."}
+{"id": "003c3c3ddfee", "src": "std/src/sync/mpmc/zero.rs:78", "en": "Inner representation of the channel."}
+{"id": "b06957d454b9", "src": "std/src/sync/mpmc/zero.rs:81", "en": "Indicates that dropping a `Channel<T>` may drop values of type `T`."}
+{"id": "3869c16f7135", "src": "std/src/sync/mpmc/zero.rs:86", "en": "Constructs a new zero-capacity channel."}
+{"id": "e9d9c5012c63", "src": "std/src/sync/mpmc/zero.rs:98", "en": "Writes a message into the packet."}
+{"id": "c18b4da058c5", "src": "std/src/sync/mpmc/zero.rs:113", "en": "Reads a message from the packet."}
+{"id": "f3be1adb1feb", "src": "std/src/sync/mpmc/zero.rs:283", "en": "Disconnects the channel and wakes up all blocked senders and receivers."}
+{"id": "225f2cd7742e", "src": "std/src/sync/nonpoison/condvar.rs:8", "en": "A Condition Variable"}
+{"id": "e51597efa93a", "src": "std/src/sync/nonpoison/condvar.rs:8", "en": "For more information about condition variables, check out the documentation for the poisoning variant of this type at `poison::Condvar`."}
+{"id": "a183dbaabd0e", "src": "std/src/sync/nonpoison/condvar.rs:8", "en": "Note that this `Condvar` does **not** propagate information about threads that panic while holding a lock. If you need this functionality, see `poison::Mutex` and `poison::Condvar`."}
+{"id": "6811eea72f10", "src": "std/src/sync/nonpoison/condvar.rs:8", "en": "`poison::Mutex`: crate::sync::poison::Mutex `poison::Condvar`: crate::sync::poison::Condvar"}
+{"id": "f556969e861a", "src": "std/src/sync/nonpoison/condvar.rs:54", "en": "Creates a new condition variable which is ready to be waited on and notified."}
+{"id": "80e976210b81", "src": "std/src/sync/nonpoison/condvar.rs:71", "en": "Blocks the current thread until this condition variable receives a notification."}
+{"id": "56c9f269b90f", "src": "std/src/sync/nonpoison/condvar.rs:71", "en": "This function will atomically unlock the mutex specified (represented by `guard`) and block the current thread. This means that any calls to `notify_one` or `notify_all` which happen logically after the mutex is unlocked are candidates to wake this thread up. When this function call returns, the lock specified will have been re-acquired."}
+{"id": "65def495fd90", "src": "std/src/sync/nonpoison/condvar.rs:71", "en": "Note that this function is susceptible to spurious wakeups. Condition variables normally have a boolean predicate associated with them, and the predicate must always be checked each time this function returns to protect against spurious wakeups."}
+{"id": "e8cabda86fb0", "src": "std/src/sync/nonpoison/condvar.rs:71", "en": "This function may `panic!` if it is used with more than one mutex over time."}
+{"id": "bc0f72a59153", "src": "std/src/sync/nonpoison/condvar.rs:71", "en": "`notify_one`: Self::notify_one `notify_all`: Self::notify_all"}
+{"id": "f5ea493e5afe", "src": "std/src/sync/nonpoison/condvar.rs:130", "en": "Blocks the current thread until the provided condition becomes false."}
+{"id": "eea4ebc95aa7", "src": "std/src/sync/nonpoison/condvar.rs:130", "en": "`condition` is checked immediately; if not met (returns `true`), this will `wait` for the next notification then check again. This repeats until `condition` returns `false`, in which case this function returns."}
+{"id": "7d125a7986bb", "src": "std/src/sync/nonpoison/condvar.rs:130", "en": "`wait`: Self::wait `notify_one`: Self::notify_one `notify_all`: Self::notify_all"}
+{"id": "bada0f7482eb", "src": "std/src/sync/nonpoison/condvar.rs:183", "en": "Waits on this condition variable for a notification, timing out after a specified duration."}
+{"id": "77cb3b7300b9", "src": "std/src/sync/nonpoison/condvar.rs:183", "en": "The semantics of this function are equivalent to `wait` except that the thread will be blocked for roughly no longer than `dur`. This method should not be used for precise timing due to anomalies such as preemption or platform differences that might not cause the maximum amount of time waited to be precisely `dur`."}
+{"id": "23194ab5f46f", "src": "std/src/sync/nonpoison/condvar.rs:183", "en": "Note that the best effort is made to ensure that the time waited is measured with a monotonic clock, and not affected by the changes made to the system time. This function is susceptible to spurious wakeups. Condition variables normally have a boolean predicate associated with them, and the predicate must always be checked each time this function returns to protect against spurious wakeups. Furthermore, since the timeout is given relative to the moment this function is called, it needs to be adjusted when this function is called in a loop. The `wait_timeout_while` method lets you wait with a timeout while a predicate is true, taking care of all these concerns."}
+{"id": "5d5181a20661", "src": "std/src/sync/nonpoison/condvar.rs:183", "en": "The returned `WaitTimeoutResult` value indicates if the timeout is known to have elapsed."}
+{"id": "f6f420848fe4", "src": "std/src/sync/nonpoison/condvar.rs:183", "en": "Like `wait`, the lock specified will have been re-acquired when this function returns, regardless of whether the timeout elapsed or not."}
+{"id": "b77d92cc83c9", "src": "std/src/sync/nonpoison/condvar.rs:183", "en": "`wait`: Self::wait `wait_timeout_while`: Self::wait_timeout_while"}
+{"id": "53b6d67b06ba", "src": "std/src/sync/nonpoison/condvar.rs:259", "en": "The semantics of this function are equivalent to `wait_while` except that the thread will be blocked for roughly no longer than `dur`. This method should not be used for precise timing due to anomalies such as preemption or platform differences that might not cause the maximum amount of time waited to be precisely `dur`."}
+{"id": "e7c41ef52ce2", "src": "std/src/sync/nonpoison/condvar.rs:259", "en": "Note that the best effort is made to ensure that the time waited is measured with a monotonic clock, and not affected by the changes made to the system time."}
+{"id": "dc666c27e9fb", "src": "std/src/sync/nonpoison/condvar.rs:259", "en": "The returned `WaitTimeoutResult` value indicates if the timeout is known to have elapsed without the condition being met."}
+{"id": "c938c2328c3b", "src": "std/src/sync/nonpoison/condvar.rs:259", "en": "Like `wait_while`, the lock specified will have been re-acquired when this function returns, regardless of whether the timeout elapsed or not."}
+{"id": "b4274522d451", "src": "std/src/sync/nonpoison/condvar.rs:259", "en": "`wait_while`: Self::wait_while `wait_timeout`: Self::wait_timeout"}
+{"id": "2ed59db39229", "src": "std/src/sync/nonpoison/condvar.rs:340", "en": "Wakes up one blocked thread on this condvar."}
+{"id": "c37283b1cf4a", "src": "std/src/sync/nonpoison/condvar.rs:340", "en": "If there is a blocked thread on this condition variable, then it will be woken up from its call to `wait` or `wait_timeout`. Calls to `notify_one` are not buffered in any way."}
+{"id": "d16d1f6ca008", "src": "std/src/sync/nonpoison/condvar.rs:340", "en": "To wake up all threads, see `notify_all`."}
+{"id": "ead88af68847", "src": "std/src/sync/nonpoison/condvar.rs:340", "en": "`wait`: Self::wait `wait_timeout`: Self::wait_timeout `notify_all`: Self::notify_all"}
+{"id": "cb2a27aece1c", "src": "std/src/sync/nonpoison/condvar.rs:386", "en": "Wakes up all blocked threads on this condvar."}
+{"id": "6e84882b973e", "src": "std/src/sync/nonpoison/condvar.rs:386", "en": "This method will ensure that any current waiters on the condition variable are awoken. Calls to `notify_all()` are not buffered in any way."}
+{"id": "da390d44b27e", "src": "std/src/sync/nonpoison/condvar.rs:386", "en": "To wake up only one thread, see `notify_one`."}
+{"id": "49035e557164", "src": "std/src/sync/nonpoison/condvar.rs:386", "en": "`notify_one`: Self::notify_one"}
+{"id": "40ac6a8518a5", "src": "std/src/sync/nonpoison/condvar.rs:440", "en": "Creates a `Condvar` which is ready to be waited on and notified."}
+{"id": "363a7a5a35af", "src": "std/src/sync/nonpoison/mutex.rs:10", "en": "A mutual exclusion primitive useful for protecting shared data that does not keep track of lock poisoning."}
+{"id": "f60f28d43673", "src": "std/src/sync/nonpoison/mutex.rs:10", "en": "For more information about mutexes, check out the documentation for the poisoning variant of this lock at `poison::Mutex`."}
+{"id": "f6b92b2298b0", "src": "std/src/sync/nonpoison/mutex.rs:10", "en": "`poison::Mutex`: crate::sync::poison::Mutex"}
+{"id": "188d98b29555", "src": "std/src/sync/nonpoison/mutex.rs:10", "en": "Note that this `Mutex` does **not** propagate threads that panic while holding the lock via poisoning. If you need this functionality, see `poison::Mutex`."}
+{"id": "188d3d51cd89", "src": "std/src/sync/nonpoison/mutex.rs:55", "en": "`T` must be `Send` for a `Mutex` to be `Send` because it is possible to acquire the owned `T` from the `Mutex` via `into_inner`."}
+{"id": "444c4cf5ceb2", "src": "std/src/sync/nonpoison/mutex.rs:55", "en": "`into_inner`: Mutex::into_inner"}
+{"id": "9b97ca53bf3e", "src": "std/src/sync/nonpoison/mutex.rs:62", "en": "`T` must be `Send` for `Mutex` to be `Sync`. This ensures that the protected data can be accessed safely from multiple threads without causing data races or other unsafe behavior."}
+{"id": "6cd48dc18a45", "src": "std/src/sync/nonpoison/mutex.rs:62", "en": "`Mutex<T>` provides mutable access to `T` to one thread at a time. However, it's essential for `T` to be `Send` because it's not safe for non-`Send` structures to be accessed in this manner. For instance, consider `Rc`, a non-atomic reference counted smart pointer, which is not `Send`. With `Rc`, we can have multiple copies pointing to the same heap allocation with a non-atomic reference count. If we were to use `Mutex<Rc<_>>`, it would only protect one instance of `Rc` from shared access, leaving other copies vulnerable to potential data races."}
+{"id": "3fa510841bca", "src": "std/src/sync/nonpoison/mutex.rs:62", "en": "Also note that it is not necessary for `T` to be `Sync` as `&T` is only made available to one thread at a time if `T` is not `Sync`."}
+{"id": "3dea8ff00361", "src": "std/src/sync/nonpoison/mutex.rs:62", "en": "`Rc`: crate::rc::Rc"}
+{"id": "bb7fb098f948", "src": "std/src/sync/nonpoison/mutex.rs:81", "en": "An RAII implementation of a \"scoped lock\" of a mutex. When this structure is dropped (falls out of scope), the lock will be unlocked."}
+{"id": "4c90a5c3d3da", "src": "std/src/sync/nonpoison/mutex.rs:81", "en": "The data protected by the mutex can be accessed through this guard via its `Deref` and `DerefMut` implementations."}
+{"id": "e8865c2fa2f1", "src": "std/src/sync/nonpoison/mutex.rs:81", "en": "This structure is created by the `lock` and `try_lock` methods on `Mutex`."}
+{"id": "94bf8df50a85", "src": "std/src/sync/nonpoison/mutex.rs:81", "en": "`lock`: Mutex::lock `try_lock`: Mutex::try_lock"}
+{"id": "55d369961c53", "src": "std/src/sync/nonpoison/mutex.rs:103", "en": "A `MutexGuard` is not `Send` to maximize platform portability."}
+{"id": "85e3b44a2020", "src": "std/src/sync/nonpoison/mutex.rs:103", "en": "On platforms that use POSIX threads (commonly referred to as pthreads) there is a requirement to release mutex locks on the same thread they were acquired. For this reason, `MutexGuard` must not implement `Send` to prevent it being dropped from another thread."}
+{"id": "eb3cdfe9d91d", "src": "std/src/sync/nonpoison/mutex.rs:112", "en": "`T` must be `Sync` for a `MutexGuard<T>` to be `Sync` because it is possible to get a `&T` from `&MutexGuard` (via `Deref`)."}
+{"id": "1d04ab752f49", "src": "std/src/sync/nonpoison/mutex.rs:117", "en": "An RAII mutex guard returned by `MutexGuard::map`, which can point to a subfield of the protected data. When this structure is dropped (falls out of scope), the lock will be unlocked."}
+{"id": "06d5424a4881", "src": "std/src/sync/nonpoison/mutex.rs:117", "en": "The main difference between `MappedMutexGuard` and `MutexGuard` is that the former cannot be used with `Condvar`, since that could introduce soundness issues if the locked object is modified by another thread while the `Mutex` is unlocked."}
+{"id": "ae0341380797", "src": "std/src/sync/nonpoison/mutex.rs:117", "en": "This structure is created by the `map` and `filter_map` methods on `MutexGuard`."}
+{"id": "d57a5cf3b85e", "src": "std/src/sync/nonpoison/mutex.rs:117", "en": "`map`: MutexGuard::map `filter_map`: MutexGuard::filter_map `Condvar`: crate::sync::nonpoison::Condvar"}
+{"id": "9a4b55ded306", "src": "std/src/sync/nonpoison/mutex.rs:159", "en": "Creates a new mutex in an unlocked state ready for use."}
+{"id": "5ce4725aca97", "src": "std/src/sync/nonpoison/mutex.rs:176", "en": "Returns the contained value by cloning it."}
+{"id": "be925dac0770", "src": "std/src/sync/nonpoison/mutex.rs:199", "en": "Sets the contained value."}
+{"id": "e6b6628894dc", "src": "std/src/sync/nonpoison/mutex.rs:227", "en": "Replaces the contained value with `value`, and returns the old contained value."}
+{"id": "ff3bc67bc303", "src": "std/src/sync/nonpoison/mutex.rs:251", "en": "Acquires a mutex, blocking the current thread until it is able to do so."}
+{"id": "4d1cb142862a", "src": "std/src/sync/nonpoison/mutex.rs:251", "en": "This function will block the local thread until it is available to acquire the mutex. Upon returning, the thread is the only thread with the lock held. An RAII guard is returned to allow scoped unlock of the lock. When the guard goes out of scope, the mutex will be unlocked."}
+{"id": "5c9b02894ffa", "src": "std/src/sync/nonpoison/mutex.rs:251", "en": "The exact behavior on locking a mutex in the thread which already holds the lock is left unspecified. However, this function will not return on the second call (it might panic or deadlock, for example)."}
+{"id": "e85b3c94c6e6", "src": "std/src/sync/nonpoison/mutex.rs:251", "en": "This function might panic when called if the lock is already held by the current thread."}
+{"id": "f78e6c991bf9", "src": "std/src/sync/nonpoison/mutex.rs:291", "en": "This function does not block. If the lock could not be acquired at this time, then `WouldBlock` is returned. Otherwise, an RAII guard is returned."}
+{"id": "8d57d1efb303", "src": "std/src/sync/nonpoison/mutex.rs:291", "en": "The lock will be unlocked when the guard is dropped."}
+{"id": "c70570d361ec", "src": "std/src/sync/nonpoison/mutex.rs:291", "en": "If the mutex could not be acquired because it is already locked, then this call will return the `WouldBlock` error."}
+{"id": "52fedaa69eb5", "src": "std/src/sync/nonpoison/mutex.rs:327", "en": "Consumes this mutex, returning the underlying data."}
+{"id": "29f5977d75fd", "src": "std/src/sync/nonpoison/mutex.rs:347", "en": "Since this call borrows the `Mutex` mutably, no actual locking needs to take place -- the mutable borrow statically guarantees no locks exist."}
+{"id": "1ac2db664dde", "src": "std/src/sync/nonpoison/mutex.rs:368", "en": "The returned pointer is always non-null and properly aligned, but it is the user's responsibility to ensure that any reads and writes through it are properly synchronized to avoid data races, and that it is not read or written through after the mutex is dropped."}
+{"id": "baa261a7d1f7", "src": "std/src/sync/nonpoison/mutex.rs:380", "en": "Acquires the mutex and provides mutable access to the underlying data by passing a mutable reference to the given closure."}
+{"id": "d02ab00bd8d7", "src": "std/src/sync/nonpoison/mutex.rs:380", "en": "This method acquires the lock, calls the provided closure with a mutable reference to the data, and returns the result of the closure. The lock is released after the closure completes, even if it panics."}
+{"id": "cf5b04b61fef", "src": "std/src/sync/nonpoison/mutex.rs:417", "en": "Creates a new mutex in an unlocked state ready for use. This is equivalent to `Mutex::new`."}
+{"id": "c64272a81e1b", "src": "std/src/sync/nonpoison/mutex.rs:426", "en": "Creates a `Mutex<T>`, with the `Default` value for T."}
+{"id": "1c90544d9fca", "src": "std/src/sync/nonpoison/mutex.rs:494", "en": "For use in `nonpoison::condvar`."}
+{"id": "a88d8602b26d", "src": "std/src/sync/nonpoison/mutex.rs:500", "en": "Makes a `MappedMutexGuard` for a component of the borrowed data, e.g. an enum variant."}
+{"id": "fc2a27e57ca8", "src": "std/src/sync/nonpoison/mutex.rs:500", "en": "The `Mutex` is already locked, so this cannot fail."}
+{"id": "54881ce04277", "src": "std/src/sync/nonpoison/mutex.rs:500", "en": "This is an associated function that needs to be used as `MutexGuard::map(...)`. A method would interfere with methods of the same name on the contents of the `MutexGuard` used through `Deref`."}
+{"id": "fef4ea7f0d26", "src": "std/src/sync/nonpoison/mutex.rs:524", "en": "Makes a `MappedMutexGuard` for a component of the borrowed data. The original guard is returned as an `Err(...)` if the closure returns `None`."}
+{"id": "75e9638ccf8c", "src": "std/src/sync/nonpoison/mutex.rs:524", "en": "This is an associated function that needs to be used as `MutexGuard::filter_map(...)`. A method would interfere with methods of the same name on the contents of the `MutexGuard` used through `Deref`."}
+{"id": "234b2094271e", "src": "std/src/sync/nonpoison/mutex.rs:596", "en": "This is an associated function that needs to be used as `MappedMutexGuard::map(...)`. A method would interfere with methods of the same name on the contents of the `MutexGuard` used through `Deref`."}
+{"id": "975b5688a327", "src": "std/src/sync/nonpoison/mutex.rs:620", "en": "This is an associated function that needs to be used as `MappedMutexGuard::filter_map(...)`. A method would interfere with methods of the same name on the contents of the `MutexGuard` used through `Deref`."}
+{"id": "6cf1fd6b8bd7", "src": "std/src/sync/nonpoison/rwlock.rs:10", "en": "A reader-writer lock that does not keep track of lock poisoning."}
+{"id": "6ca48e29676a", "src": "std/src/sync/nonpoison/rwlock.rs:10", "en": "For more information about reader-writer locks, check out the documentation for the poisoning variant of this lock (which can be found at `poison::RwLock`)."}
+{"id": "5e41a687534b", "src": "std/src/sync/nonpoison/rwlock.rs:10", "en": "`poison::RwLock`: crate::sync::poison::RwLock"}
+{"id": "f93e87e56a3a", "src": "std/src/sync/nonpoison/rwlock.rs:44", "en": "The inner `sys::RwLock` that synchronizes thread access to the protected data."}
+{"id": "bad9172e30b2", "src": "std/src/sync/nonpoison/rwlock.rs:46", "en": "The lock-protected data."}
+{"id": "c2081b4069aa", "src": "std/src/sync/nonpoison/rwlock.rs:60", "en": "RAII structure used to release the shared read access of a lock when dropped."}
+{"id": "e1843831c603", "src": "std/src/sync/nonpoison/rwlock.rs:60", "en": "This structure is created by the `read` and `try_read` methods on `RwLock`."}
+{"id": "4e6f50a20684", "src": "std/src/sync/nonpoison/rwlock.rs:60", "en": "`read`: RwLock::read `try_read`: RwLock::try_read"}
+{"id": "87e2a0918f25", "src": "std/src/sync/nonpoison/rwlock.rs:76", "en": "A pointer to the data protected by the `RwLock`. Note that we use a pointer here instead of `&'rwlock T` to avoid `noalias` violations, because a `RwLockReadGuard` instance only holds immutability until it drops, not for its whole scope. `NonNull` is preferable over `*const T` to allow for niche optimizations. `NonNull` is also covariant over `T`, just like we would have with `&T`."}
+{"id": "61c077b58d53", "src": "std/src/sync/nonpoison/rwlock.rs:82", "en": "A reference to the internal `sys::RwLock` that we have read-locked."}
+{"id": "d349e7f34369", "src": "std/src/sync/nonpoison/rwlock.rs:92", "en": "RAII structure used to release the exclusive write access of a lock when dropped."}
+{"id": "f51413dd97ef", "src": "std/src/sync/nonpoison/rwlock.rs:92", "en": "This structure is created by the `write` and `try_write` methods on `RwLock`."}
+{"id": "467f5dc07a11", "src": "std/src/sync/nonpoison/rwlock.rs:92", "en": "`write`: RwLock::write `try_write`: RwLock::try_write"}
+{"id": "5d304437af93", "src": "std/src/sync/nonpoison/rwlock.rs:108", "en": "A reference to the `RwLock` that we have write-locked."}
+{"id": "e636955017d8", "src": "std/src/sync/nonpoison/rwlock.rs:118", "en": "RAII structure used to release the shared read access of a lock when dropped, which can point to a subfield of the protected data."}
+{"id": "239d11c7ba1c", "src": "std/src/sync/nonpoison/rwlock.rs:118", "en": "This structure is created by the `map` and `filter_map` methods on `RwLockReadGuard`."}
+{"id": "ca01648576b9", "src": "std/src/sync/nonpoison/rwlock.rs:118", "en": "`map`: RwLockReadGuard::map `filter_map`: RwLockReadGuard::filter_map"}
+{"id": "6ed73ab385b1", "src": "std/src/sync/nonpoison/rwlock.rs:134", "en": "A pointer to the data protected by the `RwLock`. Note that we use a pointer here instead of `&'rwlock T` to avoid `noalias` violations, because a `MappedRwLockReadGuard` instance only holds immutability until it drops, not for its whole scope. `NonNull` is preferable over `*const T` to allow for niche optimizations. `NonNull` is also covariant over `T`, just like we would have with `&T`."}
+{"id": "58ae08a30c84", "src": "std/src/sync/nonpoison/rwlock.rs:152", "en": "RAII structure used to release the exclusive write access of a lock when dropped, which can point to a subfield of the protected data."}
+{"id": "73df0abcf3dc", "src": "std/src/sync/nonpoison/rwlock.rs:152", "en": "This structure is created by the `map` and `filter_map` methods on `RwLockWriteGuard`."}
+{"id": "34901702b929", "src": "std/src/sync/nonpoison/rwlock.rs:152", "en": "`map`: RwLockWriteGuard::map `filter_map`: RwLockWriteGuard::filter_map"}
+{"id": "9fab2724d406", "src": "std/src/sync/nonpoison/rwlock.rs:168", "en": "A pointer to the data protected by the `RwLock`. Note that we use a pointer here instead of `&'rwlock T` to avoid `noalias` violations, because a `MappedRwLockWriteGuard` instance only holds uniquneness until it drops, not for its whole scope. `NonNull` is preferable over `*const T` to allow for niche optimizations."}
+{"id": "1e55cebf19ab", "src": "std/src/sync/nonpoison/rwlock.rs:173", "en": "`NonNull` is covariant over `T`, so we add a `PhantomData<&'rwlock mut T>` field here to enforce the correct invariance over `T`."}
+{"id": "13e3df8f8e22", "src": "std/src/sync/nonpoison/rwlock.rs:176", "en": "A reference to the internal `sys::RwLock` that we have write-locked."}
+{"id": "76f792d7bff3", "src": "std/src/sync/nonpoison/rwlock.rs:193", "en": "Creates a new instance of an `RwLock<T>` which is unlocked."}
+{"id": "781ded6e6761", "src": "std/src/sync/nonpoison/rwlock.rs:285", "en": "Locks this `RwLock` with shared read access, blocking the current thread until it can be acquired."}
+{"id": "09005f0066a1", "src": "std/src/sync/nonpoison/rwlock.rs:285", "en": "The calling thread will be blocked until there are no more writers which hold the lock. There may be other readers currently inside the lock when this method returns. This method does not provide any guarantees with respect to the ordering of whether contentious readers or writers will acquire the lock first."}
+{"id": "a9fdf27da6fa", "src": "std/src/sync/nonpoison/rwlock.rs:285", "en": "Returns an RAII guard which will release this thread's shared access once it is dropped."}
+{"id": "023d6c03fc8c", "src": "std/src/sync/nonpoison/rwlock.rs:329", "en": "Attempts to acquire this `RwLock` with shared read access."}
+{"id": "54c4cd7a4dd3", "src": "std/src/sync/nonpoison/rwlock.rs:329", "en": "If the access could not be granted at this time, then `Err` is returned. Otherwise, an RAII guard is returned which will release the shared access when it is dropped."}
+{"id": "c9eb6fee31de", "src": "std/src/sync/nonpoison/rwlock.rs:329", "en": "This function does not provide any guarantees with respect to the ordering of whether contentious readers or writers will acquire the lock first."}
+{"id": "e0546b31a0cb", "src": "std/src/sync/nonpoison/rwlock.rs:329", "en": "This function will return the `WouldBlock` error if the `RwLock` could not be acquired because it was already locked exclusively."}
+{"id": "f1579ba780df", "src": "std/src/sync/nonpoison/rwlock.rs:367", "en": "Locks this `RwLock` with exclusive write access, blocking the current thread until it can be acquired."}
+{"id": "db8a9f6074ff", "src": "std/src/sync/nonpoison/rwlock.rs:367", "en": "This function will not return while other writers or other readers currently have access to the lock."}
+{"id": "00e6a89ee7ee", "src": "std/src/sync/nonpoison/rwlock.rs:367", "en": "Returns an RAII guard which will drop the write access of this `RwLock` when dropped."}
+{"id": "0c8a41527b83", "src": "std/src/sync/nonpoison/rwlock.rs:403", "en": "Attempts to lock this `RwLock` with exclusive write access."}
+{"id": "5d0f84e18605", "src": "std/src/sync/nonpoison/rwlock.rs:403", "en": "If the lock could not be acquired at this time, then `Err` is returned. Otherwise, an RAII guard is returned which will release the lock when it is dropped."}
+{"id": "06f3a94992e2", "src": "std/src/sync/nonpoison/rwlock.rs:403", "en": "This function will return the `WouldBlock` error if the `RwLock` could not be acquired because it was already locked."}
+{"id": "039e4eac981d", "src": "std/src/sync/nonpoison/rwlock.rs:403", "en": "`WouldBlock`: WouldBlock"}
+{"id": "0b3266a0d5b1", "src": "std/src/sync/nonpoison/rwlock.rs:443", "en": "Consumes this `RwLock`, returning the underlying data."}
+{"id": "97005da8b91d", "src": "std/src/sync/nonpoison/rwlock.rs:467", "en": "Since this call borrows the `RwLock` mutably, no actual locking needs to take place -- the mutable borrow statically guarantees no new locks can be acquired while this reference exists. Note that this method does not clear any previously abandoned locks (e.g., via `forget()` on a `RwLockReadGuard` or `RwLockWriteGuard`)."}
+{"id": "ebf3c6d6702b", "src": "std/src/sync/nonpoison/rwlock.rs:490", "en": "The returned pointer is always non-null and properly aligned, but it is the user's responsibility to ensure that any reads and writes through it are properly synchronized to avoid data races, and that it is not read or written through after the lock is dropped."}
+{"id": "6bd35a64d60c", "src": "std/src/sync/nonpoison/rwlock.rs:502", "en": "Locks this `RwLock` with shared read access to the underlying data by passing a reference to the given closure."}
+{"id": "ea79f5663db1", "src": "std/src/sync/nonpoison/rwlock.rs:502", "en": "This method acquires the lock, calls the provided closure with a reference to the data, and returns the result of the closure. The lock is released after the closure completes, even if it panics."}
+{"id": "5e8627b29348", "src": "std/src/sync/nonpoison/rwlock.rs:530", "en": "Locks this `RwLock` with exclusive write access to the underlying data by passing a mutable reference to the given closure."}
+{"id": "28a0e17e2810", "src": "std/src/sync/nonpoison/rwlock.rs:583", "en": "Creates a new `RwLock<T>`, with the `Default` value for T."}
+{"id": "44f515b6e036", "src": "std/src/sync/nonpoison/rwlock.rs:591", "en": "Creates a new instance of an `RwLock<T>` which is unlocked. This is equivalent to `RwLock::new`."}
+{"id": "a171700344e3", "src": "std/src/sync/nonpoison/rwlock.rs:599", "en": "Creates a new instance of `RwLockReadGuard<T>` from a `RwLock<T>`."}
+{"id": "3f82a5b63efa", "src": "std/src/sync/nonpoison/rwlock.rs:599", "en": "This function is safe if and only if the same thread has successfully and safely called `lock.inner.read()`, `lock.inner.try_read()`, or `lock.inner.downgrade()` before instantiating this object."}
+{"id": "ef6e71e3255f", "src": "std/src/sync/nonpoison/rwlock.rs:613", "en": "Makes a `MappedRwLockReadGuard` for a component of the borrowed data, e.g. an enum variant."}
+{"id": "8f824c7764fe", "src": "std/src/sync/nonpoison/rwlock.rs:613", "en": "The `RwLock` is already locked for reading, so this cannot fail."}
+{"id": "346f03ddf29b", "src": "std/src/sync/nonpoison/rwlock.rs:613", "en": "This is an associated function that needs to be used as `RwLockReadGuard::map(...)`. A method would interfere with methods of the same name on the contents of the `RwLockReadGuard` used through `Deref`."}
+{"id": "baac53eba1b8", "src": "std/src/sync/nonpoison/rwlock.rs:613", "en": "If the closure panics, the guard will be dropped (unlocked)."}
+{"id": "93cb86c4139f", "src": "std/src/sync/nonpoison/rwlock.rs:642", "en": "Makes a `MappedRwLockReadGuard` for a component of the borrowed data. The original guard is returned as an `Err(...)` if the closure returns `None`."}
+{"id": "e0b827f18c8e", "src": "std/src/sync/nonpoison/rwlock.rs:642", "en": "This is an associated function that needs to be used as `RwLockReadGuard::filter_map(...)`. A method would interfere with methods of the same name on the contents of the `RwLockReadGuard` used through `Deref`."}
+{"id": "9e4a399c88e3", "src": "std/src/sync/nonpoison/rwlock.rs:679", "en": "Creates a new instance of `RwLockWriteGuard<T>` from a `RwLock<T>`."}
+{"id": "e58689d28eb5", "src": "std/src/sync/nonpoison/rwlock.rs:679", "en": "This function is safe if and only if the same thread has successfully and safely called `lock.inner.write()`, `lock.inner.try_write()`, or `lock.inner.try_upgrade` before instantiating this object."}
+{"id": "c55c09ab0360", "src": "std/src/sync/nonpoison/rwlock.rs:690", "en": "Downgrades a write-locked `RwLockWriteGuard` into a read-locked `RwLockReadGuard`."}
+{"id": "c65615c6fb8b", "src": "std/src/sync/nonpoison/rwlock.rs:690", "en": "Since we have the `RwLockWriteGuard`, the `RwLock` must already be locked for writing, so this method cannot fail."}
+{"id": "49af5314b39e", "src": "std/src/sync/nonpoison/rwlock.rs:690", "en": "After downgrading, other readers will be allowed to read the protected data."}
+{"id": "640c05bbf192", "src": "std/src/sync/nonpoison/rwlock.rs:690", "en": "`downgrade` takes ownership of the `RwLockWriteGuard` and returns a `RwLockReadGuard`."}
+{"id": "c22e6327ccbd", "src": "std/src/sync/nonpoison/rwlock.rs:690", "en": "`downgrade` will _atomically_ change the state of the `RwLock` from exclusive mode into shared mode. This means that it is impossible for another writing thread to get in between a thread calling `downgrade` and any reads it performs after downgrading."}

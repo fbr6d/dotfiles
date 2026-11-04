@@ -1,0 +1,178 @@
+{"id": "f3209c5a1032", "src": "core/src/result.rs:1084", "en": "The iterator yields one value if the result is `Result::Ok`, otherwise none."}
+{"id": "7ad4096b72e7", "src": "core/src/result.rs:1132", "en": "Returns the contained `Ok` value, consuming the `self` value."}
+{"id": "f414339e420a", "src": "core/src/result.rs:1132", "en": "Because this function may panic, its use is generally discouraged. Instead, prefer to use pattern matching and handle the `Err` case explicitly, or call `unwrap_or`, `unwrap_or_else`, or `unwrap_or_default`."}
+{"id": "75f874a97ecf", "src": "core/src/result.rs:1132", "en": "`unwrap_or`: Result::unwrap_or `unwrap_or_else`: Result::unwrap_or_else `unwrap_or_default`: Result::unwrap_or_default"}
+{"id": "3503a0572115", "src": "core/src/result.rs:1132", "en": "Panics if the value is an `Err`, with a panic message including the passed message, and the content of the `Err`."}
+{"id": "3443ba9a39f6", "src": "core/src/result.rs:1132", "en": "We recommend that `expect` messages are used to describe the reason you _expect_ the `Result` should be `Ok`."}
+{"id": "75eb89981c4a", "src": "core/src/result.rs:1188", "en": "Instead, prefer to use [the `?` (try) operator][try-operator], or pattern matching to handle the `Err` case explicitly, or call `unwrap_or`, `unwrap_or_else`, or `unwrap_or_default`."}
+{"id": "f5f6bb5ecb26", "src": "core/src/result.rs:1188", "en": "[panic-abort]: https://doc.rust-lang.org/book/ch09-01-unrecoverable-errors-with-panic.html [try-operator]: https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html#a-shortcut-for-propagating-errors-the--operator `unwrap_or`: Result::unwrap_or `unwrap_or_else`: Result::unwrap_or_else `unwrap_or_default`: Result::unwrap_or_default"}
+{"id": "fade15d8c918", "src": "core/src/result.rs:1188", "en": "Panics if the value is an `Err`, with a panic message provided by the `Err`'s value."}
+{"id": "ccda372848d2", "src": "core/src/result.rs:1236", "en": "Returns the contained `Ok` value or a default"}
+{"id": "0c46bd885e71", "src": "core/src/result.rs:1236", "en": "Consumes the `self` argument then, if `Ok`, returns the contained value, otherwise if `Err`, returns the default value for that type."}
+{"id": "262732935ec7", "src": "core/src/result.rs:1236", "en": "Converts a string to an integer, turning poorly-formed strings into 0 (the default value for integers). `parse` converts a string to any other type that implements `FromStr`, returning an `Err` on error."}
+{"id": "0856900706b9", "src": "core/src/result.rs:1236", "en": "`parse`: str::parse `FromStr`: crate::str::FromStr"}
+{"id": "c731abebc5ea", "src": "core/src/result.rs:1275", "en": "Returns the contained `Err` value, consuming the `self` value."}
+{"id": "801b5b986014", "src": "core/src/result.rs:1275", "en": "Panics if the value is an `Ok`, with a panic message including the passed message, and the content of the `Ok`."}
+{"id": "4ffa0df8cbf8", "src": "core/src/result.rs:1302", "en": "Panics if the value is an `Ok`, with a custom panic message provided by the `Ok`'s value."}
+{"id": "c40dc2c3b120", "src": "core/src/result.rs:1333", "en": "Returns the contained `Ok` value, but never panics."}
+{"id": "97f6d28ac708", "src": "core/src/result.rs:1333", "en": "Unlike `unwrap`, this method is known to never panic on the result types it is implemented for. Therefore, it can be used instead of `unwrap` as a maintainability safeguard that will fail to compile if the error type of the `Result` is later changed to an error that can actually occur."}
+{"id": "6392e565ec94", "src": "core/src/result.rs:1333", "en": "`unwrap`: Result::unwrap"}
+{"id": "497ea895f442", "src": "core/src/result.rs:1370", "en": "Returns the contained `Err` value, but never panics."}
+{"id": "7c2fb791f12e", "src": "core/src/result.rs:1370", "en": "Unlike `unwrap_err`, this method is known to never panic on the result types it is implemented for. Therefore, it can be used instead of `unwrap_err` as a maintainability safeguard that will fail to compile if the ok type of the `Result` is later changed to a type that can actually occur."}
+{"id": "8f59ad5d38b9", "src": "core/src/result.rs:1370", "en": "`unwrap_err`: Result::unwrap_err"}
+{"id": "5038c0e25023", "src": "core/src/result.rs:1411", "en": "Returns `res` if the result is `Ok`, otherwise returns the `Err` value of `self`."}
+{"id": "596b0eb4c78f", "src": "core/src/result.rs:1411", "en": "`and_then`: Result::and_then"}
+{"id": "69ec3c1367f5", "src": "core/src/result.rs:1453", "en": "Calls `op` if the result is `Ok`, otherwise returns the `Err` value of `self`."}
+{"id": "02a5c84bb504", "src": "core/src/result.rs:1453", "en": "This function can be used for control flow based on `Result` values."}
+{"id": "484b92ab2ce7", "src": "core/src/result.rs:1453", "en": "Often used to chain fallible operations that may return `Err`."}
+{"id": "7817d95259ec", "src": "core/src/result.rs:1497", "en": "Returns `res` if the result is `Err`, otherwise returns the `Ok` value of `self`."}
+{"id": "e64fc23269ce", "src": "core/src/result.rs:1497", "en": "`or_else`: Result::or_else"}
+{"id": "94251bcc90d9", "src": "core/src/result.rs:1539", "en": "Calls `op` if the result is `Err`, otherwise returns the `Ok` value of `self`."}
+{"id": "069d719c6868", "src": "core/src/result.rs:1539", "en": "This function can be used for control flow based on result values."}
+{"id": "2ee297f9c160", "src": "core/src/result.rs:1568", "en": "Returns the contained `Ok` value or a provided default."}
+{"id": "749d6f28fd14", "src": "core/src/result.rs:1568", "en": "`unwrap_or_else`: Result::unwrap_or_else"}
+{"id": "538a0805e5b8", "src": "core/src/result.rs:1600", "en": "Returns the contained `Ok` value or computes it from a closure."}
+{"id": "70f880d36a13", "src": "core/src/result.rs:1625", "en": "Returns the contained `Ok` value, consuming the `self` value, without checking that the value is not an `Err`."}
+{"id": "c67e74cf2551", "src": "core/src/result.rs:1625", "en": "Calling this method on an `Err` is *[undefined behavior]*."}
+{"id": "2835d64e01e4", "src": "core/src/result.rs:1661", "en": "Returns the contained `Err` value, consuming the `self` value, without checking that the value is not an `Ok`."}
+{"id": "4a013bb01739", "src": "core/src/result.rs:1661", "en": "Calling this method on an `Ok` is *[undefined behavior]*."}
+{"id": "ca715c67450b", "src": "core/src/result.rs:1699", "en": "Maps a `Result<&T, E>` to a `Result<T, E>` by copying the contents of the `Ok` part."}
+{"id": "94f909e01aa0", "src": "core/src/result.rs:1727", "en": "Maps a `Result<&T, E>` to a `Result<T, E>` by cloning the contents of the `Ok` part."}
+{"id": "44183c3089bc", "src": "core/src/result.rs:1750", "en": "Maps a `Result<&mut T, E>` to a `Result<T, E>` by copying the contents of the `Ok` part."}
+{"id": "1b8d8cf63aec", "src": "core/src/result.rs:1778", "en": "Maps a `Result<&mut T, E>` to a `Result<T, E>` by cloning the contents of the `Ok` part."}
+{"id": "8f86823b9a0a", "src": "core/src/result.rs:1801", "en": "Transposes a `Result` of an `Option` into an `Option` of a `Result`."}
+{"id": "5019a7589252", "src": "core/src/result.rs:1801", "en": "`Ok(None)` will be mapped to `None`. `Ok(Some(_))` and `Err(_)` will be mapped to `Some(Ok(_))` and `Some(Err(_))`."}
+{"id": "14759c8d62bb", "src": "core/src/result.rs:1830", "en": "Converts from `Result<Result<T, E>, E>` to `Result<T, E>`"}
+{"id": "84b8b3898312", "src": "core/src/result.rs:1972", "en": "An iterator over a reference to the `Ok` variant of a `Result`."}
+{"id": "a0716ccf1e4c", "src": "core/src/result.rs:1972", "en": "The iterator yields one value if the result is `Ok`, otherwise none."}
+{"id": "bdda60c0e3e3", "src": "core/src/result.rs:1972", "en": "Created by `Result::iter`."}
+{"id": "07dfe4e4d174", "src": "core/src/result.rs:2023", "en": "An iterator over a mutable reference to the `Ok` variant of a `Result`."}
+{"id": "da4b24fce29a", "src": "core/src/result.rs:2023", "en": "Created by `Result::iter_mut`."}
+{"id": "4fca98c2ca51", "src": "core/src/result.rs:2064", "en": "An iterator over the value in a `Ok` variant of a `Result`."}
+{"id": "2d2e22e69adb", "src": "core/src/result.rs:2064", "en": "This struct is created by the `into_iter` method on `Result` (provided by the `IntoIterator` trait)."}
+{"id": "ec121c22b896", "src": "core/src/result.rs:2064", "en": "`into_iter`: IntoIterator::into_iter"}
+{"id": "209d43494a95", "src": "core/src/result.rs:2116", "en": "Takes each element in the `Iterator`: if it is an `Err`, no further elements are taken, and the `Err` is returned. Should no `Err` occur, a container with the values of each `Result` is returned."}
+{"id": "8be714949bc6", "src": "core/src/result.rs:2116", "en": "Here is an example which increments every integer in a vector, checking for overflow:"}
+{"id": "cb905b958b5a", "src": "core/src/result.rs:2116", "en": "Here is a variation on the previous example, showing that no further elements are taken from `iter` after the first `Err`."}
+{"id": "9173e33ca176", "src": "core/src/iter/traits/iterator.rs:16", "en": "A trait for dealing with iterators."}
+{"id": "ba4aecaceaa3", "src": "core/src/iter/traits/iterator.rs:16", "en": "This is the main iterator trait. For more about the concept of iterators generally, please see the [module-level documentation]. In particular, you may want to know how to [implement `Iterator`][impl]."}
+{"id": "a005b8c0d316", "src": "core/src/iter/traits/iterator.rs:16", "en": "[module-level documentation]: crate::iter [impl]: crate::iter#implementing-iterator"}
+{"id": "f7d869126e3c", "src": "core/src/iter/traits/iterator.rs:43", "en": "The type of the elements being iterated over."}
+{"id": "bc73315bb680", "src": "core/src/iter/traits/iterator.rs:48", "en": "Advances the iterator and returns the next value."}
+{"id": "6403eb3ffe4b", "src": "core/src/iter/traits/iterator.rs:48", "en": "Returns `None` when iteration is finished. Individual iterator implementations may choose to resume iteration, and so calling `next()` again may or may not eventually start returning `Some(Item)` again at some point."}
+{"id": "08c093424885", "src": "core/src/iter/traits/iterator.rs:48", "en": "`Some(Item)`: Some"}
+{"id": "76a9a00ba56f", "src": "core/src/iter/traits/iterator.rs:80", "en": "Advances the iterator and returns an array containing the next `N` values."}
+{"id": "fc8fe958146c", "src": "core/src/iter/traits/iterator.rs:80", "en": "If there are not enough elements to fill the array then `Err` is returned containing an iterator over the remaining elements."}
+{"id": "d777a26a21fe", "src": "core/src/iter/traits/iterator.rs:80", "en": "Split a string and get the first three items."}
+{"id": "f4e14676896d", "src": "core/src/iter/traits/iterator.rs:121", "en": "Returns the bounds on the remaining length of the iterator."}
+{"id": "d595a07ea70a", "src": "core/src/iter/traits/iterator.rs:121", "en": "Specifically, `size_hint()` returns a tuple where the first element is the lower bound, and the second element is the upper bound."}
+{"id": "246aa4cc458d", "src": "core/src/iter/traits/iterator.rs:121", "en": "The second half of the tuple that is returned is an <code>[Option]<[usize]></code>. A `None` here means that either there is no known upper bound, or the upper bound is larger than `usize`."}
+{"id": "e0bf2dc952ab", "src": "core/src/iter/traits/iterator.rs:121", "en": "Implementation notes"}
+{"id": "fe10caafa0ee", "src": "core/src/iter/traits/iterator.rs:121", "en": "It is not enforced that an iterator implementation yields the declared number of elements. A buggy iterator may yield less than the lower bound or more than the upper bound of elements."}
+{"id": "a72ea69ad205", "src": "core/src/iter/traits/iterator.rs:121", "en": "`size_hint()` is primarily intended to be used for optimizations such as reserving space for the elements of the iterator, but must not be trusted to e.g., omit bounds checks in unsafe code. An incorrect implementation of `size_hint()` should not lead to memory safety violations."}
+{"id": "44e204c68327", "src": "core/src/iter/traits/iterator.rs:121", "en": "That said, the implementation should provide a correct estimation, because otherwise it would be a violation of the trait's protocol."}
+{"id": "599d197f8475", "src": "core/src/iter/traits/iterator.rs:121", "en": "The default implementation returns <code>(0, [None])</code> which is correct for any iterator."}
+{"id": "29558e1ce925", "src": "core/src/iter/traits/iterator.rs:121", "en": "A more complex example:"}
+{"id": "5d58443176d7", "src": "core/src/iter/traits/iterator.rs:121", "en": "Returning `None` for an upper bound:"}
+{"id": "731705c38593", "src": "core/src/iter/traits/iterator.rs:193", "en": "Consumes the iterator, counting the number of iterations and returning it."}
+{"id": "cb003a8c88a3", "src": "core/src/iter/traits/iterator.rs:193", "en": "This method will call `next` repeatedly until `None` is encountered, returning the number of times it saw `Some`. Note that `next` has to be called at least once even if the iterator does not have any elements."}
+{"id": "1eea90074246", "src": "core/src/iter/traits/iterator.rs:193", "en": "`next`: Iterator::next"}
+{"id": "3467b7b5de17", "src": "core/src/iter/traits/iterator.rs:193", "en": "Overflow Behavior"}
+{"id": "042fab6e8246", "src": "core/src/iter/traits/iterator.rs:193", "en": "The method does no guarding against overflows, so counting elements of an iterator with more than `usize::MAX` elements either produces the wrong result or panics. If overflow checks are enabled, a panic is guaranteed."}
+{"id": "08553cbc7002", "src": "core/src/iter/traits/iterator.rs:193", "en": "This function might panic if the iterator has more than `usize::MAX` elements."}
+{"id": "e6be631c95fe", "src": "core/src/iter/traits/iterator.rs:236", "en": "Consumes the iterator, returning the last element."}
+{"id": "11ada0049a7a", "src": "core/src/iter/traits/iterator.rs:236", "en": "This method will evaluate the iterator until it returns `None`. While doing so, it keeps track of the current element. After `None` is returned, `last()` will then return the last element it saw."}
+{"id": "4364e0a63619", "src": "core/src/iter/traits/iterator.rs:236", "en": "This function might panic if the iterator is infinite."}
+{"id": "3cf7ea5a6fe1", "src": "core/src/iter/traits/iterator.rs:274", "en": "Advances the iterator by `n` elements."}
+{"id": "bd0d2dec9644", "src": "core/src/iter/traits/iterator.rs:274", "en": "This method will eagerly skip `n` elements by calling `next` up to `n` times until `None` is encountered."}
+{"id": "6aee22d47856", "src": "core/src/iter/traits/iterator.rs:274", "en": "`advance_by(n)` will return `Ok(())` if the iterator successfully advances by `n` elements, or a `Err(NonZero<usize>)` with value `k` if `None` is encountered, where `k` is remaining number of steps that could not be advanced because the iterator ran out. If `self` is empty and `n` is non-zero, then this returns `Err(n)`. Otherwise, `k` is always less than `n`."}
+{"id": "ab45699d5134", "src": "core/src/iter/traits/iterator.rs:274", "en": "Calling `advance_by(0)` can do meaningful work, for example `Flatten` can advance its outer iterator until it finds an inner iterator that is not empty, which then often allows it to return a more accurate `size_hint()` than in its initial state."}
+{"id": "f36459368f39", "src": "core/src/iter/traits/iterator.rs:274", "en": "`Flatten`: crate::iter::Flatten `next`: Iterator::next"}
+{"id": "9f7a15372f66", "src": "core/src/iter/traits/iterator.rs:311", "en": "Helper trait to specialize `advance_by` via `try_fold` for `Sized` iterators."}
+{"id": "c6bdb231beac", "src": "core/src/iter/traits/iterator.rs:346", "en": "Returns the `n`th element of the iterator."}
+{"id": "cade02c2dbfc", "src": "core/src/iter/traits/iterator.rs:346", "en": "Like most indexing operations, the count starts from zero, so `nth(0)` returns the first value, `nth(1)` the second, and so on."}
+{"id": "20cd94cea004", "src": "core/src/iter/traits/iterator.rs:346", "en": "Note that all preceding elements, as well as the returned element, will be consumed from the iterator. That means that the preceding elements will be discarded, and also that calling `nth(0)` multiple times on the same iterator will return different elements."}
+{"id": "a5c2f20c5f44", "src": "core/src/iter/traits/iterator.rs:346", "en": "`nth()` will return `None` if `n` is greater than or equal to the length of the iterator."}
+{"id": "5af321e8b47d", "src": "core/src/iter/traits/iterator.rs:346", "en": "Calling `nth()` multiple times doesn't rewind the iterator:"}
+{"id": "379294faaacd", "src": "core/src/iter/traits/iterator.rs:346", "en": "Returning `None` if there are less than `n + 1` elements:"}
+{"id": "3d37ca88895d", "src": "core/src/iter/traits/iterator.rs:393", "en": "Creates an iterator starting at the same point, but stepping by the given amount at each iteration."}
+{"id": "375f6bc156b4", "src": "core/src/iter/traits/iterator.rs:393", "en": "Note 1: The first element of the iterator will always be returned, regardless of the step given."}
+{"id": "9b54d8bf12b7", "src": "core/src/iter/traits/iterator.rs:393", "en": "Note 2: The time at which ignored elements are pulled is not fixed. `StepBy` behaves like the sequence `self.next()`, `self.nth(step-1)`, `self.nth(step-1)`, …, but is also free to behave like the sequence `advance_n_and_return_first(&mut self, step)`, `advance_n_and_return_first(&mut self, step)`, … Which way is used may change for some iterators for performance reasons. The second way will advance the iterator earlier and may consume more items."}
+{"id": "a61ddf572c17", "src": "core/src/iter/traits/iterator.rs:393", "en": "The method will panic if the given step is `0`."}
+{"id": "5f95b9cdf980", "src": "core/src/iter/traits/iterator.rs:446", "en": "Takes two iterators and creates a new iterator over both in sequence."}
+{"id": "19669a201a60", "src": "core/src/iter/traits/iterator.rs:446", "en": "`chain()` will return a new iterator which will first iterate over values from the first iterator and then over values from the second iterator."}
+{"id": "3f6bdd62db2c", "src": "core/src/iter/traits/iterator.rs:446", "en": "In other words, it links two iterators together, in a chain. 🔗"}
+{"id": "989c367762ba", "src": "core/src/iter/traits/iterator.rs:446", "en": "`once` is commonly used to adapt a single value into a chain of other kinds of iteration."}
+{"id": "f19cc053f69e", "src": "core/src/iter/traits/iterator.rs:446", "en": "Since the argument to `chain()` uses `IntoIterator`, we can pass anything that can be converted into an `Iterator`, not just an `Iterator` itself. For example, arrays (`[T]`) implement `IntoIterator`, and so can be passed to `chain()` directly:"}
+{"id": "23fd9a28d979", "src": "core/src/iter/traits/iterator.rs:446", "en": "If you work with Windows API, you may wish to convert `OsStr` to `Vec<u16>`:"}
+{"id": "5680bde77430", "src": "core/src/iter/traits/iterator.rs:446", "en": "`once`: crate::iter::once `OsStr`: ../../std/ffi/struct.OsStr.html"}
+{"id": "47902c1a4e55", "src": "core/src/iter/traits/iterator.rs:518", "en": "'Zips up' two iterators into a single iterator of pairs."}
+{"id": "bf8536157657", "src": "core/src/iter/traits/iterator.rs:518", "en": "`zip()` returns a new iterator that will iterate over two other iterators, returning a tuple where the first element comes from the first iterator, and the second element comes from the second iterator."}
+{"id": "89979b2fec01", "src": "core/src/iter/traits/iterator.rs:518", "en": "In other words, it zips two iterators together, into a single one."}
+{"id": "e06cac9cd491", "src": "core/src/iter/traits/iterator.rs:518", "en": "If either iterator returns `None`, `next` from the zipped iterator will return `None`. If the zipped iterator has no more elements to return then each further attempt to advance it will first try to advance the first iterator at most one time and if it still yielded an item try to advance the second iterator at most one time."}
+{"id": "8701ffdf4382", "src": "core/src/iter/traits/iterator.rs:518", "en": "To 'undo' the result of zipping up two iterators, see `unzip`."}
+{"id": "12b1a1c5e63c", "src": "core/src/iter/traits/iterator.rs:518", "en": "`unzip`: Iterator::unzip"}
+{"id": "ccbfc34ddf8f", "src": "core/src/iter/traits/iterator.rs:518", "en": "Since the argument to `zip()` uses `IntoIterator`, we can pass anything that can be converted into an `Iterator`, not just an `Iterator` itself. For example, arrays (`[T]`) implement `IntoIterator`, and so can be passed to `zip()` directly:"}
+{"id": "347864c863fe", "src": "core/src/iter/traits/iterator.rs:518", "en": "`zip()` is often used to zip an infinite iterator to a finite one. This works because the finite iterator will eventually return `None`, ending the zipper. Zipping with `(0..)` can look a lot like `enumerate`:"}
+{"id": "2b964c9e789a", "src": "core/src/iter/traits/iterator.rs:518", "en": "If both iterators have roughly equivalent syntax, it may be more readable to use `zip`:"}
+{"id": "b2d90981250a", "src": "core/src/iter/traits/iterator.rs:518", "en": "compared to:"}
+{"id": "561db2f4e289", "src": "core/src/iter/traits/iterator.rs:518", "en": "`enumerate`: Iterator::enumerate `next`: Iterator::next `zip`: crate::iter::zip"}
+{"id": "b4612d0dccf0", "src": "core/src/iter/traits/iterator.rs:637", "en": "Creates a new iterator which places a copy of `separator` between items of the original iterator."}
+{"id": "986cad1520c0", "src": "core/src/iter/traits/iterator.rs:637", "en": "Specifically on fused iterators, it is guaranteed that the new iterator places a copy of `separator` between *adjacent* `Some(_)` items. For non-fused iterators, it is guaranteed that `intersperse` will create a new iterator that places a copy of `separator` between `Some(_)` items, particularly just right before the subsequent `Some(_)` item."}
+{"id": "245c38ba004a", "src": "core/src/iter/traits/iterator.rs:637", "en": "For example, consider the following non-fused iterator:"}
+{"id": "e457477d84b9", "src": "core/src/iter/traits/iterator.rs:637", "en": "If this non-fused iterator were to be interspersed with `0`, then the interspersed iterator will produce:"}
+{"id": "9a94315ca793", "src": "core/src/iter/traits/iterator.rs:637", "en": "In case `separator` does not implement `Clone` or needs to be computed every time, use `intersperse_with`."}
+{"id": "fff3be8fa760", "src": "core/src/iter/traits/iterator.rs:637", "en": "`Clone`: crate::clone::Clone `intersperse`: Iterator::intersperse `intersperse_with`: Iterator::intersperse_with"}
+{"id": "d5fe07c9c096", "src": "core/src/iter/traits/iterator.rs:701", "en": "Creates a new iterator which places an item generated by `separator` between items of the original iterator."}
+{"id": "12328ead9f09", "src": "core/src/iter/traits/iterator.rs:701", "en": "Specifically on fused iterators, it is guaranteed that the new iterator places an item generated by `separator` between adjacent `Some(_)` items. For non-fused iterators, it is guaranteed that `intersperse_with` will create a new iterator that places an item generated by `separator` between `Some(_)` items, particularly just right before the subsequent `Some(_)` item."}
+{"id": "963e14c937e1", "src": "core/src/iter/traits/iterator.rs:701", "en": "If this non-fused iterator were to be interspersed with a `separator` closure that returns `0` repeatedly, the interspersed iterator will produce:"}
+{"id": "125d351962fe", "src": "core/src/iter/traits/iterator.rs:701", "en": "The `separator` closure will be called exactly once each time an item is placed between two adjacent items from the underlying iterator; specifically, the closure is not called if the underlying iterator yields less than two items and after the last item is yielded."}
+{"id": "5d7b623f97e1", "src": "core/src/iter/traits/iterator.rs:701", "en": "If the iterator's item implements `Clone`, it may be easier to use `intersperse`."}
+{"id": "cd9e4e1ce47c", "src": "core/src/iter/traits/iterator.rs:780", "en": "Takes a closure and creates an iterator which calls that closure on each element."}
+{"id": "f3c8d76a0165", "src": "core/src/iter/traits/iterator.rs:780", "en": "`map()` transforms one iterator into another, by means of its argument: something that implements `FnMut`. It produces a new iterator which calls this closure on each element of the original iterator."}
+{"id": "978d93a2e796", "src": "core/src/iter/traits/iterator.rs:780", "en": "If you are good at thinking in types, you can think of `map()` like this: If you have an iterator that gives you elements of some type `A`, and you want an iterator of some other type `B`, you can use `map()`, passing a closure that takes an `A` and returns a `B`."}
+{"id": "0c38ad507701", "src": "core/src/iter/traits/iterator.rs:780", "en": "`map()` is conceptually similar to a `for` loop. However, as `map()` is lazy, it is best used when you're already working with other iterators. If you're doing some sort of looping for a side effect, it's considered more idiomatic to use `for` than `map()`."}
+{"id": "7a1e94ad8986", "src": "core/src/iter/traits/iterator.rs:780", "en": "`for`: ../../book/ch03-05-control-flow.html#looping-through-a-collection-with-for"}
+{"id": "850000ed2659", "src": "core/src/iter/traits/iterator.rs:780", "en": "If you're doing some sort of side effect, prefer `for` to `map()`:"}
+{"id": "e95d263a4a07", "src": "core/src/iter/traits/iterator.rs:839", "en": "Calls a closure on each element of an iterator."}
+{"id": "efea207239d8", "src": "core/src/iter/traits/iterator.rs:839", "en": "This is equivalent to using a `for` loop on the iterator, although `break` and `continue` are not possible from a closure. It's generally more idiomatic to use a `for` loop, but `for_each` may be more legible when processing items at the end of longer iterator chains. In some cases `for_each` may also be faster than a loop, because it will use internal iteration on adapters like `Chain`."}
+{"id": "09f85f383dfb", "src": "core/src/iter/traits/iterator.rs:839", "en": "For such a small example, a `for` loop may be cleaner, but `for_each` might be preferable to keep a functional style with longer iterators:"}
+{"id": "203b9095060a", "src": "core/src/iter/traits/iterator.rs:890", "en": "Creates an iterator which uses a closure to determine if an element should be yielded."}
+{"id": "b9846a2128e6", "src": "core/src/iter/traits/iterator.rs:890", "en": "Given an element the closure must return `true` or `false`. The returned iterator will yield only the elements for which the closure returns `true`."}
+{"id": "baa13c399e15", "src": "core/src/iter/traits/iterator.rs:890", "en": "Because the closure passed to `filter()` takes a reference, and many iterators iterate over references, this leads to a possibly confusing situation, where the type of the closure is a double reference:"}
+{"id": "ba017d93d634", "src": "core/src/iter/traits/iterator.rs:890", "en": "It's common to instead use destructuring on the argument to strip away one:"}
+{"id": "c0abe78d3f9c", "src": "core/src/iter/traits/iterator.rs:890", "en": "or both:"}
+{"id": "a08e1bd8b589", "src": "core/src/iter/traits/iterator.rs:890", "en": "of these layers."}
+{"id": "b473e8a33997", "src": "core/src/iter/traits/iterator.rs:890", "en": "Note that `iter.filter(f).next()` is equivalent to `iter.find(f)`."}
+{"id": "a0489206c165", "src": "core/src/iter/traits/iterator.rs:960", "en": "Creates an iterator that both filters and maps."}
+{"id": "0d9b1515d229", "src": "core/src/iter/traits/iterator.rs:960", "en": "The returned iterator yields only the `value`s for which the supplied closure returns `Some(value)`."}
+{"id": "a74e85beeeaa", "src": "core/src/iter/traits/iterator.rs:960", "en": "`filter_map` can be used to make chains of `filter` and `map` more concise. The example below shows how a `map().filter().map()` can be shortened to a single call to `filter_map`."}
+{"id": "7d8f95287360", "src": "core/src/iter/traits/iterator.rs:960", "en": "`filter`: Iterator::filter `map`: Iterator::map"}
+{"id": "f20b9b2384e1", "src": "core/src/iter/traits/iterator.rs:960", "en": "Here's the same example, but with `filter` and `map`:"}
+{"id": "3f2236de7155", "src": "core/src/iter/traits/iterator.rs:1005", "en": "Creates an iterator which gives the current iteration count as well as the next value."}
+{"id": "edf0c7ad8c5e", "src": "core/src/iter/traits/iterator.rs:1005", "en": "The iterator returned yields pairs `(i, val)`, where `i` is the current index of iteration and `val` is the value returned by the iterator."}
+{"id": "45ef67caa186", "src": "core/src/iter/traits/iterator.rs:1005", "en": "`enumerate()` keeps its count as a `usize`. If you want to count by a different sized integer, the `zip` function provides similar functionality."}
+{"id": "4335b35deb34", "src": "core/src/iter/traits/iterator.rs:1005", "en": "The method does no guarding against overflows, so enumerating more than `usize::MAX` elements either produces the wrong result or panics. If overflow checks are enabled, a panic is guaranteed."}
+{"id": "3b4e85e3a7a9", "src": "core/src/iter/traits/iterator.rs:1005", "en": "The returned iterator might panic if the to-be-returned index would overflow a `usize`."}
+{"id": "9d625cca2b15", "src": "core/src/iter/traits/iterator.rs:1005", "en": "`zip`: Iterator::zip"}
+{"id": "ab10ad9aaebf", "src": "core/src/iter/traits/iterator.rs:1051", "en": "Creates an iterator which can use the `peek` and `peek_mut` methods to look at the next element of the iterator without consuming it. See their documentation for more information."}
+{"id": "15026ca1992a", "src": "core/src/iter/traits/iterator.rs:1051", "en": "Note that the underlying iterator is still advanced when `peek` or `peek_mut` are called for the first time: In order to retrieve the next element, `next` is called on the underlying iterator, hence any side effects (i.e. anything other than fetching the next value) of the `next` method will occur."}
+{"id": "74d65615b9ea", "src": "core/src/iter/traits/iterator.rs:1051", "en": "Using `peek_mut` to mutate the next item without advancing the iterator:"}
+{"id": "db02cb4397f9", "src": "core/src/iter/traits/iterator.rs:1051", "en": "`peek`: Peekable::peek `peek_mut`: Peekable::peek_mut `next`: Iterator::next"}
+{"id": "86f8cfcd45c8", "src": "core/src/iter/traits/iterator.rs:1122", "en": "Creates an iterator that `skip`s elements based on a predicate."}
+{"id": "42cb5e6b132e", "src": "core/src/iter/traits/iterator.rs:1122", "en": "`skip`: Iterator::skip"}
+{"id": "4d207f430d04", "src": "core/src/iter/traits/iterator.rs:1122", "en": "`skip_while()` takes a closure as an argument. It will call this closure on each element of the iterator, and ignore elements until it returns `false`."}
+{"id": "14fe4259b985", "src": "core/src/iter/traits/iterator.rs:1122", "en": "After `false` is returned, `skip_while()`'s job is over, and the rest of the elements are yielded."}
+{"id": "b9f939146194", "src": "core/src/iter/traits/iterator.rs:1122", "en": "Because the closure passed to `skip_while()` takes a reference, and many iterators iterate over references, this leads to a possibly confusing situation, where the type of the closure argument is a double reference:"}
+{"id": "0ead5b70c368", "src": "core/src/iter/traits/iterator.rs:1122", "en": "Stopping after an initial `false`:"}
+{"id": "67495929d547", "src": "core/src/iter/traits/iterator.rs:1188", "en": "Creates an iterator that yields elements based on a predicate."}
+{"id": "529f191e9bf4", "src": "core/src/iter/traits/iterator.rs:1188", "en": "`take_while()` takes a closure as an argument. It will call this closure on each element of the iterator, and yield elements while it returns `true`."}
+{"id": "1518f6bb3474", "src": "core/src/iter/traits/iterator.rs:1188", "en": "After `false` is returned, `take_while()`'s job is over, and the rest of the elements are ignored."}
+{"id": "39b40ab1649c", "src": "core/src/iter/traits/iterator.rs:1188", "en": "Because the closure passed to `take_while()` takes a reference, and many iterators iterate over references, this leads to a possibly confusing situation, where the type of the closure is a double reference:"}
+{"id": "be7b57fe8d3d", "src": "core/src/iter/traits/iterator.rs:1188", "en": "Because `take_while()` needs to look at the value in order to see if it should be included or not, consuming iterators will see that it is removed:"}
+{"id": "98e00c37aab4", "src": "core/src/iter/traits/iterator.rs:1188", "en": "The `3` is no longer there, because it was consumed in order to see if the iteration should stop, but wasn't placed back into the iterator."}
+{"id": "6a3752343b37", "src": "core/src/iter/traits/iterator.rs:1266", "en": "Creates an iterator that both yields elements based on a predicate and maps."}
+{"id": "0ca9f2bc1ba2", "src": "core/src/iter/traits/iterator.rs:1266", "en": "`map_while()` takes a closure as an argument. It will call this closure on each element of the iterator, and yield elements while it returns `Some(_)`."}
+{"id": "63262f540dbb", "src": "core/src/iter/traits/iterator.rs:1266", "en": "Here's the same example, but with `take_while` and `map`:"}
+{"id": "996bdecd7f65", "src": "core/src/iter/traits/iterator.rs:1266", "en": "`take_while`: Iterator::take_while `map`: Iterator::map"}
+{"id": "6c7f9d22538e", "src": "core/src/iter/traits/iterator.rs:1266", "en": "Stopping after an initial `None`:"}

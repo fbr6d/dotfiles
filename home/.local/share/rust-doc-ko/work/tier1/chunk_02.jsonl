@@ -1,0 +1,176 @@
+{"id": "8b44e66bbf28", "src": "alloc/src/string.rs:2014", "en": "It's important to remember that `char` represents a Unicode Scalar Value, and might not match your idea of what a 'character' is. Iteration over grapheme clusters may be what you actually want. That functionality is not provided by Rust's standard library, check crates.io instead."}
+{"id": "9f77e2e3866d", "src": "alloc/src/string.rs:2014", "en": "Remember, `char`s might not match your intuition about characters:"}
+{"id": "dff3d5cd767c", "src": "alloc/src/string.rs:2014", "en": "`char`: prim@char"}
+{"id": "12ba56a3f06a", "src": "alloc/src/string.rs:2069", "en": "Removes the specified range in the string, and replaces it with the given string. The given string doesn't need to be the same length as the range."}
+{"id": "a3054f5e35f4", "src": "alloc/src/string.rs:2110", "en": "Replaces the leftmost occurrence of a pattern with another string, in-place."}
+{"id": "c5ce5b90f0bb", "src": "alloc/src/string.rs:2110", "en": "This method can be preferred over `string = string.replacen(..., 1);`, as it can use the `String`'s existing capacity to prevent a reallocation if sufficient space is available."}
+{"id": "3a2ed67217ff", "src": "alloc/src/string.rs:2110", "en": "[replacen]: ../../std/primitive.str.html#method.replacen"}
+{"id": "a35a21d1b824", "src": "alloc/src/string.rs:2142", "en": "Replaces the rightmost occurrence of a pattern with another string, in-place."}
+{"id": "c9db73a28be4", "src": "alloc/src/string.rs:2171", "en": "Converts this `String` into a <code>[Box]<[str]></code>."}
+{"id": "ff9574832534", "src": "alloc/src/string.rs:2171", "en": "Before doing the conversion, this method discards excess capacity like `shrink_to_fit`. Note that this call may reallocate and copy the bytes of the string."}
+{"id": "3d85828b3936", "src": "alloc/src/string.rs:2171", "en": "`shrink_to_fit`: String::shrink_to_fit [str]: prim@str \"str\""}
+{"id": "38f93afc1b73", "src": "alloc/src/string.rs:2195", "en": "Consumes and leaks the `String`, returning a mutable reference to the contents, `&'a mut str`."}
+{"id": "2291f549887b", "src": "alloc/src/string.rs:2195", "en": "The caller has free choice over the returned lifetime, including `'static`. Indeed, this function is ideally used for data that lives for the remainder of the program's life, as dropping the returned reference will cause a memory leak."}
+{"id": "db4925bebd3f", "src": "alloc/src/string.rs:2195", "en": "It does not reallocate or shrink the `String`, so the leaked allocation may include unused capacity that is not part of the returned slice. If you want to discard excess capacity, call `into_boxed_str`, and then `Box::leak` instead. However, keep in mind that trimming the capacity may result in a reallocation and copy."}
+{"id": "864ff8a976b0", "src": "alloc/src/string.rs:2195", "en": "`into_boxed_str`: Self::into_boxed_str"}
+{"id": "9a672ad6a2ce", "src": "alloc/src/string.rs:2228", "en": "Returns a slice of `u8`s bytes that were attempted to convert to a `String`."}
+{"id": "e31fc3e48752", "src": "alloc/src/string.rs:2246", "en": "Converts the bytes into a `String` lossily, substituting invalid UTF-8 sequences with replacement characters."}
+{"id": "848f87e2119e", "src": "alloc/src/string.rs:2246", "en": "See `String::from_utf8_lossy` for more details on replacement of invalid sequences, and `String::from_utf8_lossy_owned` for the `String` function which corresponds to this function."}
+{"id": "3bc356581721", "src": "alloc/src/string.rs:2246", "en": "This is useful in conjunction with `String::from_utf8` when you need to branch on whether the bytes are valid UTF-8, but still want to recover a lossily converted `String` in the error case. Use `String::from_utf8_lossy_owned` if you always need a lossily converted `String`."}
+{"id": "f8b45854f1fa", "src": "alloc/src/string.rs:2246", "en": "Since the original `String::from_utf8` error records where validation stopped, this method does not need to re-check the already valid prefix of the byte sequence."}
+{"id": "8b99ff98dab7", "src": "alloc/src/string.rs:2311", "en": "Returns the bytes that were attempted to convert to a `String`."}
+{"id": "0b2c9d3aaaa7", "src": "alloc/src/string.rs:2311", "en": "This method is carefully constructed to avoid allocation. It will consume the error, moving out the bytes, so that a copy of the bytes does not need to be made."}
+{"id": "5e63823169b1", "src": "alloc/src/string.rs:2333", "en": "Fetch a `Utf8Error` to get more details about the conversion failure."}
+{"id": "ff84f96a602f", "src": "alloc/src/string.rs:2333", "en": "The `Utf8Error` type provided by `std::str` represents an error that may occur when converting a slice of `u8`s to a `&str`. In this sense, it's an analogue to `FromUtf8Error`. See its documentation for more details on using it."}
+{"id": "79f4ec43da57", "src": "alloc/src/string.rs:2333", "en": "`std::str`: core::str \"std::str\" `&str`: prim@str \"&str\""}
+{"id": "57ee15de150d", "src": "alloc/src/string.rs:2392", "en": "Clones the contents of `source` into `self`."}
+{"id": "d0eb0eb79d6d", "src": "alloc/src/string.rs:2392", "en": "This method is preferred over simply assigning `source.clone()` to `self`, as it avoids reallocation if possible."}
+{"id": "a660605b3d4a", "src": "alloc/src/string.rs:2642", "en": "A convenience impl that delegates to the impl for `&str`."}
+{"id": "b7bd5d945e2b", "src": "alloc/src/string.rs:2738", "en": "Creates an empty `String`."}
+{"id": "87caf5dbb5e3", "src": "alloc/src/string.rs:2769", "en": "Implements the `+` operator for concatenating two strings."}
+{"id": "6c95e2f564c5", "src": "alloc/src/string.rs:2769", "en": "This consumes the `String` on the left-hand side and re-uses its buffer (growing it if necessary). This is done to avoid allocating a new `String` and copying the entire contents on every operation, which would lead to *O*(*n*^2) running time when building an *n*-byte string by repeated concatenation."}
+{"id": "005d9131a4dc", "src": "alloc/src/string.rs:2769", "en": "The string on the right-hand side is only borrowed; its contents are copied into the returned `String`."}
+{"id": "ae5cad25fcc6", "src": "alloc/src/string.rs:2769", "en": "Concatenating two `String`s takes the first by value and borrows the second:"}
+{"id": "792a416d33e6", "src": "alloc/src/string.rs:2769", "en": "If you want to keep using the first `String`, you can clone it and append to the clone instead:"}
+{"id": "9e106669eaa7", "src": "alloc/src/string.rs:2769", "en": "Concatenating `&str` slices can be done by converting the first to a `String`:"}
+{"id": "75743f63aba3", "src": "alloc/src/string.rs:2818", "en": "Implements the `+=` operator for appending to a `String`."}
+{"id": "671c03aecba1", "src": "alloc/src/string.rs:2818", "en": "This has the same behavior as the `push_str` method."}
+{"id": "f954d7c2cabd", "src": "alloc/src/string.rs:2875", "en": "A type alias for `Infallible`."}
+{"id": "75b75d5ae6c1", "src": "alloc/src/string.rs:2875", "en": "This alias exists for backwards compatibility, and may be eventually deprecated."}
+{"id": "6b9e385d3d71", "src": "alloc/src/string.rs:2875", "en": "`Infallible`: core::convert::Infallible \"convert::Infallible\""}
+{"id": "1abeffa3d45b", "src": "alloc/src/string.rs:2893", "en": "A trait for converting a value to a `String`."}
+{"id": "3f7f5057da71", "src": "alloc/src/string.rs:2893", "en": "This trait is automatically implemented for any type which implements the `Display` trait. As such, `ToString` shouldn't be implemented directly: `Display` should be implemented instead, and you get the `ToString` implementation for free."}
+{"id": "8baf87194903", "src": "alloc/src/string.rs:2893", "en": "`Display`: fmt::Display"}
+{"id": "4bbdc12082fe", "src": "alloc/src/string.rs:2904", "en": "Converts the given value to a `String`."}
+{"id": "dfc0a5d9613c", "src": "alloc/src/string.rs:2920", "en": "In this implementation, the `to_string` method panics if the `Display` implementation returns an error. This indicates an incorrect `Display` implementation since `fmt::Write for String` never returns an error itself."}
+{"id": "cb10a9907cc4", "src": "alloc/src/string.rs:3146", "en": "Converts a `&str` into a `String`."}
+{"id": "c54e546283bf", "src": "alloc/src/string.rs:3146", "en": "The result is allocated on the heap."}
+{"id": "df7bb9f79000", "src": "alloc/src/string.rs:3158", "en": "Converts a `&mut str` into a `String`."}
+{"id": "c37ca3df1c5a", "src": "alloc/src/string.rs:3170", "en": "Converts a `&String` into a `String`."}
+{"id": "eea948d9599a", "src": "alloc/src/string.rs:3170", "en": "This clones `s` and returns the clone."}
+{"id": "dada9e9c8931", "src": "alloc/src/string.rs:3182", "en": "Converts the given boxed `str` slice to a `String`. It is notable that the `str` slice is owned."}
+{"id": "5915f2bc5c29", "src": "alloc/src/string.rs:3202", "en": "Converts the given `String` to a boxed `str` slice that is owned."}
+{"id": "5a8f2deb2df7", "src": "alloc/src/string.rs:3221", "en": "Converts a clone-on-write string to an owned instance of `String`."}
+{"id": "f62b87653ddf", "src": "alloc/src/string.rs:3221", "en": "This extracts the owned string, clones the string if it is not already owned."}
+{"id": "0f01ed56a1e3", "src": "alloc/src/string.rs:3221", "en": "Example"}
+{"id": "3a6a5394d6ef", "src": "alloc/src/string.rs:3245", "en": "Converts a string slice into a `Borrowed` variant. No heap allocation is performed, and the string is not copied."}
+{"id": "18d36c655322", "src": "alloc/src/string.rs:3245", "en": "`Borrowed`: crate::borrow::Cow::Borrowed \"borrow::Cow::Borrowed\""}
+{"id": "b8ab80ee7ad5", "src": "alloc/src/string.rs:3266", "en": "Converts a `String` into an `Owned` variant. No heap allocation is performed, and the string is not copied."}
+{"id": "1628306fee97", "src": "alloc/src/string.rs:3266", "en": "`Owned`: crate::borrow::Cow::Owned \"borrow::Cow::Owned\""}
+{"id": "4de8a1b8158f", "src": "alloc/src/string.rs:3289", "en": "Converts a `String` reference into a `Borrowed` variant. No heap allocation is performed, and the string is not copied."}
+{"id": "f23c6d04efe2", "src": "alloc/src/string.rs:3342", "en": "Converts the given `String` to a vector `Vec` that holds values of type `u8`."}
+{"id": "2c3c3112ffc0", "src": "alloc/src/string.rs:3362", "en": "Converts the given `Vec<u8>` into a `String` if it contains valid UTF-8 data."}
+{"id": "fe6fc128c3be", "src": "alloc/src/string.rs:3393", "en": "An iterator over the `char`s of a string."}
+{"id": "1f58578cdc2c", "src": "alloc/src/string.rs:3393", "en": "This struct is created by the `into_chars` method on `String`. See its documentation for more."}
+{"id": "8196bdd22e67", "src": "alloc/src/string.rs:3393", "en": "`char`: prim@char `into_chars`: String::into_chars"}
+{"id": "0d87f61e5588", "src": "alloc/src/string.rs:3415", "en": "Views the underlying data as a subslice of the original data."}
+{"id": "1efaf1ff09e7", "src": "alloc/src/string.rs:3439", "en": "Consumes the `IntoChars`, returning the remaining string."}
+{"id": "36b89b288ffd", "src": "alloc/src/string.rs:3521", "en": "A draining iterator for `String`."}
+{"id": "1c6d427b4f90", "src": "alloc/src/string.rs:3521", "en": "This struct is created by the `drain` method on `String`. See its documentation for more."}
+{"id": "99912b43e5d4", "src": "alloc/src/string.rs:3521", "en": "`drain`: String::drain"}
+{"id": "661505b145ba", "src": "alloc/src/string.rs:3529", "en": "Will be used as &'a mut String in the destructor"}
+{"id": "cf13cb122387", "src": "alloc/src/string.rs:3531", "en": "Start of part to remove"}
+{"id": "eeee04ee3921", "src": "alloc/src/string.rs:3533", "en": "End of part to remove"}
+{"id": "aa8880dbf012", "src": "alloc/src/string.rs:3535", "en": "Current remaining range to remove"}
+{"id": "fd0dfb5ec6ea", "src": "alloc/src/string.rs:3566", "en": "Returns the remaining (sub)string of this iterator as a slice."}
+{"id": "0e135b6f0905", "src": "alloc/src/string.rs:3631", "en": "Allocates an owned `String` from a single character."}
+{"id": "af9c85dde901", "src": "alloc/src/str.rs:1", "en": "Utilities for the `str` primitive type."}
+{"id": "a3ab02e15b75", "src": "alloc/src/str.rs:1", "en": "*See also the `str` primitive type.*"}
+{"id": "53ca56c75a85", "src": "alloc/src/str.rs:58", "en": "Note: `str` in `Concat<str>` is not meaningful here. This type parameter of the trait only exists to enable another impl."}
+{"id": "fd862f87c21f", "src": "alloc/src/str.rs:211", "en": "Helper for final sigma lowercase"}
+{"id": "00dd2d8a3c6a", "src": "alloc/src/str.rs:261", "en": "Methods for string slices."}
+{"id": "407031d10aaf", "src": "alloc/src/str.rs:263", "en": "Converts a `Box<str>` into a `Box<[u8]>` without copying or allocating."}
+{"id": "3306932e0c82", "src": "alloc/src/str.rs:281", "en": "Replaces all matches of a pattern with another string."}
+{"id": "a07c59f4a42e", "src": "alloc/src/str.rs:281", "en": "`replace` creates a new `String`, and copies the data from this string slice into it. While doing so, it attempts to find matches of a pattern. If it finds any, it replaces them with the replacement string slice."}
+{"id": "141e2924c1a3", "src": "alloc/src/str.rs:281", "en": "When the pattern doesn't match, it returns this string slice as `String`:"}
+{"id": "9b7b840d68bb", "src": "alloc/src/str.rs:339", "en": "Replaces first N matches of a pattern with another string."}
+{"id": "9b4e593e63b8", "src": "alloc/src/str.rs:339", "en": "`replacen` creates a new `String`, and copies the data from this string slice into it. While doing so, it attempts to find matches of a pattern. If it finds any, it replaces them with the replacement string slice at most `count` times."}
+{"id": "46a118efa028", "src": "alloc/src/str.rs:379", "en": "Returns the lowercase equivalent of this string slice, as a new `String`."}
+{"id": "2ab3d84fa2bd", "src": "alloc/src/str.rs:379", "en": "'Lowercase' is defined according to the terms of Chapter 3 (Conformance) of the Unicode standard."}
+{"id": "95023427059e", "src": "alloc/src/str.rs:379", "en": "Since some characters can expand into multiple characters when changing the case, this function returns a `String` instead of modifying the parameter in-place."}
+{"id": "c9460c0d3fbf", "src": "alloc/src/str.rs:379", "en": "Unlike `char::to_lowercase()`, this method fully handles the context-dependent casing of Greek sigma. However, like that method, it does not handle locale-specific casing, like Turkish and Azeri I/ı/İ/i. See its documentation for more information."}
+{"id": "72c4bca81204", "src": "alloc/src/str.rs:379", "en": "Tricky examples, with sigma:"}
+{"id": "ec882b1a036e", "src": "alloc/src/str.rs:379", "en": "Languages without case are not changed:"}
+{"id": "eb5d74ac0625", "src": "alloc/src/str.rs:467", "en": "Returns the titlecase equivalent of this string slice, which is assumed to represent a single word, as a new `String`."}
+{"id": "dbf38957de87", "src": "alloc/src/str.rs:467", "en": "Essentially, this consists of uppercasing the first cased letter (with `char::to_titlecase()`), and lowercasing everything that follows."}
+{"id": "1ceaf27179bd", "src": "alloc/src/str.rs:467", "en": "'Titlecase' is defined according to the terms of Chapter 3 (Conformance) of the Unicode standard."}
+{"id": "7c9975bd832d", "src": "alloc/src/str.rs:467", "en": "This method does not perform any kind of word segmentation."}
+{"id": "49a8b1d9a2f2", "src": "alloc/src/str.rs:467", "en": "The first *cased* letter is uppercased:"}
+{"id": "3b7239e54899", "src": "alloc/src/str.rs:467", "en": "Georgian uppercase (\"Mtavruli\") letters are not used in titlecase:"}
+{"id": "8d12f71993e7", "src": "alloc/src/str.rs:467", "en": "No word segmentation is performed, so only the first cased letter in the whole string gets uppercased:"}
+{"id": "80457da66261", "src": "alloc/src/str.rs:605", "en": "Returns the uppercase equivalent of this string slice, as a new `String`."}
+{"id": "02c25da9af50", "src": "alloc/src/str.rs:605", "en": "'Uppercase' is defined according to the terms of Chapter 3 (Conformance) of the Unicode standard."}
+{"id": "7fe871522d35", "src": "alloc/src/str.rs:605", "en": "Like `char::to_uppercase()` this method does not handle language-specific casing, like Turkish and Azeri I/ı/İ/i. See that method's documentation for more information."}
+{"id": "d908d24ab618", "src": "alloc/src/str.rs:605", "en": "Scripts without case are not changed:"}
+{"id": "5136d358ad1c", "src": "alloc/src/str.rs:670", "en": "Returns the case-folded equivalent of this string slice, as a new `String`."}
+{"id": "f3b98dbb7d8e", "src": "alloc/src/str.rs:670", "en": "Case folding is a transformation, mostly matching lowercase, that is meant to be used for case-insensitive string comparisons. Case-folded strings should not usually be exposed directly to users."}
+{"id": "6c9fd1686ba2", "src": "alloc/src/str.rs:670", "en": "For the precise specification of case folding, see Chapter 3 (Conformance) of the Unicode standard."}
+{"id": "7db6a52faaa1", "src": "alloc/src/str.rs:670", "en": "Since some characters can expand into multiple characters when case folding, this function returns a `String` instead of modifying the parameter in-place."}
+{"id": "599cf8a3e808", "src": "alloc/src/str.rs:670", "en": "No [normalization] (e.g. NFC) is performed, so visually and semantically identical strings might still casefold differently. For example, `\"Å\"` (U+00C5 LATIN CAPITAL LETTER A WITH RING ABOVE) is considered distinct from `\"Å\"` (A followed by U+030A COMBINING RING ABOVE), even though Unicode considers them canonically equivalent."}
+{"id": "38fd50151c67", "src": "alloc/src/str.rs:670", "en": "Like `char::to_casefold_unnormalized()` this method does not handle language-specific casing, like Turkish and Azeri I/ı/İ/i. See that method's documentation for more information."}
+{"id": "1d5bdf955d9d", "src": "alloc/src/str.rs:670", "en": "One character can become multiple:"}
+{"id": "e3d2ea2ee472", "src": "alloc/src/str.rs:670", "en": "No NFC [normalization] is performed:"}
+{"id": "45485d5a3bbe", "src": "alloc/src/str.rs:670", "en": "[normalization]: https://www.unicode.org/faq/normalization.html"}
+{"id": "f9993ccee365", "src": "alloc/src/str.rs:772", "en": "Converts a `Box<str>` into a `String` without copying or allocating."}
+{"id": "8cc0322a21eb", "src": "alloc/src/str.rs:791", "en": "Creates a new `String` by repeating a string `n` times."}
+{"id": "ffa5cde97075", "src": "alloc/src/str.rs:791", "en": "This function will panic if the capacity would overflow."}
+{"id": "79055d577bd4", "src": "alloc/src/str.rs:791", "en": "A panic upon overflow:"}
+{"id": "fb80c6b5697f", "src": "alloc/src/str.rs:820", "en": "Returns a copy of this string where each character is mapped to its ASCII upper case equivalent."}
+{"id": "2e3db4ca30ba", "src": "alloc/src/str.rs:820", "en": "ASCII letters 'a' to 'z' are mapped to 'A' to 'Z', but non-ASCII letters are unchanged."}
+{"id": "bf9170fa49ce", "src": "alloc/src/str.rs:820", "en": "To uppercase the value in-place, use `make_ascii_uppercase`."}
+{"id": "5117794ed461", "src": "alloc/src/str.rs:820", "en": "To uppercase ASCII characters in addition to non-ASCII characters, use `to_uppercase`."}
+{"id": "f76131a2f0c7", "src": "alloc/src/str.rs:820", "en": "`make_ascii_uppercase`: str::make_ascii_uppercase `to_uppercase`: #method.to_uppercase"}
+{"id": "fc61018fdc3e", "src": "alloc/src/str.rs:853", "en": "Returns a copy of this string where each character is mapped to its ASCII lower case equivalent."}
+{"id": "ca370d4b69ba", "src": "alloc/src/str.rs:853", "en": "ASCII letters 'A' to 'Z' are mapped to 'a' to 'z', but non-ASCII letters are unchanged."}
+{"id": "65df9f4cb11e", "src": "alloc/src/str.rs:853", "en": "To lowercase the value in-place, use `make_ascii_lowercase`."}
+{"id": "e232597a747e", "src": "alloc/src/str.rs:853", "en": "To lowercase ASCII characters in addition to non-ASCII characters, use `to_lowercase`."}
+{"id": "0630c021cf49", "src": "alloc/src/str.rs:853", "en": "`make_ascii_lowercase`: str::make_ascii_lowercase `to_lowercase`: #method.to_lowercase"}
+{"id": "06ffb7f201b4", "src": "alloc/src/str.rs:887", "en": "Converts a boxed slice of bytes to a boxed string slice without checking that the string contains valid UTF-8."}
+{"id": "40261a17679d", "src": "alloc/src/str.rs:887", "en": "* The provided bytes must contain a valid UTF-8 sequence."}
+{"id": "44dbca238c7e", "src": "alloc/src/str.rs:909", "en": "Internal; same as `from_boxed_utf8_unchecked` but allocator-generic. Name probably not suitable for being made `pub` as-is."}
+{"id": "6cb776911897", "src": "alloc/src/str.rs:921", "en": "Converts leading ascii bytes in `s` by calling the `convert` function."}
+{"id": "836442ef5819", "src": "alloc/src/str.rs:921", "en": "For better average performance, this happens in chunks of `2*size_of::<usize>()`."}
+{"id": "7415a49ba496", "src": "alloc/src/str.rs:921", "en": "Returns a tuple of the converted prefix and the remainder starting from the first non-ascii character."}
+{"id": "b8048bfdfa08", "src": "alloc/src/str.rs:921", "en": "This function is only public so that it can be verified in a codegen test, see `issue-123712-str-to-lower-autovectorization.rs`."}
+{"id": "b27029fe6c97", "src": "alloc/src/str.rs:921", "en": "`convert` must return an ASCII byte for every ASCII input byte."}
+{"id": "835c598a1059", "src": "alloc/src/str.rs:1011", "en": "Faster implementation of string replacement for ASCII to ASCII cases. Should produce fast vectorized code."}
+{"id": "5ea0b28c1a91", "src": "alloc/src/vec/mod.rs:1", "en": "A contiguous growable array type with heap-allocated contents, written `Vec<T>`."}
+{"id": "06840d6dc790", "src": "alloc/src/vec/mod.rs:1", "en": "Vectors have *O*(1) indexing, amortized *O*(1) push (to the end) and *O*(1) pop (from the end)."}
+{"id": "90a72220fc2d", "src": "alloc/src/vec/mod.rs:1", "en": "Vectors ensure they never allocate more than `isize::MAX` bytes."}
+{"id": "be579386a279", "src": "alloc/src/vec/mod.rs:1", "en": "You can explicitly create a `Vec` with `Vec::new`:"}
+{"id": "f18b3bd339b3", "src": "alloc/src/vec/mod.rs:1", "en": "...or by using the `vec!` macro:"}
+{"id": "60d82b602efa", "src": "alloc/src/vec/mod.rs:1", "en": "You can `push` values onto the end of a vector (which will grow the vector as needed):"}
+{"id": "a42fc2a75a37", "src": "alloc/src/vec/mod.rs:1", "en": "Popping values works in much the same way:"}
+{"id": "88b02b140a95", "src": "alloc/src/vec/mod.rs:1", "en": "Vectors also support indexing (through the `Index` and `IndexMut` traits):"}
+{"id": "475bc2651561", "src": "alloc/src/vec/mod.rs:1", "en": "Memory layout"}
+{"id": "c4046c0dfd1c", "src": "alloc/src/vec/mod.rs:1", "en": "When the type is non-zero-sized and the capacity is nonzero, `Vec` uses the `Global` allocator for its allocation. It is valid to convert both ways between such a `Vec` and a raw pointer allocated with the `Global` allocator, provided that the `Layout` used with the allocator is correct for a sequence of `capacity` elements of the type, and the first `len` values pointed to by the raw pointer are valid. More precisely, a `ptr: *mut T` that has been allocated with the `Global` allocator with `Layout::array::<T>(capacity)` may be converted into a vec using `Vec::<T>::from_raw_parts(ptr, len, capacity)`. Conversely, the memory backing a `value: *mut T` obtained from `Vec::<T>::as_mut_ptr` may be deallocated using the `Global` allocator with the same layout."}
+{"id": "6daf601cbec3", "src": "alloc/src/vec/mod.rs:1", "en": "For zero-sized types (ZSTs), or when the capacity is zero, the `Vec` pointer must be non-null and sufficiently aligned. The recommended way to build a `Vec` of ZSTs if `vec!` cannot be used is to use `ptr::NonNull::dangling`."}
+{"id": "61c41b567a33", "src": "alloc/src/vec/mod.rs:1", "en": "`push`: Vec::push `ptr::NonNull::dangling`: NonNull::dangling `Layout`: crate::alloc::Layout [Layout::array]: crate::alloc::Layout::array"}
+{"id": "41cba130bd0c", "src": "alloc/src/vec/mod.rs:173", "en": "A contiguous growable array type, written as `Vec<T>`, short for 'vector'."}
+{"id": "e1009689d997", "src": "alloc/src/vec/mod.rs:173", "en": "The `vec!` macro is provided for convenient initialization:"}
+{"id": "5dfc7de311ce", "src": "alloc/src/vec/mod.rs:173", "en": "It can also initialize each element of a `Vec<T>` with a given value. This may be more efficient than performing allocation and initialization in separate steps, especially when initializing a vector of zeros:"}
+{"id": "0e23aaf3aa0c", "src": "alloc/src/vec/mod.rs:173", "en": "For more information, see Capacity and Reallocation."}
+{"id": "c9436ee0a108", "src": "alloc/src/vec/mod.rs:173", "en": "Use a `Vec<T>` as an efficient stack:"}
+{"id": "9951861c21df", "src": "alloc/src/vec/mod.rs:173", "en": "Indexing"}
+{"id": "ab35db609da1", "src": "alloc/src/vec/mod.rs:173", "en": "The `Vec` type allows access to values by index, because it implements the `Index` trait. An example will be more explicit:"}
+{"id": "18aee2b6c891", "src": "alloc/src/vec/mod.rs:173", "en": "However be careful: if you try to access an index which isn't in the `Vec`, your software will panic! You cannot do this:"}
+{"id": "6874f8c74f02", "src": "alloc/src/vec/mod.rs:173", "en": "Use `get` and `get_mut` if you want to check whether the index is in the `Vec`."}
+{"id": "0b8d3bff7b28", "src": "alloc/src/vec/mod.rs:173", "en": "Slicing"}
+{"id": "47f0c707f1ce", "src": "alloc/src/vec/mod.rs:173", "en": "A `Vec` can be mutable. On the other hand, slices are read-only objects. To get a [slice][prim@slice], use `&`. Example:"}
+{"id": "1577de853f3c", "src": "alloc/src/vec/mod.rs:173", "en": "In Rust, it's more common to pass slices as arguments rather than vectors when you just want to provide read access. The same goes for `String` and `&str`."}
+{"id": "7a9b6deb8b49", "src": "alloc/src/vec/mod.rs:173", "en": "Capacity and reallocation"}
+{"id": "bc4f539e73d5", "src": "alloc/src/vec/mod.rs:173", "en": "The capacity of a vector is the amount of space allocated for any future elements that will be added onto the vector. This is not to be confused with the *length* of a vector, which specifies the number of actual elements within the vector. If a vector's length exceeds its capacity, its capacity will automatically be increased, but its elements will have to be reallocated."}
+{"id": "fbbda9f04ec0", "src": "alloc/src/vec/mod.rs:173", "en": "For example, a vector with capacity 10 and length 0 would be an empty vector with space for 10 more elements. Pushing 10 or fewer elements onto the vector will not change its capacity or cause reallocation to occur. However, if the vector's length is increased to 11, it will have to reallocate, which can be slow. For this reason, it is recommended to use `Vec::with_capacity` whenever possible to specify how big the vector is expected to get."}
+{"id": "e72af43a2813", "src": "alloc/src/vec/mod.rs:173", "en": "Guarantees"}
+{"id": "e87730d36ad7", "src": "alloc/src/vec/mod.rs:173", "en": "Due to its incredibly fundamental nature, `Vec` makes a lot of guarantees about its design. This ensures that it's as low-overhead as possible in the general case, and can be correctly manipulated in primitive ways by unsafe code. Note that these guarantees refer to an unqualified `Vec<T>`. If additional type parameters are added (e.g., to support custom allocators), overriding their defaults may change the behavior."}
+{"id": "41f92d91b2eb", "src": "alloc/src/vec/mod.rs:173", "en": "Most fundamentally, `Vec` is and always will be a (pointer, capacity, length) triplet. No more, no less. The order of these fields is completely unspecified, and you should use the appropriate methods to modify these. The pointer will never be null, so this type is null-pointer-optimized."}
+{"id": "9c0423e3e767", "src": "alloc/src/vec/mod.rs:173", "en": "However, the pointer might not actually point to allocated memory. In particular, if you construct a `Vec` with capacity 0 via `Vec::new`, `vec![]`, `Vec::with_capacity(0)`, or by calling `shrink_to_fit` on an empty Vec, it will not allocate memory. Similarly, if you store zero-sized types inside a `Vec`, it will not allocate space for them. *Note that in this case the `Vec` might not report a `capacity` of 0*. `Vec` will allocate if and only if <code>[size_of::\\<T>]\\() * [capacity]\\() > 0</code>. In general, `Vec`'s allocation details are very subtle --- if you intend to allocate memory using a `Vec` and use it for something else (either to pass to unsafe code, or to build your own memory-backed collection), be sure to deallocate this memory by using `from_raw_parts` to recover the `Vec` and then dropping it."}
+{"id": "cc500268a29d", "src": "alloc/src/vec/mod.rs:173", "en": "If a `Vec` *has* allocated memory, then the memory it points to is on the heap (as defined by the allocator Rust is configured to use by default), and its pointer points to `len` initialized, contiguous elements in order (what you would see if you coerced it to a slice), followed by <code>[capacity] - [len]</code> logically uninitialized, contiguous elements."}
+{"id": "3d4c4649fd7f", "src": "alloc/src/vec/mod.rs:173", "en": "A vector containing the elements `'a'` and `'b'` with capacity 4 can be visualized as below. The top part is the `Vec` struct, it contains a pointer to the head of the allocation in the heap, length and capacity. The bottom part is the allocation on the heap, a contiguous memory block."}
+{"id": "3541add6a2ce", "src": "alloc/src/vec/mod.rs:173", "en": "- **uninit** represents memory that is not initialized, see `MaybeUninit`. - Note: the ABI is not stable and `Vec` makes no guarantees about its memory layout (including the order of fields)."}
+{"id": "b3bf28718c17", "src": "alloc/src/vec/mod.rs:173", "en": "`Vec` will never perform a \"small optimization\" where elements are actually stored on the stack for two reasons:"}
+{"id": "edd8f064267a", "src": "alloc/src/vec/mod.rs:173", "en": "* It would make it more difficult for unsafe code to correctly manipulate a `Vec`. The contents of a `Vec` wouldn't have a stable address if it were only moved, and it would be more difficult to determine if a `Vec` had actually allocated memory."}
+{"id": "ba2aedb72ab8", "src": "alloc/src/vec/mod.rs:173", "en": "* It would penalize the general case, incurring an additional branch on every access."}
+{"id": "42bff7b39ba6", "src": "alloc/src/vec/mod.rs:173", "en": "`Vec` will never automatically shrink itself, even if completely empty. This ensures no unnecessary allocations or deallocations occur. Emptying a `Vec` and then filling it back up to the same `len` should incur no calls to the allocator. If you wish to free up unused memory, use `shrink_to_fit` or `shrink_to`."}
+{"id": "5639b260bf5a", "src": "alloc/src/vec/mod.rs:173", "en": "`push` and `insert` will never (re)allocate if the reported capacity is sufficient. `push` and `insert` *will* (re)allocate if <code>[len] == [capacity]</code>. That is, the reported capacity is completely accurate, and can be relied on. It can even be used to manually free the memory allocated by a `Vec` if desired. Bulk insertion methods *may* reallocate, even when not necessary."}
+{"id": "44a6eb8459ba", "src": "alloc/src/vec/mod.rs:173", "en": "`Vec` does not guarantee any particular growth strategy when reallocating when full, nor when `reserve` is called. The current strategy is basic and it may prove desirable to use a non-constant growth factor. Whatever strategy is used will of course guarantee *O*(1) amortized `push`."}

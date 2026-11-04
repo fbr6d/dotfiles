@@ -7,3 +7,8 @@ vim.opt.expandtab = true    -- spaces instead of tab characters
 vim.opt.tabstop = 2         -- a tab character shows as 2 columns
 vim.opt.shiftwidth = 2      -- >>, << and auto-indent use 2 spaces
 vim.opt.softtabstop = 2     -- Tab / Backspace move by 2 spaces
+
+-- Window title always starts with "nvim" (even when launched by another program
+-- such as rq), so kitty's F1 rule leaves F1 to nvim's shortcut list
+vim.opt.title = true
+vim.opt.titlestring = "nvim %t"

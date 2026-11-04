@@ -101,6 +101,7 @@ return {
   ["Toggle Mini Pairs"] = "괄호 자동 짝 켜기/끄기 (Mini Pairs)",
   ["Toggle Git Signs"] = "Git 변경 표시 켜기/끄기 (Git Signs)",
   ["Toggle Flash Search"] = "Flash 검색 켜기/끄기",
+  ["Toggle Korean Rust Docs"] = "Rust 문서 한국어 번역 켜기/끄기",
 
   -- Terminal / git
   ["Terminal (Root Dir)"] = "터미널 (프로젝트 루트)",
@@ -268,6 +269,26 @@ return {
   ["vim.lsp.codelens.run()"] = "코드렌즈 실행 (vim.lsp.codelens.run())",
   ["vim.lsp.buf.code_action()"] = "코드 액션 (vim.lsp.buf.code_action())",
   ["vim.lsp.buf.rename()"] = "이름 바꾸기 (vim.lsp.buf.rename())",
+
+  -- Scope (indent guides)
+  ["jump to top edge of scope"] = "들여쓰기 범위 맨 위로 (scope)",
+  ["jump to bottom edge of scope"] = "들여쓰기 범위 맨 아래로 (scope)",
+  ["full scope"] = "들여쓰기 범위 전체 (scope)",
+  ["inner scope"] = "들여쓰기 범위 안쪽 (scope)",
+
+  -- Completion menu (blink.cmp)
+  ["blink.cmp: Select Prev"] = "자동완성: 이전 항목",
+  ["blink.cmp: Select Next"] = "자동완성: 다음 항목",
+  ["blink.cmp: Accept"] = "자동완성: 넣기",
+  ["blink.cmp: Select And Accept"] = "자동완성: 골라서 넣기",
+  ["blink.cmp: Cancel"] = "자동완성: 취소",
+  ["blink.cmp: Snippet Backward"] = "자동완성: 스니펫 이전 칸",
+  ["blink.cmp: Snippet Forward"] = "자동완성: 스니펫 다음 칸",
+  ["blink.cmp: Scroll Documentation Down"] = "자동완성: 설명창 아래로 스크롤",
+  ["blink.cmp: Scroll Documentation Up"] = "자동완성: 설명창 위로 스크롤",
+  ["blink.cmp: Show, Show Documentation, Hide Documentation"] = "자동완성: 목록 열기 / 설명창 열기·닫기",
+  ["blink.cmp: Show Signature, Hide Signature"] = "자동완성: 함수 인자 도움말 열기·닫기",
+  ["blink.cmp: <Custom Fn>"] = "자동완성: 사용자 정의 동작",
 
   -- Insert mode helpers
   ["vim.snippet.jump if active, otherwise <Tab>"] = "스니펫 다음 칸으로, 아니면 <Tab>",

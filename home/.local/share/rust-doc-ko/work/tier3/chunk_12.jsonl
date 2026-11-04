@@ -1,0 +1,176 @@
+{"id": "6e83aa3074d2", "src": "std/src/sync/mpsc.rs:1", "en": "Once half of a channel has been deallocated, most operations can no longer continue to make progress, so `Err` will be returned. Many applications will continue to `unwrap` the results returned from this module, instigating a propagation of failure among threads if one unexpectedly dies."}
+{"id": "593db75233f8", "src": "std/src/sync/mpsc.rs:1", "en": "Shared usage:"}
+{"id": "08acbb236885", "src": "std/src/sync/mpsc.rs:1", "en": "Propagating panics:"}
+{"id": "57ff11e64d0d", "src": "std/src/sync/mpsc.rs:1", "en": "Synchronous channels:"}
+{"id": "9a22b189ec28", "src": "std/src/sync/mpsc.rs:1", "en": "Unbounded receive loop:"}
+{"id": "23dbe1400010", "src": "std/src/sync/mpsc.rs:153", "en": "The receiving half of Rust's `channel` (or `sync_channel`) type. This half can only be owned by one thread."}
+{"id": "939bf0a66341", "src": "std/src/sync/mpsc.rs:153", "en": "Messages sent to the channel can be retrieved using `recv`."}
+{"id": "568d9cf733eb", "src": "std/src/sync/mpsc.rs:153", "en": "`recv`: Receiver::recv"}
+{"id": "72d108b2725f", "src": "std/src/sync/mpsc.rs:193", "en": "An iterator over messages on a `Receiver`, created by `iter`."}
+{"id": "6946ad93abee", "src": "std/src/sync/mpsc.rs:193", "en": "This iterator will block whenever `next` is called, waiting for a new message, and `None` will be returned when the corresponding channel has hung up."}
+{"id": "35c339626a0f", "src": "std/src/sync/mpsc.rs:193", "en": "`iter`: Receiver::iter `next`: Iterator::next"}
+{"id": "b2abb4de0a21", "src": "std/src/sync/mpsc.rs:226", "en": "An iterator that attempts to yield all pending values for a `Receiver`, created by `try_iter`."}
+{"id": "9c18bb343701", "src": "std/src/sync/mpsc.rs:226", "en": "`None` will be returned when there are no pending values remaining or if the corresponding channel has hung up."}
+{"id": "abd011714a67", "src": "std/src/sync/mpsc.rs:226", "en": "This iterator will never block the caller in order to wait for data to become available. Instead, it will return `None`. (See `std::sync` for precise guarantees on blocking.)"}
+{"id": "112817be8b29", "src": "std/src/sync/mpsc.rs:226", "en": "`try_iter`: Receiver::try_iter `std::sync`: ../index.html#blocking-guarantees"}
+{"id": "8f725561104a", "src": "std/src/sync/mpsc.rs:271", "en": "An owning iterator over messages on a `Receiver`, created by `into_iter`."}
+{"id": "a452a8063616", "src": "std/src/sync/mpsc.rs:271", "en": "This iterator will block whenever `next` is called, waiting for a new message, and `None` will be returned if the corresponding channel has hung up."}
+{"id": "109168733fd4", "src": "std/src/sync/mpsc.rs:271", "en": "`into_iter`: Receiver::into_iter `next`: Iterator::next"}
+{"id": "cbf2a93710ad", "src": "std/src/sync/mpsc.rs:305", "en": "The sending-half of Rust's asynchronous `channel` type."}
+{"id": "bc886bc3b904", "src": "std/src/sync/mpsc.rs:305", "en": "Messages can be sent through this channel with `send`."}
+{"id": "dd12df5d4abe", "src": "std/src/sync/mpsc.rs:305", "en": "Note: all senders (the original and its clones) need to be dropped for the receiver to stop blocking to receive messages with `Receiver::recv`."}
+{"id": "a7bae7716e2a", "src": "std/src/sync/mpsc.rs:305", "en": "`send`: Sender::send"}
+{"id": "2d3e7cf4ae96", "src": "std/src/sync/mpsc.rs:352", "en": "The sending-half of Rust's synchronous `sync_channel` type."}
+{"id": "dd0ca9b7ce74", "src": "std/src/sync/mpsc.rs:352", "en": "Messages can be sent through this channel with `send` or `try_send`."}
+{"id": "af56fbb35016", "src": "std/src/sync/mpsc.rs:352", "en": "`send` will block if there is no space in the internal buffer."}
+{"id": "a1b97f376064", "src": "std/src/sync/mpsc.rs:352", "en": "`send`: SyncSender::send `try_send`: SyncSender::try_send"}
+{"id": "d540f6cb71b0", "src": "std/src/sync/mpsc.rs:406", "en": "An error returned from the `Sender::send` or `SyncSender::send` function on **channel**s."}
+{"id": "f682d0306447", "src": "std/src/sync/mpsc.rs:406", "en": "A **send** operation can only fail if the receiving end of a channel is disconnected, implying that the data could never be received. The error contains the data being sent as a payload so it can be recovered."}
+{"id": "edcefaae7bf9", "src": "std/src/sync/mpsc.rs:416", "en": "An error returned from the `recv` function on a `Receiver`."}
+{"id": "d858ae24e292", "src": "std/src/sync/mpsc.rs:416", "en": "The `recv` operation can only fail if the sending half of a `channel` (or `sync_channel`) is disconnected, implying that no further messages will ever be received."}
+{"id": "f01f730b9ec2", "src": "std/src/sync/mpsc.rs:427", "en": "This enumeration is the list of the possible reasons that `try_recv` could not return data when called. This can occur with both a `channel` and a `sync_channel`."}
+{"id": "9203397317dd", "src": "std/src/sync/mpsc.rs:427", "en": "`try_recv`: Receiver::try_recv"}
+{"id": "4d24ad90adf2", "src": "std/src/sync/mpsc.rs:435", "en": "This **channel** is currently empty, but the **Sender**(s) have not yet disconnected, so data may yet become available."}
+{"id": "6353896d529f", "src": "std/src/sync/mpsc.rs:440", "en": "The **channel**'s sending half has become disconnected, and there will never be any more data received on it."}
+{"id": "5a1b6ed9efa3", "src": "std/src/sync/mpsc.rs:446", "en": "This enumeration is the list of possible errors that made `recv_timeout` unable to return data when called. This can occur with both a `channel` and a `sync_channel`."}
+{"id": "a15ec3430af7", "src": "std/src/sync/mpsc.rs:446", "en": "`recv_timeout`: Receiver::recv_timeout"}
+{"id": "07d1b96425c3", "src": "std/src/sync/mpsc.rs:464", "en": "This enumeration is the list of the possible error outcomes for the `try_send` method."}
+{"id": "a4b1a5a276a8", "src": "std/src/sync/mpsc.rs:464", "en": "`try_send`: SyncSender::try_send"}
+{"id": "65ec08aa3637", "src": "std/src/sync/mpsc.rs:471", "en": "The data could not be sent on the `sync_channel` because it would require that the callee block to send the data."}
+{"id": "c2d8433b448c", "src": "std/src/sync/mpsc.rs:471", "en": "If this is a buffered channel, then the buffer is full at this time. If this is not a buffered channel, then there is no `Receiver` available to acquire the data."}
+{"id": "9ca75de5b85e", "src": "std/src/sync/mpsc.rs:480", "en": "This `sync_channel`'s receiving half has disconnected, so the data could not be sent. The data is returned back to the callee in this case."}
+{"id": "bdecd6f22715", "src": "std/src/sync/mpsc.rs:486", "en": "Creates a new asynchronous channel, returning the sender/receiver halves."}
+{"id": "7f2fbbded240", "src": "std/src/sync/mpsc.rs:486", "en": "All data sent on the `Sender` will become available on the `Receiver` in the same order as it was sent, and no `send` will block the calling thread (this channel has an \"infinite buffer\", unlike `sync_channel`, which will block after its buffer limit is reached). `recv` will block until a message is available while there is at least one `Sender` alive (including clones)."}
+{"id": "c3a325c6a742", "src": "std/src/sync/mpsc.rs:486", "en": "The `Sender` can be cloned to `send` to the same channel multiple times, but only one `Receiver` is supported."}
+{"id": "f244506982f9", "src": "std/src/sync/mpsc.rs:486", "en": "If the `Receiver` is disconnected while trying to `send` with the `Sender`, the `send` method will return a `SendError`. Similarly, if the `Sender` is disconnected while trying to `recv`, the `recv` method will return a `RecvError`."}
+{"id": "d5c7a636b6d2", "src": "std/src/sync/mpsc.rs:486", "en": "`send`: Sender::send `recv`: Receiver::recv"}
+{"id": "d2e7d8261679", "src": "std/src/sync/mpsc.rs:531", "en": "Creates a new synchronous, bounded channel."}
+{"id": "1ba940a84fd3", "src": "std/src/sync/mpsc.rs:531", "en": "All data sent on the `SyncSender` will become available on the `Receiver` in the same order as it was sent. Like asynchronous `channel`s, the `Receiver` will block until a message becomes available. `sync_channel` differs greatly in the semantics of the sender, however."}
+{"id": "ad8000e172d8", "src": "std/src/sync/mpsc.rs:531", "en": "This channel has an internal buffer on which messages will be queued. `bound` specifies the buffer size. When the internal buffer becomes full, future sends will *block* waiting for the buffer to open up. Note that a buffer size of 0 is valid, in which case this becomes \"rendezvous channel\" where each `send` will not return until a `recv` is paired with it."}
+{"id": "797f57a61ba9", "src": "std/src/sync/mpsc.rs:531", "en": "The `SyncSender` can be cloned to `send` to the same channel multiple times, but only one `Receiver` is supported."}
+{"id": "9bccf457f945", "src": "std/src/sync/mpsc.rs:531", "en": "Like asynchronous channels, if the `Receiver` is disconnected while trying to `send` with the `SyncSender`, the `send` method will return a `SendError`. Similarly, If the `SyncSender` is disconnected while trying to `recv`, the `recv` method will return a `RecvError`."}
+{"id": "e2ab5bf7296b", "src": "std/src/sync/mpsc.rs:531", "en": "`send`: SyncSender::send `recv`: Receiver::recv"}
+{"id": "44fed3b4d1c2", "src": "std/src/sync/mpsc.rs:586", "en": "Attempts to send a value on this channel, returning it back if it could not be sent."}
+{"id": "006fbfb24eed", "src": "std/src/sync/mpsc.rs:586", "en": "A successful send occurs when it is determined that the other end of the channel has not hung up already. An unsuccessful send would be one where the corresponding receiver has already been deallocated. Note that a return value of `Err` means that the data will never be received, but a return value of `Ok` does *not* mean that the data will be received. It is possible for the corresponding receiver to hang up immediately after this function returns `Ok`."}
+{"id": "6e565c7ea1d2", "src": "std/src/sync/mpsc.rs:586", "en": "This method will never block the caller in order to wait for space to become available. (See `std::sync` for precise guarantees on blocking.)"}
+{"id": "2bb1faa7606b", "src": "std/src/sync/mpsc.rs:586", "en": "`std::sync`: ../index.html#blocking-guarantees"}
+{"id": "c82993cc9ec7", "src": "std/src/sync/mpsc.rs:621", "en": "Returns `true` if the channel is disconnected."}
+{"id": "7734d110296a", "src": "std/src/sync/mpsc.rs:621", "en": "Note that a return value of `false` does not guarantee the channel will remain connected. The channel may be disconnected immediately after this method returns, so a subsequent `Sender::send` may still fail with `SendError`."}
+{"id": "b57da484feae", "src": "std/src/sync/mpsc.rs:647", "en": "Clone a sender to send to other threads."}
+{"id": "361a04a0a1e1", "src": "std/src/sync/mpsc.rs:647", "en": "Note, be aware of the lifetime of the sender because all senders (including the original) need to be dropped in order for `Receiver::recv` to stop blocking."}
+{"id": "86838eeb9351", "src": "std/src/sync/mpsc.rs:672", "en": "Sends a value on this synchronous channel."}
+{"id": "bf31833a3175", "src": "std/src/sync/mpsc.rs:672", "en": "This function will *block* until space in the internal buffer becomes available or a receiver is available to hand off the message to."}
+{"id": "aeab48922d9f", "src": "std/src/sync/mpsc.rs:672", "en": "Note that a successful send does *not* guarantee that the receiver will ever see the data if there is a buffer on this channel. Items may be enqueued in the internal buffer for the receiver to receive at a later time. If the buffer size is 0, however, the channel becomes a rendezvous channel and it guarantees that the receiver has indeed received the data if this function returns success."}
+{"id": "2c13a24130c3", "src": "std/src/sync/mpsc.rs:672", "en": "This function will never panic, but it may return `Err` if the `Receiver` has disconnected and is no longer able to receive information."}
+{"id": "88500c10aaa3", "src": "std/src/sync/mpsc.rs:713", "en": "Attempts to send a value on this channel without blocking."}
+{"id": "bb0cb3d32048", "src": "std/src/sync/mpsc.rs:713", "en": "This method differs from `send` by returning immediately if the channel's buffer is full or no receiver is waiting to acquire some data. Compared with `send`, this function has two failure cases instead of one (one for disconnection, one for a full buffer)."}
+{"id": "33bc82046074", "src": "std/src/sync/mpsc.rs:713", "en": "See `send` for notes about guarantees of whether the receiver has received the data or not if this function is successful."}
+{"id": "788d6a037592", "src": "std/src/sync/mpsc.rs:713", "en": "`send`: Self::send"}
+{"id": "ce00391cd117", "src": "std/src/sync/mpsc.rs:804", "en": "Attempts to return a pending value on this receiver without blocking."}
+{"id": "4fc1bfdb664c", "src": "std/src/sync/mpsc.rs:804", "en": "This method will never block the caller in order to wait for data to become available. Instead, this will always return immediately with a possible option of pending data on the channel. (See `std::sync` for precise guarantees on blocking.)"}
+{"id": "a885d8fe460e", "src": "std/src/sync/mpsc.rs:804", "en": "This is useful for a flavor of \"optimistic check\" before deciding to block on a receiver."}
+{"id": "6963a0b32758", "src": "std/src/sync/mpsc.rs:804", "en": "Compared with `recv`, this function has two failure cases instead of one (one for disconnection, one for an empty buffer)."}
+{"id": "c6bf9e37d4ff", "src": "std/src/sync/mpsc.rs:804", "en": "`recv`: Self::recv `std::sync`: ../index.html#blocking-guarantees"}
+{"id": "c5624ed9b3f4", "src": "std/src/sync/mpsc.rs:834", "en": "Attempts to wait for a value on this receiver, returning an error if the corresponding channel has hung up."}
+{"id": "2228eb12cd38", "src": "std/src/sync/mpsc.rs:834", "en": "This function will always block the current thread if there is no data available and it's possible for more data to be sent (at least one sender still exists). Once a message is sent to the corresponding `Sender` (or `SyncSender`), this receiver will wake up and return that message."}
+{"id": "7ff9c64af593", "src": "std/src/sync/mpsc.rs:834", "en": "If the corresponding `Sender` has disconnected, or it disconnects while this call is blocking, this call will wake up and return `Err` to indicate that no more messages can ever be received on this channel. However, since channels are buffered, messages sent before the disconnect will still be properly received."}
+{"id": "930e02964f6b", "src": "std/src/sync/mpsc.rs:834", "en": "Buffering behavior:"}
+{"id": "8e404a391717", "src": "std/src/sync/mpsc.rs:893", "en": "Attempts to wait for a value on this receiver, returning an error if the corresponding channel has hung up, or if it waits more than `timeout`."}
+{"id": "82f2f5b0033f", "src": "std/src/sync/mpsc.rs:893", "en": "Successfully receiving value before encountering timeout:"}
+{"id": "fca11f70e2a9", "src": "std/src/sync/mpsc.rs:893", "en": "Receiving an error upon reaching timeout:"}
+{"id": "7db3003beb7e", "src": "std/src/sync/mpsc.rs:953", "en": "Attempts to wait for a value on this receiver, returning an error if the corresponding channel has hung up, or if `deadline` is reached."}
+{"id": "091a22a77467", "src": "std/src/sync/mpsc.rs:953", "en": "This function will always block the current thread if there is no data available and it's possible for more data to be sent. Once a message is sent to the corresponding `Sender` (or `SyncSender`), then this receiver will wake up and return that message."}
+{"id": "847fa24c98d0", "src": "std/src/sync/mpsc.rs:953", "en": "Successfully receiving value before reaching deadline:"}
+{"id": "b0cd162189ac", "src": "std/src/sync/mpsc.rs:953", "en": "Receiving an error upon reaching deadline:"}
+{"id": "04828788aaa7", "src": "std/src/sync/mpsc.rs:1014", "en": "Returns an iterator that will block waiting for messages, but never `panic!`. It will return `None` when the channel has hung up."}
+{"id": "f3e7a1271d2d", "src": "std/src/sync/mpsc.rs:1042", "en": "Returns an iterator that will attempt to yield all pending values. It will return `None` if there are no more pending values or if the channel has hung up. The iterator will never `panic!` or block the user by waiting for values."}
+{"id": "49eb146daa4c", "src": "std/src/sync/mpsc.rs:1083", "en": "Note that a return value of `false` does not guarantee the channel will remain connected. The channel may be disconnected immediately after this method returns, so a subsequent `Receiver::recv` may still fail with `RecvError`."}
+{"id": "15405175e12c", "src": "std/src/sync/mpsc.rs:1204", "en": "Converts a `SendError<T>` into a `TrySendError<T>`."}
+{"id": "5e56ae4ca042", "src": "std/src/sync/mpsc.rs:1204", "en": "This conversion always returns a `TrySendError::Disconnected` containing the data in the `SendError<T>`."}
+{"id": "6d24aa512950", "src": "std/src/sync/mpsc.rs:1204", "en": "No data is allocated on the heap."}
+{"id": "9048fdf8a3cd", "src": "std/src/sync/mpsc.rs:1241", "en": "Converts a `RecvError` into a `TryRecvError`."}
+{"id": "63e680a765ef", "src": "std/src/sync/mpsc.rs:1241", "en": "This conversion always returns `TryRecvError::Disconnected`."}
+{"id": "7d2366cd1f6a", "src": "std/src/sync/mpsc.rs:1268", "en": "Converts a `RecvError` into a `RecvTimeoutError`."}
+{"id": "46dfa225d285", "src": "std/src/sync/mpsc.rs:1268", "en": "This conversion always returns `RecvTimeoutError::Disconnected`."}
+{"id": "fda5fdc77c5f", "src": "std/src/sync/nonpoison.rs:1", "en": "Non-poisoning synchronous locks."}
+{"id": "1bc4c31771e6", "src": "std/src/sync/nonpoison.rs:1", "en": "The difference from the locks in the `poison` module is that the locks in this module will not become poisoned when a thread panics while holding a guard."}
+{"id": "10a50b26dd34", "src": "std/src/sync/nonpoison.rs:1", "en": "`poison`: super::poison"}
+{"id": "aae3cf8f6eb9", "src": "std/src/sync/nonpoison.rs:10", "en": "A type alias for the result of a nonblocking locking method."}
+{"id": "6fccf831ef16", "src": "std/src/sync/nonpoison.rs:14", "en": "A lock could not be acquired at this time because the operation would otherwise block."}
+{"id": "2a6967fdf1ce", "src": "std/src/sync/once.rs:1", "en": "A \"once initialization\" primitive"}
+{"id": "dca64ae25f55", "src": "std/src/sync/once.rs:1", "en": "This primitive is meant to be used to run one-time initialization. An example use case would be for initializing an FFI library."}
+{"id": "6d58838bca93", "src": "std/src/sync/once.rs:10", "en": "A low-level synchronization primitive for one-time global execution."}
+{"id": "da64b3d94463", "src": "std/src/sync/once.rs:10", "en": "Previously this was the only \"execute once\" synchronization in `std`. Other libraries implemented novel synchronizing types with `Once`, like `OnceLock<T>` or `LazyLock<T, F>`, before those were added to `std`. `OnceLock<T>` in particular supersedes `Once` in functionality and should be preferred for the common case where the `Once` is associated with data."}
+{"id": "7818a13d14aa", "src": "std/src/sync/once.rs:10", "en": "This type can only be constructed with `Once::new()`."}
+{"id": "ec12aef28ad8", "src": "std/src/sync/once.rs:10", "en": "`OnceLock<T>`: crate::sync::OnceLock `LazyLock<T, F>`: crate::sync::LazyLock"}
+{"id": "655248d4617a", "src": "std/src/sync/once.rs:45", "en": "State yielded to `Once::call_once_force()`’s closure parameter. The state can be used to query the poison status of the `Once`."}
+{"id": "8859c70a7500", "src": "std/src/sync/once.rs:52", "en": "Used for the internal implementation of `sys::sync::once` on different platforms and the `LazyLock` implementation."}
+{"id": "e35ba2d5b6db", "src": "std/src/sync/once.rs:60", "en": "Initialization value for static `Once` values."}
+{"id": "0b568e211f0b", "src": "std/src/sync/once.rs:78", "en": "Creates a new `Once` value."}
+{"id": "640339749181", "src": "std/src/sync/once.rs:87", "en": "Creates a new `Once` value that starts already completed."}
+{"id": "2f3bc5efc4c9", "src": "std/src/sync/once.rs:94", "en": "Performs an initialization routine once and only once. The given closure will be executed if this is the first time `call_once` has been called, and otherwise the routine will *not* be invoked."}
+{"id": "61d604df584c", "src": "std/src/sync/once.rs:94", "en": "When this function returns, it is guaranteed that some initialization has run and completed (it might not be the closure specified). It is also guaranteed that any memory writes performed by the executed closure can be reliably observed by other threads at this point (there is a happens-before relation between the closure and code executing after the return)."}
+{"id": "d2773013ad37", "src": "std/src/sync/once.rs:94", "en": "If the given closure recursively invokes `call_once` on the same `Once` instance, the exact behavior is not specified: allowed outcomes are a panic or a deadlock."}
+{"id": "48ea465f148d", "src": "std/src/sync/once.rs:94", "en": "The closure `f` will only be executed once even if this is called concurrently amongst many threads. If that closure panics, however, then it will *poison* this `Once` instance, causing all future invocations of `call_once` to also panic."}
+{"id": "0db9f441b388", "src": "std/src/sync/once.rs:94", "en": "This is similar to [poisoning with mutexes][poison], but this mechanism is guaranteed to never skip panics within `f`."}
+{"id": "d32aa914ac36", "src": "std/src/sync/once.rs:94", "en": "[poison]: struct.Mutex.html#poisoning"}
+{"id": "5bdfc6b19a4e", "src": "std/src/sync/once.rs:169", "en": "Performs the same function as `call_once()` except ignores poisoning."}
+{"id": "045274454455", "src": "std/src/sync/once.rs:169", "en": "Unlike `call_once()`, if this `Once` has been poisoned (i.e., a previous call to `call_once()` or `call_once_force()` caused a panic), calling `call_once_force()` will still invoke the closure `f` and will _not_ result in an immediate panic. If `f` panics, the `Once` will remain in a poison state. If `f` does _not_ panic, the `Once` will no longer be in a poison state and all future calls to `call_once()` or `call_once_force()` will be no-ops."}
+{"id": "1ae2ad34a108", "src": "std/src/sync/once.rs:169", "en": "The closure `f` is yielded a `OnceState` structure which can be used to query the poison status of the `Once`."}
+{"id": "d3ce88bf0ad7", "src": "std/src/sync/once.rs:169", "en": "`call_once()`: Once::call_once `call_once_force()`: Once::call_once_force"}
+{"id": "9e5a03ff1adb", "src": "std/src/sync/once.rs:229", "en": "Returns `true` if some `call_once()` call has completed successfully. Specifically, `is_completed` will return false in the following situations: * `call_once()` was not called at all, * `call_once()` was called, but has not yet completed, * the `Once` instance is poisoned"}
+{"id": "6a2fac0415a7", "src": "std/src/sync/once.rs:229", "en": "This function returning `false` does not mean that `Once` has not been executed. For example, it may have been executed in the time between when `is_completed` starts executing and when it returns, in which case the `false` return value would be stale (but still permissible)."}
+{"id": "307bc740ae73", "src": "std/src/sync/once.rs:229", "en": "`call_once()`: Once::call_once"}
+{"id": "c8871bfeafb5", "src": "std/src/sync/once.rs:276", "en": "Blocks the current thread until initialization has completed."}
+{"id": "8f951345d7cd", "src": "std/src/sync/once.rs:276", "en": "If this `Once` has been poisoned because an initialization closure has panicked, this method will also panic. Use `wait_force` if this behavior is not desired."}
+{"id": "1bddf006b65e", "src": "std/src/sync/once.rs:308", "en": "Blocks the current thread until initialization has completed, ignoring poisoning."}
+{"id": "87220e19841d", "src": "std/src/sync/once.rs:308", "en": "If this `Once` has been poisoned, this function blocks until it becomes completed, unlike `Once::wait()`, which panics in this case."}
+{"id": "7716616bc041", "src": "std/src/sync/once.rs:322", "en": "Returns the current state of the `Once` instance."}
+{"id": "2de6a9ffbc2a", "src": "std/src/sync/once.rs:322", "en": "Since this takes a mutable reference, no initialization can currently be running, so the state must be either \"incomplete\", \"poisoned\" or \"complete\"."}
+{"id": "d7ad3b0462cb", "src": "std/src/sync/once.rs:332", "en": "Sets current state of the `Once` instance."}
+{"id": "d3604edf56e6", "src": "std/src/sync/once.rs:351", "en": "Returns `true` if the associated `Once` was poisoned prior to the invocation of the closure passed to `Once::call_once_force()`."}
+{"id": "46681094d707", "src": "std/src/sync/once.rs:351", "en": "A poisoned `Once`:"}
+{"id": "6aac2bce2780", "src": "std/src/sync/once.rs:351", "en": "An unpoisoned `Once`:"}
+{"id": "8dbb029c982e", "src": "std/src/sync/once.rs:391", "en": "Poison the associated `Once` without explicitly panicking."}
+{"id": "bf54b1d6fcfb", "src": "std/src/sync/once_lock.rs:9", "en": "A synchronization primitive which can nominally be written to only once."}
+{"id": "e28fa0b29601", "src": "std/src/sync/once_lock.rs:9", "en": "This type is a thread-safe `OnceCell`, and can be used in statics. In many simple cases, you can use `LazyLock<T, F>` instead to get the benefits of this type with less effort: `LazyLock<T, F>` \"looks like\" `&T` because it initializes with `F` on deref! Where OnceLock shines is when LazyLock is too simple to support a given case, as LazyLock doesn't allow additional inputs to its function after you call `LazyLock::new(|| ...)`."}
+{"id": "203983a27adb", "src": "std/src/sync/once_lock.rs:9", "en": "A `OnceLock` can be thought of as a safe abstraction over uninitialized data that becomes initialized once written."}
+{"id": "23585acf43ea", "src": "std/src/sync/once_lock.rs:9", "en": "Unlike `Mutex`, `OnceLock` is never poisoned on panic."}
+{"id": "756193e957b3", "src": "std/src/sync/once_lock.rs:9", "en": "`OnceCell`: crate::cell::OnceCell `LazyLock<T, F>`: crate::sync::LazyLock `LazyLock::new(|| ...)`: crate::sync::LazyLock::new"}
+{"id": "fd48b537f7e3", "src": "std/src/sync/once_lock.rs:9", "en": "Writing to a `OnceLock` from a separate thread:"}
+{"id": "4f91e18ee453", "src": "std/src/sync/once_lock.rs:9", "en": "You can use `OnceLock` to implement a type that requires \"append-only\" logic:"}
+{"id": "596d17ec936c", "src": "std/src/sync/once_lock.rs:114", "en": "`PhantomData` to make sure dropck understands we're dropping T in our Drop impl."}
+{"id": "7691b8b1c688", "src": "std/src/sync/once_lock.rs:135", "en": "Creates a new uninitialized cell."}
+{"id": "87b51b6e38f1", "src": "std/src/sync/once_lock.rs:148", "en": "Creates a new initialized cell."}
+{"id": "2601ffa1c845", "src": "std/src/sync/once_lock.rs:148", "en": "This is equivalent to `OnceLock::from(value)`, but can be used in const contexts, unlike the `From` implementation."}
+{"id": "a3996e080542", "src": "std/src/sync/once_lock.rs:177", "en": "Gets the reference to the underlying value."}
+{"id": "ee335cc97d1e", "src": "std/src/sync/once_lock.rs:177", "en": "Returns `None` if the cell is uninitialized, or being initialized. This method never blocks."}
+{"id": "a6710692fb74", "src": "std/src/sync/once_lock.rs:193", "en": "Gets the mutable reference to the underlying value."}
+{"id": "44b6ac806c5a", "src": "std/src/sync/once_lock.rs:193", "en": "Returns `None` if the cell is uninitialized."}
+{"id": "06a074cd4829", "src": "std/src/sync/once_lock.rs:193", "en": "This method never blocks. Since it borrows the `OnceLock` mutably, it is statically guaranteed that no active borrows to the `OnceLock` exist, including from other threads."}
+{"id": "fd7d3536e6c1", "src": "std/src/sync/once_lock.rs:211", "en": "Blocks the current thread until the cell is initialized."}
+{"id": "6fc1fcf7c945", "src": "std/src/sync/once_lock.rs:238", "en": "Initializes the contents of the cell to `value`."}
+{"id": "729fd0cfde9b", "src": "std/src/sync/once_lock.rs:238", "en": "May block if another thread is currently attempting to initialize the cell. The cell is guaranteed to contain a value when `set` returns, though not necessarily the one provided."}
+{"id": "db3223983a2d", "src": "std/src/sync/once_lock.rs:238", "en": "Returns `Ok(())` if the cell was uninitialized and `Err(value)` if the cell was already initialized."}
+{"id": "29dbacd3d48b", "src": "std/src/sync/once_lock.rs:274", "en": "Initializes the contents of the cell to `value` if the cell was uninitialized, then returns a reference to it."}
+{"id": "aa3eb51eb531", "src": "std/src/sync/once_lock.rs:274", "en": "May block if another thread is currently attempting to initialize the cell. The cell is guaranteed to contain a value when `try_insert` returns, though not necessarily the one provided."}
+{"id": "58c343549cd3", "src": "std/src/sync/once_lock.rs:274", "en": "Returns `Ok(&value)` if the cell was uninitialized and `Err((&current_value, value))` if it was already initialized."}
+{"id": "c16d209001cd", "src": "std/src/sync/once_lock.rs:316", "en": "Gets the contents of the cell, initializing it to `f()` if the cell was uninitialized."}
+{"id": "5bb173204d76", "src": "std/src/sync/once_lock.rs:316", "en": "Many threads may call `get_or_init` concurrently with different initializing functions, but it is guaranteed that only one function will be executed if the function doesn't panic."}
+{"id": "c16c4fdbb71f", "src": "std/src/sync/once_lock.rs:316", "en": "If `f()` panics, the panic is propagated to the caller, and the cell remains uninitialized."}
+{"id": "1628f5052775", "src": "std/src/sync/once_lock.rs:316", "en": "It is an error to reentrantly initialize the cell from `f`. The exact outcome is unspecified. Current implementation deadlocks, but this may be changed to a panic in the future."}
+{"id": "e79a687bcc5b", "src": "std/src/sync/once_lock.rs:355", "en": "Gets the mutable reference of the contents of the cell, initializing it to `f()` if the cell was uninitialized."}
+{"id": "7b3541aa2c36", "src": "std/src/sync/once_lock.rs:395", "en": "Gets the contents of the cell, initializing it to `f()` if the cell was uninitialized. If the cell was uninitialized and `f()` failed, an error is returned."}
+{"id": "61234dafc046", "src": "std/src/sync/once_lock.rs:445", "en": "Gets the mutable reference of the contents of the cell, initializing it to `f()` if the cell was uninitialized. If the cell was uninitialized and `f()` failed, an error is returned."}
+{"id": "f0bced4a9b70", "src": "std/src/sync/once_lock.rs:490", "en": "Consumes the `OnceLock`, returning the wrapped value. Returns `None` if the cell was uninitialized."}
+{"id": "ea35027ea5bd", "src": "std/src/sync/once_lock.rs:511", "en": "Takes the value out of this `OnceLock`, moving it back to an uninitialized state."}
+{"id": "48aa2bd67468", "src": "std/src/sync/once_lock.rs:511", "en": "Has no effect and returns `None` if the `OnceLock` was uninitialized."}
+{"id": "4901d4634691", "src": "std/src/sync/once_lock.rs:511", "en": "Since this method borrows the `OnceLock` mutably, it is statically guaranteed that no active borrows to the `OnceLock` exist, including from other threads."}
+{"id": "63fcd2aa0c14", "src": "std/src/sync/once_lock.rs:588", "en": "The cell must be initialized"}
+{"id": "5509bde46445", "src": "std/src/sync/once_lock.rs:664", "en": "Creates a new cell with its contents set to `value`."}
+{"id": "4962b0eb45e6", "src": "std/src/sync/once_lock.rs:691", "en": "Equality for two `OnceLock`s."}
+{"id": "f663ea9d2ec5", "src": "std/src/sync/once_lock.rs:691", "en": "Two `OnceLock`s are equal if they either both contain values and their values are equal, or if neither contains a value."}
+{"id": "52bfae04b58e", "src": "std/src/sync/oneshot.rs:1", "en": "A single-producer, single-consumer (oneshot) channel."}
+{"id": "e01b9b0ebd0a", "src": "std/src/sync/oneshot.rs:1", "en": "This is an experimental module, so the API will likely change."}
+{"id": "a10b61b29b43", "src": "std/src/sync/oneshot.rs:10", "en": "Creates a new oneshot channel, returning the sender/receiver halves."}
+{"id": "03059a22a1bf", "src": "std/src/sync/oneshot.rs:48", "en": "The sending half of a oneshot channel."}

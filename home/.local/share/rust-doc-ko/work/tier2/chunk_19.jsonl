@@ -1,0 +1,176 @@
+{"id": "78fa9595799e", "src": "alloc/src/collections/btree/node.rs:1017", "en": "Inserts a new key-value pair and an edge that will go to the right of that new pair between this edge and the key-value pair to the right of this edge. This method splits the node if there isn't enough room."}
+{"id": "d45b646d081d", "src": "alloc/src/collections/btree/node.rs:1051", "en": "Inserts a new key-value pair between the key-value pairs to the right and left of this edge. This method splits the node if there isn't enough room, and tries to insert the split off portion into the parent node recursively, until the root is reached."}
+{"id": "db2a55e706de", "src": "alloc/src/collections/btree/node.rs:1051", "en": "If the returned result is some `SplitResult`, the `left` field will be the root node. The returned pointer points to the inserted value, which in the case of `SplitResult` is in the `left` or `right` tree."}
+{"id": "b1d9d2190a1c", "src": "alloc/src/collections/btree/node.rs:1096", "en": "Finds the node pointed to by this edge."}
+{"id": "e6e88562ff0c", "src": "alloc/src/collections/btree/node.rs:1169", "en": "Replaces the key and value that the KV handle refers to."}
+{"id": "2b5b463b9fde", "src": "alloc/src/collections/btree/node.rs:1177", "en": "Extracts the key and value that the KV handle refers to."}
+{"id": "3c37f6726c65", "src": "alloc/src/collections/btree/node.rs:1177", "en": "The node that the handle refers to must not yet have been deallocated."}
+{"id": "844feff3c429", "src": "alloc/src/collections/btree/node.rs:1190", "en": "Drops the key and value that the KV handle refers to."}
+{"id": "cdd781aeecbe", "src": "alloc/src/collections/btree/node.rs:1219", "en": "Helps implementations of `split` for a particular `NodeType`, by taking care of leaf data."}
+{"id": "debf687d76dc", "src": "alloc/src/collections/btree/node.rs:1246", "en": "Splits the underlying node into three parts:"}
+{"id": "8b6faf1688a6", "src": "alloc/src/collections/btree/node.rs:1246", "en": "- The node is truncated to only contain the key-value pairs to the left of this handle. - The key and value pointed to by this handle are extracted. - All the key-value pairs to the right of this handle are put into a newly allocated node."}
+{"id": "fcf3fb096f1c", "src": "alloc/src/collections/btree/node.rs:1265", "en": "Removes the key-value pair pointed to by this handle and returns it, along with the edge that the key-value pair collapsed into."}
+{"id": "e9ce2b095b04", "src": "alloc/src/collections/btree/node.rs:1281", "en": "- The node is truncated to only contain the edges and key-value pairs to the left of this handle. - The key and value pointed to by this handle are extracted. - All the edges and key-value pairs to the right of this handle are put into a newly allocated node."}
+{"id": "93f149b2b726", "src": "alloc/src/collections/btree/node.rs:1311", "en": "Represents a session for evaluating and performing a balancing operation around an internal key-value pair."}
+{"id": "54c2b9b8ffe3", "src": "alloc/src/collections/btree/node.rs:1332", "en": "Chooses a balancing context involving the node as a child, thus between the KV immediately to the left or to the right in the parent node. Returns an `Err` if there is no parent. Panics if the parent is empty."}
+{"id": "38328090d70a", "src": "alloc/src/collections/btree/node.rs:1332", "en": "Prefers the left side, to be optimal if the given node is somehow underfull, meaning here only that it has fewer elements than its left sibling and than its right sibling, if they exist. In that case, merging with the left sibling is faster, since we only need to move the node's N elements, instead of shifting them to the right and moving more than N elements in front. Stealing from the left sibling is also typically faster, since we only need to shift the node's N elements to the right, instead of shifting at least N of the sibling's elements to the left."}
+{"id": "db13249a77de", "src": "alloc/src/collections/btree/node.rs:1385", "en": "Returns whether merging is possible, i.e., whether there is enough room in a node to combine the central KV with both adjacent child nodes."}
+{"id": "cbb2dd0448c2", "src": "alloc/src/collections/btree/node.rs:1393", "en": "Performs a merge and lets a closure decide what to return."}
+{"id": "6a0b8f8f3fac", "src": "alloc/src/collections/btree/node.rs:1457", "en": "Merges the parent's key-value pair and both adjacent child nodes into the left child node and returns the shrunk parent node."}
+{"id": "dbfaea1a261b", "src": "alloc/src/collections/btree/node.rs:1457", "en": "Panics unless we `.can_merge()`."}
+{"id": "79e47e838b80", "src": "alloc/src/collections/btree/node.rs:1468", "en": "Merges the parent's key-value pair and both adjacent child nodes into the left child node and returns that child node."}
+{"id": "3667c5bc6ef5", "src": "alloc/src/collections/btree/node.rs:1479", "en": "Merges the parent's key-value pair and both adjacent child nodes into the left child node and returns the edge handle in that child node where the tracked child edge ended up,"}
+{"id": "f58869c803c4", "src": "alloc/src/collections/btree/node.rs:1503", "en": "Removes a key-value pair from the left child and places it in the key-value storage of the parent, while pushing the old parent key-value pair into the right child. Returns a handle to the edge in the right child corresponding to where the original edge specified by `track_right_edge_idx` ended up."}
+{"id": "8b5df921cc13", "src": "alloc/src/collections/btree/node.rs:1515", "en": "Removes a key-value pair from the right child and places it in the key-value storage of the parent, while pushing the old parent key-value pair onto the left child. Returns a handle to the edge in the left child specified by `track_left_edge_idx`, which didn't move."}
+{"id": "4ef25378d646", "src": "alloc/src/collections/btree/node.rs:1527", "en": "This does stealing similar to `steal_left` but steals multiple elements at once."}
+{"id": "8c202d9bc4fc", "src": "alloc/src/collections/btree/node.rs:1590", "en": "The symmetric clone of `bulk_steal_left`."}
+{"id": "8812d343eb76", "src": "alloc/src/collections/btree/node.rs:1680", "en": "Checks whether the underlying node is an `Internal` node or a `Leaf` node."}
+{"id": "a0893b9647ae", "src": "alloc/src/collections/btree/node.rs:1699", "en": "Unsafely asserts to the compiler the static information that the handle's node is a `Leaf`."}
+{"id": "ecdcc303a612", "src": "alloc/src/collections/btree/node.rs:1709", "en": "Move the suffix after `self` from one node to another one. `right` must be empty. The first edge of `right` remains unchanged."}
+{"id": "2d023a78ab32", "src": "alloc/src/collections/btree/node.rs:1759", "en": "Result of insertion, when a node needed to expand beyond its capacity."}
+{"id": "4175d193d74b", "src": "alloc/src/collections/btree/node.rs:1796", "en": "If node references of this borrow type allow traversing to other nodes in the tree, this constant is set to `true`. It can be used for a compile-time assertion."}
+{"id": "bcb0b95c8e87", "src": "alloc/src/collections/btree/node.rs:1802", "en": "Reject traversal, because it isn't needed. Instead traversal happens using the result of `borrow_mut`. By disabling traversal, and only creating new references to roots, we know that every reference of the `Owned` type is to a root node."}
+{"id": "f4d737a281c2", "src": "alloc/src/collections/btree/node.rs:1818", "en": "Inserts a value into a slice of initialized elements followed by one uninitialized element."}
+{"id": "769368aa1fe9", "src": "alloc/src/collections/btree/node.rs:1818", "en": "The slice has more than `idx` elements."}
+{"id": "71f47fd9d1a6", "src": "alloc/src/collections/btree/node.rs:1834", "en": "Removes and returns a value from a slice of all initialized elements, leaving behind one trailing uninitialized element."}
+{"id": "f6a8be13ac94", "src": "alloc/src/collections/btree/node.rs:1850", "en": "Shifts the elements in a slice `distance` positions to the left."}
+{"id": "0f4491f007c3", "src": "alloc/src/collections/btree/node.rs:1850", "en": "The slice has at least `distance` elements."}
+{"id": "844de344c05e", "src": "alloc/src/collections/btree/node.rs:1861", "en": "Shifts the elements in a slice `distance` positions to the right."}
+{"id": "ab43d1cb5dbf", "src": "alloc/src/collections/btree/node.rs:1872", "en": "Moves all values from a slice of initialized elements to a slice of uninitialized elements, leaving behind `src` as all uninitialized. Works like `dst.copy_from_slice(src)` but does not require `T` to be `Copy`."}
+{"id": "ffde60ac546c", "src": "alloc/src/collections/btree/remove.rs:9", "en": "Removes a key-value pair from the tree, and returns that pair, as well as the leaf edge corresponding to that former pair. It's possible this empties a root node that is internal, which the caller should pop from the map holding the tree. The caller should also decrement the map's length."}
+{"id": "2319dccd63d7", "src": "alloc/src/collections/btree/search.rs:12", "en": "An inclusive bound to look for, just like `Bound::Included(T)`."}
+{"id": "93004fe69eb0", "src": "alloc/src/collections/btree/search.rs:14", "en": "An exclusive bound to look for, just like `Bound::Excluded(T)`."}
+{"id": "f893c809f506", "src": "alloc/src/collections/btree/search.rs:16", "en": "An unconditional inclusive bound, just like `Bound::Unbounded`."}
+{"id": "f12aefb31262", "src": "alloc/src/collections/btree/search.rs:18", "en": "An unconditional exclusive bound."}
+{"id": "a946be4425c8", "src": "alloc/src/collections/btree/search.rs:43", "en": "Looks up a given key in a (sub)tree headed by the node, recursively. Returns a `Found` with the handle of the matching KV, if any. Otherwise, returns a `GoDown` with the handle of the leaf edge where the key belongs."}
+{"id": "ea40b552d4ff", "src": "alloc/src/collections/btree/search.rs:68", "en": "Descends to the nearest node where the edge matching the lower bound of the range is different from the edge matching the upper bound, i.e., the nearest node that has at least one key contained in the range."}
+{"id": "c05a842cf706", "src": "alloc/src/collections/btree/search.rs:68", "en": "If found, returns an `Ok` with that node, the strictly ascending pair of edge indices in the node delimiting the range, and the corresponding pair of bounds for continuing the search in the child nodes, in case the node is internal."}
+{"id": "75043c570434", "src": "alloc/src/collections/btree/search.rs:68", "en": "If not found, returns an `Err` with the leaf edge matching the entire range."}
+{"id": "f7b1312a69f0", "src": "alloc/src/collections/btree/search.rs:68", "en": "As a diagnostic service, panics if the range specifies impossible bounds."}
+{"id": "ebdd73c23df8", "src": "alloc/src/collections/btree/search.rs:68", "en": "The result is meaningful only if the tree is ordered by key."}
+{"id": "99ce382fc9f1", "src": "alloc/src/collections/btree/search.rs:154", "en": "Finds an edge in the node delimiting the lower bound of a range. Also returns the lower bound to be used for continuing the search in the matching child node, if `self` is an internal node."}
+{"id": "0aeaf62da19e", "src": "alloc/src/collections/btree/search.rs:172", "en": "Clone of `find_lower_bound_edge` for the upper bound."}
+{"id": "4e43f5ad7808", "src": "alloc/src/collections/btree/search.rs:188", "en": "Looks up a given key in the node, without recursion. Returns a `Found` with the handle of the matching KV, if any. Otherwise, returns a `GoDown` with the handle of the edge where the key might be found (if the node is internal) or where the key can be inserted."}
+{"id": "f1692a4394df", "src": "alloc/src/collections/btree/search.rs:209", "en": "Returns either the KV index in the node at which the key (or an equivalent) exists, or the edge index where the key belongs, starting from a particular index."}
+{"id": "fa52386350b9", "src": "alloc/src/collections/btree/search.rs:209", "en": "`start_index` must be a valid edge index for the node."}
+{"id": "d65caab4c61e", "src": "alloc/src/collections/btree/search.rs:235", "en": "Finds an edge index in the node delimiting the lower bound of a range. Also returns the lower bound to be used for continuing the search in the matching child node, if `self` is an internal node."}
+{"id": "cf58ac216305", "src": "alloc/src/collections/btree/search.rs:262", "en": "Mirror image of `find_lower_bound_index` for the upper bound, with an additional parameter to skip part of the key array."}
+{"id": "1b0f0b0615a0", "src": "alloc/src/collections/btree/set.rs:21", "en": "See `BTreeMap`'s documentation for a detailed discussion of this collection's performance benefits and drawbacks."}
+{"id": "0827cd5cbe43", "src": "alloc/src/collections/btree/set.rs:21", "en": "It is a logic error for an item to be modified in such a way that the item's ordering relative to any other item, as determined by the `Ord` trait, changes while it is in the set. This is normally only possible through `Cell`, `RefCell`, global state, I/O, or unsafe code. The behavior resulting from such a logic error is not specified, but will be encapsulated to the `BTreeSet` that observed the logic error and not result in undefined behavior. This could include panics, incorrect results, aborts, memory leaks, and non-termination."}
+{"id": "a209efa06399", "src": "alloc/src/collections/btree/set.rs:21", "en": "Iterators returned by `BTreeSet::iter` and `BTreeSet::into_iter` produce their items in order, and take worst-case logarithmic and amortized constant time per item returned."}
+{"id": "c8f255f0b239", "src": "alloc/src/collections/btree/set.rs:21", "en": "A `BTreeSet` with a known list of items can be initialized from an array:"}
+{"id": "9125f0de112d", "src": "alloc/src/collections/btree/set.rs:127", "en": "An iterator over the items of a `BTreeSet`."}
+{"id": "2d08d67b9754", "src": "alloc/src/collections/btree/set.rs:127", "en": "This `struct` is created by the `iter` method on `BTreeSet`. See its documentation for more."}
+{"id": "405568d1e7fe", "src": "alloc/src/collections/btree/set.rs:146", "en": "An owning iterator over the items of a `BTreeSet` in ascending order."}
+{"id": "4c6481758c6b", "src": "alloc/src/collections/btree/set.rs:146", "en": "This `struct` is created by the `into_iter` method on `BTreeSet` (provided by the `IntoIterator` trait). See its documentation for more."}
+{"id": "55671bef76a1", "src": "alloc/src/collections/btree/set.rs:161", "en": "An iterator over a sub-range of items in a `BTreeSet`."}
+{"id": "e58597daf446", "src": "alloc/src/collections/btree/set.rs:161", "en": "This `struct` is created by the `range` method on `BTreeSet`. See its documentation for more."}
+{"id": "493c41a64e78", "src": "alloc/src/collections/btree/set.rs:174", "en": "A lazy iterator producing elements in the difference of `BTreeSet`s."}
+{"id": "ac511cdf0c5b", "src": "alloc/src/collections/btree/set.rs:174", "en": "This `struct` is created by the `difference` method on `BTreeSet`. See its documentation for more."}
+{"id": "02faa8332f74", "src": "alloc/src/collections/btree/set.rs:230", "en": "A lazy iterator producing elements in the symmetric difference of `BTreeSet`s."}
+{"id": "cef5d72f491b", "src": "alloc/src/collections/btree/set.rs:230", "en": "This `struct` is created by the `symmetric_difference` method on `BTreeSet`. See its documentation for more."}
+{"id": "a357443bac89", "src": "alloc/src/collections/btree/set.rs:248", "en": "A lazy iterator producing elements in the intersection of `BTreeSet`s."}
+{"id": "56b86b66e12f", "src": "alloc/src/collections/btree/set.rs:248", "en": "This `struct` is created by the `intersection` method on `BTreeSet`. See its documentation for more."}
+{"id": "46e66ec9aa3f", "src": "alloc/src/collections/btree/set.rs:302", "en": "A lazy iterator producing elements in the union of `BTreeSet`s."}
+{"id": "55e69b435016", "src": "alloc/src/collections/btree/set.rs:302", "en": "This `struct` is created by the `union` method on `BTreeSet`. See its documentation for more."}
+{"id": "4746cc748cc4", "src": "alloc/src/collections/btree/set.rs:329", "en": "Makes a new, empty `BTreeSet`."}
+{"id": "906fe59dfb0b", "src": "alloc/src/collections/btree/set.rs:350", "en": "Makes a new `BTreeSet` with a reasonable choice of B."}
+{"id": "c2d5078bfe89", "src": "alloc/src/collections/btree/set.rs:370", "en": "Constructs a double-ended iterator over a sub-range of elements in the set. The simplest way is to use the range syntax `min..max`, thus `range(min..max)` will yield elements from min (inclusive) to max (exclusive). The range may also be entered as `(Bound<T>, Bound<T>)`, so for example `range((Excluded(4), Included(10)))` will yield a left-exclusive, right-inclusive range from 4 to 10."}
+{"id": "c80f377980b6", "src": "alloc/src/collections/btree/set.rs:407", "en": "Visits the elements representing the difference, i.e., the elements that are in `self` but not in `other`, in ascending order."}
+{"id": "97c55ca6e239", "src": "alloc/src/collections/btree/set.rs:464", "en": "Visits the elements representing the symmetric difference, i.e., the elements that are in `self` or in `other` but not in both, in ascending order."}
+{"id": "3f66d94582c4", "src": "alloc/src/collections/btree/set.rs:495", "en": "Visits the elements representing the intersection, i.e., the elements that are both in `self` and `other`, in ascending order."}
+{"id": "20fab7fc14b8", "src": "alloc/src/collections/btree/set.rs:544", "en": "Visits the elements representing the union, i.e., all the elements in `self` or `other`, without duplicates, in ascending order."}
+{"id": "35b8b9f83b1e", "src": "alloc/src/collections/btree/set.rs:570", "en": "Clears the set, removing all elements."}
+{"id": "9b32c668102f", "src": "alloc/src/collections/btree/set.rs:590", "en": "Returns `true` if the set contains an element equal to the value."}
+{"id": "57b9f9f787e5", "src": "alloc/src/collections/btree/set.rs:590", "en": "The value may be any borrowed form of the set's element type, but the ordering on the borrowed form *must* match the ordering on the element type."}
+{"id": "da32c3ec3b51", "src": "alloc/src/collections/btree/set.rs:614", "en": "Returns a reference to the element in the set, if any, that is equal to the value."}
+{"id": "e5d1e3aed0f1", "src": "alloc/src/collections/btree/set.rs:665", "en": "Returns `true` if the set is a subset of another, i.e., `other` contains at least all the elements in `self`."}
+{"id": "d4e55b77eb87", "src": "alloc/src/collections/btree/set.rs:743", "en": "Returns `true` if the set is a superset of another, i.e., `self` contains at least all the elements in `other`."}
+{"id": "653f0d2ac6de", "src": "alloc/src/collections/btree/set.rs:772", "en": "Returns a reference to the first element in the set, if any. This element is always the minimum of all elements in the set."}
+{"id": "6106bddc1a19", "src": "alloc/src/collections/btree/set.rs:799", "en": "Returns a reference to the last element in the set, if any. This element is always the maximum of all elements in the set."}
+{"id": "44b5bec2e1ff", "src": "alloc/src/collections/btree/set.rs:826", "en": "Removes the first element from the set and returns it, if any. The first element is always the minimum element in the set."}
+{"id": "197bf87a8fa2", "src": "alloc/src/collections/btree/set.rs:850", "en": "Removes the last element from the set and returns it, if any. The last element is always the maximum element in the set."}
+{"id": "9ad177da43ae", "src": "alloc/src/collections/btree/set.rs:874", "en": "- If the set did not previously contain an equal value, `true` is returned. - If the set already contained an equal value, `false` is returned, and the entry is not updated."}
+{"id": "fa40874633f9", "src": "alloc/src/collections/btree/set.rs:874", "en": "See the [module-level documentation] for more."}
+{"id": "263767023732", "src": "alloc/src/collections/btree/set.rs:907", "en": "Adds a value to the set, replacing the existing element, if any, that is equal to the value. Returns the replaced element."}
+{"id": "56d41e5925e8", "src": "alloc/src/collections/btree/set.rs:1034", "en": "If the set contains an element equal to the value, removes it from the set and drops it. Returns whether such an element was present."}
+{"id": "711d38ba6a1f", "src": "alloc/src/collections/btree/set.rs:1061", "en": "Removes and returns the element in the set, if any, that is equal to the value."}
+{"id": "83b1f4079baa", "src": "alloc/src/collections/btree/set.rs:1086", "en": "In other words, remove all elements `e` for which `f(&e)` returns `false`. The elements are visited in ascending order."}
+{"id": "505d78ff8696", "src": "alloc/src/collections/btree/set.rs:1147", "en": "Splits the collection into two at the value. Returns a new collection with all elements greater than or equal to the value."}
+{"id": "5cb9acff2e44", "src": "alloc/src/collections/btree/set.rs:1185", "en": "Creates an iterator that visits elements in the specified range in ascending order and uses a closure to determine if an element should be removed."}
+{"id": "c543e65414ee", "src": "alloc/src/collections/btree/set.rs:1228", "en": "Gets an iterator that visits the elements in the `BTreeSet` in ascending order."}
+{"id": "6a61da668e8c", "src": "alloc/src/collections/btree/set.rs:1296", "en": "Returns a `Cursor` pointing at the gap before the smallest element greater than the given bound."}
+{"id": "8f2cd24b8ecb", "src": "alloc/src/collections/btree/set.rs:1296", "en": "Passing `Bound::Included(x)` will return a cursor pointing to the gap before the smallest element greater than or equal to `x`."}
+{"id": "53964ffe4d09", "src": "alloc/src/collections/btree/set.rs:1296", "en": "Passing `Bound::Excluded(x)` will return a cursor pointing to the gap before the smallest element greater than `x`."}
+{"id": "9770dacfe5af", "src": "alloc/src/collections/btree/set.rs:1296", "en": "Passing `Bound::Unbounded` will return a cursor pointing to the gap before the smallest element in the set."}
+{"id": "9defa71d5ab4", "src": "alloc/src/collections/btree/set.rs:1339", "en": "Returns a `CursorMut` pointing at the gap before the smallest element greater than the given bound."}
+{"id": "08e3ef8a6f72", "src": "alloc/src/collections/btree/set.rs:1382", "en": "Returns a `Cursor` pointing at the gap after the greatest element smaller than the given bound."}
+{"id": "05ae2f0bb155", "src": "alloc/src/collections/btree/set.rs:1382", "en": "Passing `Bound::Included(x)` will return a cursor pointing to the gap after the greatest element smaller than or equal to `x`."}
+{"id": "43abc2fe7a68", "src": "alloc/src/collections/btree/set.rs:1382", "en": "Passing `Bound::Excluded(x)` will return a cursor pointing to the gap after the greatest element smaller than `x`."}
+{"id": "19dfe15e7315", "src": "alloc/src/collections/btree/set.rs:1382", "en": "Passing `Bound::Unbounded` will return a cursor pointing to the gap after the greatest element in the set."}
+{"id": "95832d3c7ad9", "src": "alloc/src/collections/btree/set.rs:1425", "en": "Returns a `CursorMut` pointing at the gap after the greatest element smaller than the given bound."}
+{"id": "6b92d709b026", "src": "alloc/src/collections/btree/set.rs:1494", "en": "Converts a `[T; N]` into a `BTreeSet<T>`."}
+{"id": "4b8473040ac6", "src": "alloc/src/collections/btree/set.rs:1524", "en": "Gets an iterator for moving out the `BTreeSet`'s contents in ascending order."}
+{"id": "9b6c9dc4d1af", "src": "alloc/src/collections/btree/set.rs:1551", "en": "This `struct` is created by the `extract_if` method on `BTreeSet`."}
+{"id": "9ac7ae3f853f", "src": "alloc/src/collections/btree/set.rs:1641", "en": "Creates an empty `BTreeSet`."}
+{"id": "b40ab2414ab9", "src": "alloc/src/collections/btree/set.rs:1651", "en": "Returns the difference of `self` and `rhs` as a new `BTreeSet<T>`."}
+{"id": "5c25889555dc", "src": "alloc/src/collections/btree/set.rs:1676", "en": "Returns the symmetric difference of `self` and `rhs` as a new `BTreeSet<T>`."}
+{"id": "2da38f892d8f", "src": "alloc/src/collections/btree/set.rs:1701", "en": "Returns the intersection of `self` and `rhs` as a new `BTreeSet<T>`."}
+{"id": "49dbb63714b4", "src": "alloc/src/collections/btree/set.rs:1726", "en": "Returns the union of `self` and `rhs` as a new `BTreeSet<T>`."}
+{"id": "fb9b336b2482", "src": "alloc/src/collections/btree/set.rs:1827", "en": "Creates an empty `btree_set::Iter`."}
+{"id": "4873dc2ec3a6", "src": "alloc/src/collections/btree/set.rs:1864", "en": "Creates an empty `btree_set::IntoIter`."}
+{"id": "d27f013da147", "src": "alloc/src/collections/btree/set.rs:1922", "en": "Creates an empty `btree_set::Range`."}
+{"id": "c54a688fcf2e", "src": "alloc/src/collections/btree/set.rs:2125", "en": "A cursor over a `BTreeSet`."}
+{"id": "2ec29ddab331", "src": "alloc/src/collections/btree/set.rs:2125", "en": "Cursors always point to a gap between two elements in the set, and can operate on the two immediately adjacent elements."}
+{"id": "36128137dd0e", "src": "alloc/src/collections/btree/set.rs:2125", "en": "A `Cursor` is created with the `BTreeSet::lower_bound` and `BTreeSet::upper_bound` methods."}
+{"id": "9574a4031c72", "src": "alloc/src/collections/btree/set.rs:2146", "en": "A cursor over a `BTreeSet` with editing operations."}
+{"id": "0248b6ed30e9", "src": "alloc/src/collections/btree/set.rs:2146", "en": "A `Cursor` is like an iterator, except that it can freely seek back-and-forth, and can safely mutate the set during iteration. This is because the lifetime of its yielded references is tied to its own lifetime, instead of just the underlying map. This means cursors cannot yield multiple elements at once."}
+{"id": "2d3c558a6450", "src": "alloc/src/collections/btree/set.rs:2146", "en": "A `CursorMut` is created with the `BTreeSet::lower_bound_mut` and `BTreeSet::upper_bound_mut` methods."}
+{"id": "49326053f5dd", "src": "alloc/src/collections/btree/set.rs:2171", "en": "A cursor over a `BTreeSet` with editing operations, and which allows mutating elements."}
+{"id": "58849d498d2a", "src": "alloc/src/collections/btree/set.rs:2171", "en": "A `Cursor` is like an iterator, except that it can freely seek back-and-forth, and can safely mutate the set during iteration. This is because the lifetime of its yielded references is tied to its own lifetime, instead of just the underlying set. This means cursors cannot yield multiple elements at once."}
+{"id": "35aa0988e622", "src": "alloc/src/collections/btree/set.rs:2171", "en": "Since this cursor allows mutating elements, you must ensure that the `BTreeSet` invariants are maintained. Specifically:"}
+{"id": "3a6a6eb243a6", "src": "alloc/src/collections/btree/set.rs:2171", "en": "* The newly inserted element must be unique in the tree. * All elements in the tree must remain in sorted order."}
+{"id": "751830f0d7a5", "src": "alloc/src/collections/btree/set.rs:2209", "en": "Advances the cursor to the next gap, returning the element that it moved over."}
+{"id": "d357353abc23", "src": "alloc/src/collections/btree/set.rs:2209", "en": "If the cursor is already at the end of the set then `None` is returned and the cursor is not moved."}
+{"id": "de6a66655ca6", "src": "alloc/src/collections/btree/set.rs:2219", "en": "Advances the cursor to the previous gap, returning the element that it moved over."}
+{"id": "a393f2bbbfeb", "src": "alloc/src/collections/btree/set.rs:2219", "en": "If the cursor is already at the start of the set then `None` is returned and the cursor is not moved."}
+{"id": "929c5cc484d4", "src": "alloc/src/collections/btree/set.rs:2229", "en": "Returns a reference to next element without moving the cursor."}
+{"id": "080eec712a24", "src": "alloc/src/collections/btree/set.rs:2229", "en": "If the cursor is at the end of the set then `None` is returned"}
+{"id": "fdbe19fa53e1", "src": "alloc/src/collections/btree/set.rs:2237", "en": "Returns a reference to the previous element without moving the cursor."}
+{"id": "29a7befced5b", "src": "alloc/src/collections/btree/set.rs:2237", "en": "If the cursor is at the start of the set then `None` is returned."}
+{"id": "ec5efc236418", "src": "alloc/src/collections/btree/set.rs:2267", "en": "Returns a reference to the next element without moving the cursor."}
+{"id": "e809c835cef8", "src": "alloc/src/collections/btree/set.rs:2267", "en": "If the cursor is at the end of the set then `None` is returned."}
+{"id": "e17216ad365a", "src": "alloc/src/collections/btree/set.rs:2294", "en": "Converts the cursor into a `CursorMutKey`, which allows mutating elements in the tree."}
+{"id": "413269004389", "src": "alloc/src/collections/btree/set.rs:2360", "en": "Inserts a new element into the set in the gap that the cursor is currently pointing to."}
+{"id": "b5b26b6cb4eb", "src": "alloc/src/collections/btree/set.rs:2360", "en": "You must ensure that the `BTreeSet` invariants are maintained. Specifically:"}
+{"id": "b475c430dbd8", "src": "alloc/src/collections/btree/set.rs:2396", "en": "If the inserted element is not greater than the element before the cursor (if any), or if it not less than the element after the cursor (if any), then an `UnorderedKeyError` is returned since this would invalidate the `Ord` invariant between the elements of the set."}
+{"id": "7afd9da45ace", "src": "alloc/src/collections/btree/set.rs:2426", "en": "Removes the next element from the `BTreeSet`."}
+{"id": "f86f112d0427", "src": "alloc/src/collections/btree/set.rs:2435", "en": "Removes the preceding element from the `BTreeSet`."}
+{"id": "da2193d6aa6a", "src": "alloc/src/collections/btree/set.rs:2446", "en": "* The key of the newly inserted element must be unique in the tree. * All elements in the tree must remain in sorted order."}
+{"id": "cd2d6eb04801", "src": "alloc/src/collections/btree/set_val.rs:1", "en": "Zero-Sized Type (ZST) for internal `BTreeSet` values. Used instead of `()` to differentiate between: * `BTreeMap<T, ()>` (possible user-defined map) * `BTreeMap<T, SetValZST>` (internal set representation)"}
+{"id": "0fdfc079a5a7", "src": "alloc/src/collections/btree/set_val.rs:8", "en": "A trait to differentiate between `BTreeMap` and `BTreeSet` values. Returns `true` only for type `SetValZST`, `false` for all other types (blanket implementation). `TypeId` requires a `'static` lifetime, use of this trait avoids that restriction."}
+{"id": "00bff46d0f35", "src": "alloc/src/collections/btree/split.rs:9", "en": "Calculates the length of both trees that result from splitting up a given number of distinct key-value pairs."}
+{"id": "be3490cd7acc", "src": "alloc/src/collections/btree/split.rs:29", "en": "Split off a tree with key-value pairs at and after the given key. The result is meaningful only if the tree is ordered by key, and if the ordering of `Q` corresponds to that of `K`. If `self` respects all `BTreeMap` tree invariants, then both `self` and the returned tree will respect those invariants."}
+{"id": "78d2472ff75c", "src": "alloc/src/collections/btree/split.rs:71", "en": "Creates a tree consisting of empty nodes."}
+{"id": "47d772ca2bd5", "src": "alloc/src/collections/btree/map/entry.rs:12", "en": "This `enum` is constructed from the `entry` method on `BTreeMap`."}
+{"id": "ccf32430c112", "src": "alloc/src/collections/btree/map/entry.rs:44", "en": "A view into a vacant entry in a `BTreeMap`. It is part of the `Entry` enum."}
+{"id": "784ba84c4bc5", "src": "alloc/src/collections/btree/map/entry.rs:54", "en": "`None` for a (empty) map without root"}
+{"id": "de06c1ff484b", "src": "alloc/src/collections/btree/map/entry.rs:72", "en": "A view into an occupied entry in a `BTreeMap`. It is part of the `Entry` enum."}
+{"id": "1800c9aabc4f", "src": "alloc/src/collections/btree/map/entry.rs:207", "en": "Ensures a value is in the entry by inserting, if empty, the result of the default function."}
+{"id": "de5ca8667093", "src": "alloc/src/collections/btree/map/entry.rs:207", "en": "This method allows for generating key-derived values for insertion by providing the default function a reference to the key that was moved during the `.entry(key)` method call."}
+{"id": "7ec6e3eeb0b6", "src": "alloc/src/collections/btree/map/entry.rs:372", "en": "Gets a reference to the key that would be used when inserting a value through the VacantEntry."}
+{"id": "2316fadd84df", "src": "alloc/src/collections/btree/map/entry.rs:500", "en": "Converts the entry into a reference to its key."}
+{"id": "36ec6cfef38f", "src": "alloc/src/collections/btree/map/entry.rs:505", "en": "Take ownership of the key and value from the map."}
+{"id": "2997424993e3", "src": "alloc/src/collections/btree/map/entry.rs:550", "en": "If you need a reference to the `OccupiedEntry` that may outlive the destruction of the `Entry` value, see `into_mut`."}
+{"id": "6509e9eb9ece", "src": "alloc/src/collections/btree/map/entry.rs:581", "en": "Converts the entry into a mutable reference to its value."}
+{"id": "0cd0ab2c805c", "src": "alloc/src/collections/btree/map/entry.rs:608", "en": "Sets the value of the entry with the `OccupiedEntry`'s key, and returns the entry's old value."}
+{"id": "21859ca86840", "src": "alloc/src/collections/btree/map/entry.rs:631", "en": "Takes the value of the entry out of the map, and returns it."}
+{"id": "be2f25c8d637", "src": "alloc/src/collections/btree/set/entry.rs:8", "en": "This `enum` is constructed from the `entry` method on `BTreeSet`."}
+{"id": "f50a88120917", "src": "alloc/src/collections/btree/set/entry.rs:96", "en": "A view into an occupied entry in a `BTreeSet`. It is part of the `Entry` enum."}
+{"id": "8bcfdb675395", "src": "alloc/src/collections/btree/set/entry.rs:148", "en": "A view into a vacant entry in a `BTreeSet`. It is part of the `Entry` enum."}
+{"id": "58366a261f78", "src": "alloc/src/collections/linked_list/tests.rs:59", "en": "Starting from the head of the LinkedList, follow the next links, while checking the prev links, and check that length equals the count of visited nodes."}
+{"id": "3f9ba4ddf9c6", "src": "alloc/src/collections/vec_deque/drain.rs:11", "en": "A draining iterator over the elements of a `VecDeque`."}
+{"id": "0e9e34e92e5d", "src": "alloc/src/collections/vec_deque/drain.rs:11", "en": "This `struct` is created by the `drain` method on `VecDeque`. See its documentation for more."}
+{"id": "33d8e5b7da8d", "src": "alloc/src/collections/vec_deque/extract_if.rs:7", "en": "An iterator which uses a closure to determine if an element should be removed."}
+{"id": "b3561d08991a", "src": "alloc/src/collections/vec_deque/extract_if.rs:7", "en": "This struct is created by `VecDeque::extract_if`. See its documentation for more."}
+{"id": "45dc3fb13c3c", "src": "alloc/src/collections/vec_deque/extract_if.rs:33", "en": "The index of the item that will be inspected by the next call to `next`."}

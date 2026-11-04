@@ -1,0 +1,164 @@
+{"id": "26296c79fb18", "src": "alloc/src/string.rs:1", "en": "A UTF-8–encoded, growable string."}
+{"id": "ae180948e81f", "src": "alloc/src/string.rs:1", "en": "This module contains the `String` type, the `ToString` trait for converting to strings, and several error types that may result from working with `String`s."}
+{"id": "eb01bf04c9a0", "src": "alloc/src/string.rs:1", "en": "Examples"}
+{"id": "be985810c86c", "src": "alloc/src/string.rs:1", "en": "There are multiple ways to create a new `String` from a string literal:"}
+{"id": "f36bae200be9", "src": "alloc/src/string.rs:1", "en": "You can create a new `String` from an existing one by concatenating with `+`:"}
+{"id": "92ebba09be70", "src": "alloc/src/string.rs:1", "en": "If you have a vector of valid UTF-8 bytes, you can make a `String` out of it. You can do the reverse too."}
+{"id": "8e46aa2ad968", "src": "alloc/src/string.rs:70", "en": "`String` is the most common string type. It has ownership over the contents of the string, stored in a heap-allocated buffer (see Representation). It is closely related to its borrowed counterpart, the primitive `str`."}
+{"id": "6c6f657b6c37", "src": "alloc/src/string.rs:70", "en": "You can create a `String` from [a literal string]`&str` with `String::from`:"}
+{"id": "870a98d1020e", "src": "alloc/src/string.rs:70", "en": "`String::from`: From::from"}
+{"id": "447e6bc7aaa7", "src": "alloc/src/string.rs:70", "en": "You can append a `char` to a `String` with the `push` method, and append a `&str` with the `push_str` method:"}
+{"id": "8a09cef5a280", "src": "alloc/src/string.rs:70", "en": "`push`: String::push `push_str`: String::push_str"}
+{"id": "2020397bd55f", "src": "alloc/src/string.rs:70", "en": "If you have a vector of UTF-8 bytes, you can create a `String` from it with the `from_utf8` method:"}
+{"id": "6a39382bd534", "src": "alloc/src/string.rs:70", "en": "`from_utf8`: String::from_utf8"}
+{"id": "663b90c899fa", "src": "alloc/src/string.rs:70", "en": "UTF-8"}
+{"id": "a236a8191c1b", "src": "alloc/src/string.rs:70", "en": "`String`s are always valid UTF-8. If you need a non-UTF-8 string, consider `OsString`. It is similar, but without the UTF-8 constraint. Because UTF-8 is a variable width encoding, `String`s are typically smaller than an array of the same `char`s:"}
+{"id": "989987ae3bad", "src": "alloc/src/string.rs:70", "en": "This raises interesting questions as to how `s[i]` should work. What should `i` be here? Several options include byte indices and `char` indices but, because of UTF-8 encoding, only byte indices would provide constant time indexing. Getting the `i`th `char`, for example, is available using `chars`:"}
+{"id": "6706bfb47eba", "src": "alloc/src/string.rs:70", "en": "Next, what should `s[i]` return? Because indexing returns a reference to underlying data it could be `&u8`, `&[u8]`, or something similar. Since we're only providing one index, `&u8` makes the most sense but that might not be what the user expects and can be explicitly achieved with `as_bytes()`:"}
+{"id": "8b5e9f6dfbdf", "src": "alloc/src/string.rs:70", "en": "Due to these ambiguities/restrictions, indexing with a `usize` is simply forbidden:"}
+{"id": "218a8fbb4dab", "src": "alloc/src/string.rs:70", "en": "It is more clear, however, how `&s[i..j]` should work (that is, indexing with a range). It should accept byte indices (to be constant-time) and return a `&str` which is UTF-8 encoded. This is also called \"string slicing\". Note this will panic if the byte indices provided are not character boundaries - see `is_char_boundary` for more details. See the implementations for `SliceIndex<str>` for more details on string slicing. For a non-panicking version of string slicing, see `get`."}
+{"id": "42b2e96fdc30", "src": "alloc/src/string.rs:70", "en": "`OsString`: ../../std/ffi/struct.OsString.html \"ffi::OsString\" `SliceIndex<str>`: core::slice::SliceIndex `as_bytes()`: str::as_bytes `get`: str::get `is_char_boundary`: str::is_char_boundary"}
+{"id": "b3a5b8d2c0b4", "src": "alloc/src/string.rs:70", "en": "The `bytes` and `chars` methods return iterators over the bytes and codepoints of the string, respectively. To iterate over codepoints along with byte indices, use `char_indices`."}
+{"id": "57de399db4a0", "src": "alloc/src/string.rs:70", "en": "`bytes`: str::bytes `chars`: str::chars `char_indices`: str::char_indices"}
+{"id": "df0ad997b0e3", "src": "alloc/src/string.rs:70", "en": "Deref"}
+{"id": "f949a3772f32", "src": "alloc/src/string.rs:70", "en": "`String` implements <code>[Deref]<Target = [str]></code>, and so inherits all of `str`'s methods. In addition, this means that you can pass a `String` to a function which takes a `&str` by using an ampersand (`&`):"}
+{"id": "f9a1524aa735", "src": "alloc/src/string.rs:70", "en": "This will create a `&str` from the `String` and pass it in. This conversion is very inexpensive, and so generally, functions will accept `&str`s as arguments unless they need a `String` for some specific reason."}
+{"id": "ef3d11e06db5", "src": "alloc/src/string.rs:70", "en": "In certain cases Rust doesn't have enough information to make this conversion, known as `Deref` coercion. In the following example a string slice `&'a str` implements the trait `TraitExample`, and the function `example_func` takes anything that implements the trait. In this case Rust would need to make two implicit conversions, which Rust doesn't have the means to do. For that reason, the following example will not compile."}
+{"id": "509f1a2d3bec", "src": "alloc/src/string.rs:70", "en": "There are two options that would work instead. The first would be to change the line `example_func(&example_string);` to `example_func(example_string.as_str());`, using the method `as_str()` to explicitly extract the string slice containing the string. The second way changes `example_func(&example_string);` to `example_func(&*example_string);`. In this case we are dereferencing a `String` to a `str`, then referencing the `str` back to `&str`. The second way is more idiomatic, however both work to do the conversion explicitly rather than relying on the implicit conversion."}
+{"id": "360bc539904b", "src": "alloc/src/string.rs:70", "en": "Representation"}
+{"id": "14b08c75e29d", "src": "alloc/src/string.rs:70", "en": "A `String` is made up of three components: a pointer to some bytes, a length, and a capacity. The pointer points to the internal buffer which `String` uses to store its data. The length is the number of bytes currently stored in the buffer, and the capacity is the size of the buffer in bytes. As such, the length will always be less than or equal to the capacity."}
+{"id": "626674212943", "src": "alloc/src/string.rs:70", "en": "This buffer is always stored on the heap."}
+{"id": "e65cdd326ffa", "src": "alloc/src/string.rs:70", "en": "You can look at these with the `as_ptr`, `len`, and `capacity` methods:"}
+{"id": "fac8ad1ccb04", "src": "alloc/src/string.rs:70", "en": "`as_ptr`: str::as_ptr `len`: String::len `capacity`: String::capacity"}
+{"id": "b86926d07c2d", "src": "alloc/src/string.rs:70", "en": "If a `String` has enough capacity, adding elements to it will not re-allocate. For example, consider this program:"}
+{"id": "b5b85ab1e962", "src": "alloc/src/string.rs:70", "en": "This will output the following:"}
+{"id": "23208fa4e0b8", "src": "alloc/src/string.rs:70", "en": "At first, we have no memory allocated at all, but as we append to the string, it increases its capacity appropriately. If we instead use the `with_capacity` method to allocate the correct capacity initially:"}
+{"id": "946c69f3ad2e", "src": "alloc/src/string.rs:70", "en": "`with_capacity`: String::with_capacity"}
+{"id": "7a128a928487", "src": "alloc/src/string.rs:70", "en": "We end up with a different output:"}
+{"id": "5f5bdb12ef17", "src": "alloc/src/string.rs:70", "en": "Here, there's no need to allocate more memory inside the loop."}
+{"id": "90e9b5697bd4", "src": "alloc/src/string.rs:70", "en": "[str]: prim@str \"str\" `str`: prim@str \"str\" `&str`: prim@str \"&str\" [Deref]: core::ops::Deref \"ops::Deref\" `Deref`: core::ops::Deref \"ops::Deref\" `as_str()`: String::as_str"}
+{"id": "d620234f1013", "src": "alloc/src/string.rs:357", "en": "A possible error value when converting a `String` from a UTF-8 byte vector."}
+{"id": "8d57affab022", "src": "alloc/src/string.rs:357", "en": "This type is the error type for the `from_utf8` method on `String`. It is designed in such a way to carefully avoid reallocations: the `into_bytes` method will give back the byte vector that was used in the conversion attempt."}
+{"id": "8f9fad8da2bf", "src": "alloc/src/string.rs:357", "en": "`from_utf8`: String::from_utf8 `into_bytes`: FromUtf8Error::into_bytes"}
+{"id": "96644459b75e", "src": "alloc/src/string.rs:357", "en": "The `Utf8Error` type provided by `std::str` represents an error that may occur when converting a slice of `u8`s to a `&str`. In this sense, it's an analogue to `FromUtf8Error`, and you can get one from a `FromUtf8Error` through the `utf8_error` method."}
+{"id": "c8b82fdc8743", "src": "alloc/src/string.rs:357", "en": "`Utf8Error`: str::Utf8Error \"std::str::Utf8Error\" `std::str`: core::str \"std::str\" `&str`: prim@str \"&str\" `utf8_error`: FromUtf8Error::utf8_error"}
+{"id": "8802cf2cc527", "src": "alloc/src/string.rs:396", "en": "A possible error value when converting a `String` from a UTF-16 byte slice."}
+{"id": "0da77c8dd325", "src": "alloc/src/string.rs:396", "en": "This type is the error type for the `from_utf16` method on `String`."}
+{"id": "94c19927a21a", "src": "alloc/src/string.rs:396", "en": "`from_utf16`: String::from_utf16"}
+{"id": "33ebbd3cce85", "src": "alloc/src/string.rs:425", "en": "Creates a new empty `String`."}
+{"id": "f0774aff7f69", "src": "alloc/src/string.rs:425", "en": "Given that the `String` is empty, this will not allocate any initial buffer. While that means that this initial operation is very inexpensive, it may cause excessive allocation later when you add data. If you have an idea of how much data the `String` will hold, consider the `with_capacity` method to prevent excessive re-allocation."}
+{"id": "99c9dc9d5ac3", "src": "alloc/src/string.rs:450", "en": "Creates a new empty `String` with at least the specified capacity."}
+{"id": "a8ea743b2c66", "src": "alloc/src/string.rs:450", "en": "`String`s have an internal buffer to hold their data. The capacity is the length of that buffer, and can be queried with the `capacity` method. This method creates an empty `String`, but one with an initial buffer that can hold at least `capacity` bytes. This is useful when you may be appending a bunch of data to the `String`, reducing the number of reallocations it needs to do."}
+{"id": "066bc9b4c47a", "src": "alloc/src/string.rs:450", "en": "`capacity`: String::capacity"}
+{"id": "08a38b260197", "src": "alloc/src/string.rs:450", "en": "If the given capacity is `0`, no allocation will occur, and this method is identical to the `new` method."}
+{"id": "2dea3c63c97d", "src": "alloc/src/string.rs:450", "en": "`new`: String::new"}
+{"id": "b6d2a57e62de", "src": "alloc/src/string.rs:450", "en": "Panics"}
+{"id": "3826de2c31e3", "src": "alloc/src/string.rs:450", "en": "Panics if the capacity exceeds `isize::MAX` _bytes_."}
+{"id": "805e86a8cbf6", "src": "alloc/src/string.rs:497", "en": "Errors"}
+{"id": "cabd7c8e3c53", "src": "alloc/src/string.rs:497", "en": "Returns `Err` if the capacity exceeds `isize::MAX` bytes, or if the memory allocator reports failure."}
+{"id": "ffe0ec4dbfda", "src": "alloc/src/string.rs:510", "en": "Converts a vector of bytes to a `String`."}
+{"id": "2872de6b5857", "src": "alloc/src/string.rs:510", "en": "A string (`String`) is made of bytes (`u8`), and a vector of bytes (`Vec<u8>`) is made of bytes, so this function converts between the two. Not all byte slices are valid `String`s, however: `String` requires that it is valid UTF-8. `from_utf8()` checks to ensure that the bytes are valid UTF-8, and then does the conversion."}
+{"id": "2536f112f01f", "src": "alloc/src/string.rs:510", "en": "If you are sure that the byte slice is valid UTF-8, and you don't want to incur the overhead of the validity check, there is an unsafe version of this function, `from_utf8_unchecked`, which has the same behavior but skips the check."}
+{"id": "361fc3f209ee", "src": "alloc/src/string.rs:510", "en": "This method will take care to not copy the vector, for efficiency's sake."}
+{"id": "5082df8e0dee", "src": "alloc/src/string.rs:510", "en": "If you need a `&str` instead of a `String`, consider `str::from_utf8`."}
+{"id": "fd710ca37583", "src": "alloc/src/string.rs:510", "en": "The inverse of this method is `into_bytes`."}
+{"id": "5085f5a0ccae", "src": "alloc/src/string.rs:510", "en": "Returns `Err` if the slice is not UTF-8 with a description as to why the provided bytes are not UTF-8. The vector you moved in is also included."}
+{"id": "65f639d2a405", "src": "alloc/src/string.rs:510", "en": "Basic usage:"}
+{"id": "bcbf83cd2f0e", "src": "alloc/src/string.rs:510", "en": "Incorrect bytes:"}
+{"id": "453b59386356", "src": "alloc/src/string.rs:510", "en": "See the docs for `FromUtf8Error` for more details on what you can do with this error."}
+{"id": "379d54a1af00", "src": "alloc/src/string.rs:510", "en": "`from_utf8_unchecked`: String::from_utf8_unchecked `Vec<u8>`: crate::vec::Vec \"Vec\" `&str`: prim@str \"&str\" `into_bytes`: String::into_bytes"}
+{"id": "ce9520a06149", "src": "alloc/src/string.rs:576", "en": "Converts a slice of bytes to a string, including invalid characters."}
+{"id": "1f40933344c5", "src": "alloc/src/string.rs:576", "en": "Strings are made of bytes (`u8`), and a slice of bytes (`&[u8]`) is made of bytes, so this function converts between the two. Not all byte slices are valid strings, however: strings are required to be valid UTF-8. During this conversion, `from_utf8_lossy()` will replace any invalid UTF-8 sequences with `U+FFFD REPLACEMENT CHARACTER`, which looks like this: �"}
+{"id": "0d52c87edc03", "src": "alloc/src/string.rs:576", "en": "[byteslice]: prim@slice [U+FFFD]: core::char::REPLACEMENT_CHARACTER"}
+{"id": "fd629dbaa937", "src": "alloc/src/string.rs:576", "en": "If you are sure that the byte slice is valid UTF-8, and you don't want to incur the overhead of the conversion, there is an unsafe version of this function, `from_utf8_unchecked`, which has the same behavior but skips the checks."}
+{"id": "330a6421f9a9", "src": "alloc/src/string.rs:576", "en": "`from_utf8_unchecked`: String::from_utf8_unchecked"}
+{"id": "2221aa9d1483", "src": "alloc/src/string.rs:576", "en": "This function returns a `Cow<'a, str>`. If our byte slice is invalid UTF-8, then we need to insert the replacement characters, which will change the size of the string, and hence, require a `String`. But if it's already valid UTF-8, we don't need a new allocation. This return type allows us to handle both cases."}
+{"id": "922b426fbe56", "src": "alloc/src/string.rs:576", "en": "`Cow<'a, str>`: crate::borrow::Cow \"borrow::Cow\""}
+{"id": "024a898f8591", "src": "alloc/src/string.rs:656", "en": "Converts a `Vec<u8>` to a `String`, substituting invalid UTF-8 sequences with replacement characters."}
+{"id": "5050acfc1386", "src": "alloc/src/string.rs:656", "en": "See `from_utf8_lossy` for more details."}
+{"id": "34af9c0cb127", "src": "alloc/src/string.rs:656", "en": "`from_utf8_lossy`: String::from_utf8_lossy"}
+{"id": "722a7e5f016f", "src": "alloc/src/string.rs:656", "en": "Note that this function does not guarantee reuse of the original `Vec` allocation."}
+{"id": "228a0f2aee95", "src": "alloc/src/string.rs:704", "en": "Decode a native endian UTF-16–encoded vector `v` into a `String`, returning `Err` if `v` contains any invalid data."}
+{"id": "7059bb1fa254", "src": "alloc/src/string.rs:736", "en": "Decode a native endian UTF-16–encoded slice `v` into a `String`, replacing invalid data with [the replacement character (`U+FFFD`)][U+FFFD]."}
+{"id": "20401b274c77", "src": "alloc/src/string.rs:736", "en": "Unlike `from_utf8_lossy` which returns a `Cow<'a, str>`, `from_utf16_lossy` returns a `String` since the UTF-16 to UTF-8 conversion requires a memory allocation."}
+{"id": "bbf8ac041b2f", "src": "alloc/src/string.rs:736", "en": "`from_utf8_lossy`: String::from_utf8_lossy `Cow<'a, str>`: crate::borrow::Cow \"borrow::Cow\" [U+FFFD]: core::char::REPLACEMENT_CHARACTER"}
+{"id": "54732b1688b2", "src": "alloc/src/string.rs:768", "en": "Decode a UTF-16LE–encoded vector `v` into a `String`, returning `Err` if `v` contains any invalid data."}
+{"id": "58556f35824d", "src": "alloc/src/string.rs:801", "en": "Decode a UTF-16LE–encoded slice `v` into a `String`, replacing invalid data with [the replacement character (`U+FFFD`)][U+FFFD]."}
+{"id": "78ddc91e465e", "src": "alloc/src/string.rs:801", "en": "Unlike `from_utf8_lossy` which returns a `Cow<'a, str>`, `from_utf16le_lossy` returns a `String` since the UTF-16 to UTF-8 conversion requires a memory allocation."}
+{"id": "b5581629018d", "src": "alloc/src/string.rs:841", "en": "Decode a UTF-16BE–encoded vector `v` into a `String`, returning `Err` if `v` contains any invalid data."}
+{"id": "061f874ad262", "src": "alloc/src/string.rs:874", "en": "Decode a UTF-16BE–encoded slice `v` into a `String`, replacing invalid data with [the replacement character (`U+FFFD`)][U+FFFD]."}
+{"id": "aa4903be1d7d", "src": "alloc/src/string.rs:914", "en": "Decomposes a `String` into its raw components: `(pointer, length, capacity)`."}
+{"id": "97f1627ad27a", "src": "alloc/src/string.rs:914", "en": "Returns the raw pointer to the underlying data, the length of the string (in bytes), and the allocated capacity of the data (in bytes). These are the same arguments in the same order as the arguments to `from_raw_parts`."}
+{"id": "04933cdfebdb", "src": "alloc/src/string.rs:914", "en": "After calling this function, the caller is responsible for the memory previously managed by the `String`. The only way to do this is to convert the raw pointer, length, and capacity back into a `String` with the `from_raw_parts` function, allowing the destructor to perform the cleanup."}
+{"id": "0320b29800ff", "src": "alloc/src/string.rs:914", "en": "`from_raw_parts`: String::from_raw_parts"}
+{"id": "3bc12b8d8005", "src": "alloc/src/string.rs:945", "en": "Creates a new `String` from a pointer, a length and a capacity."}
+{"id": "db6e7e410412", "src": "alloc/src/string.rs:945", "en": "Safety"}
+{"id": "5835397a3648", "src": "alloc/src/string.rs:945", "en": "This is highly unsafe, due to the number of invariants that aren't checked:"}
+{"id": "05828fb564ea", "src": "alloc/src/string.rs:945", "en": "* all safety requirements for `Vec::<u8>::from_raw_parts`. * all safety requirements for `String::from_utf8_unchecked`."}
+{"id": "5df17cbaa676", "src": "alloc/src/string.rs:945", "en": "Violating these may cause problems like corrupting the allocator's internal data structures. For example, it is normally **not** safe to build a `String` from a pointer to a C `char` array containing UTF-8 _unless_ you are certain that array was originally allocated by the Rust standard library's allocator."}
+{"id": "4dac788997b5", "src": "alloc/src/string.rs:945", "en": "The ownership of `buf` is effectively transferred to the `String` which may then deallocate, reallocate or change the contents of memory pointed to by the pointer at will. Ensure that nothing else uses the pointer after calling this function."}
+{"id": "fb4240cf1af9", "src": "alloc/src/string.rs:987", "en": "Converts a vector of bytes to a `String` without checking that the string contains valid UTF-8."}
+{"id": "34e1eda403d6", "src": "alloc/src/string.rs:987", "en": "See the safe version, `from_utf8`, for more details."}
+{"id": "604cd08e88e9", "src": "alloc/src/string.rs:987", "en": "This function is unsafe because it does not check that the bytes passed to it are valid UTF-8. If this constraint is violated, it may cause memory unsafety issues with future users of the `String`, as the rest of the standard library assumes that `String`s are valid UTF-8."}
+{"id": "77d845e13be6", "src": "alloc/src/string.rs:1020", "en": "Converts a `String` into a byte vector."}
+{"id": "f82f6254084d", "src": "alloc/src/string.rs:1020", "en": "This consumes the `String`, so we do not need to copy its contents."}
+{"id": "ba15eca29264", "src": "alloc/src/string.rs:1041", "en": "Extracts a string slice containing the entire `String`."}
+{"id": "6d54219c9aab", "src": "alloc/src/string.rs:1061", "en": "Converts a `String` into a mutable string slice."}
+{"id": "914fedeeba47", "src": "alloc/src/string.rs:1084", "en": "Appends a given string slice onto the end of this `String`."}
+{"id": "2ca1404ef759", "src": "alloc/src/string.rs:1084", "en": "Panics if the new capacity exceeds `isize::MAX` _bytes_."}
+{"id": "03931cc6de2e", "src": "alloc/src/string.rs:1108", "en": "Appends a given string slice onto the end of this `String`, returning `TryReserveError` otherwise."}
+{"id": "dbe0654ef2f0", "src": "alloc/src/string.rs:1138", "en": "Copies elements from `src` range to the end of the string."}
+{"id": "0c2a412f42ee", "src": "alloc/src/string.rs:1138", "en": "Panics if the range has `start_bound > end_bound`, if the range is bounded on either end and does not lie on a `char` boundary, or if the new capacity exceeds `isize::MAX` bytes."}
+{"id": "d717bd5e2d36", "src": "alloc/src/string.rs:1175", "en": "Returns this `String`'s capacity, in bytes."}
+{"id": "ff2ec8111bd7", "src": "alloc/src/string.rs:1192", "en": "Reserves capacity for at least `additional` bytes more than the current length. The allocator may reserve more space to speculatively avoid frequent allocations. After calling `reserve`, capacity will be greater than or equal to `self.len() + additional`. Does nothing if capacity is already sufficient."}
+{"id": "edb9f0ea1d3b", "src": "alloc/src/string.rs:1192", "en": "This might not actually increase the capacity:"}
+{"id": "7e4ee101fb27", "src": "alloc/src/string.rs:1239", "en": "Reserves the minimum capacity for at least `additional` bytes more than the current length. Unlike `reserve`, this will not deliberately over-allocate to speculatively avoid frequent allocations. After calling `reserve_exact`, capacity will be greater than or equal to `self.len() + additional`. Does nothing if the capacity is already sufficient."}
+{"id": "86cf19149c19", "src": "alloc/src/string.rs:1239", "en": "`reserve`: String::reserve"}
+{"id": "d765dc677099", "src": "alloc/src/string.rs:1289", "en": "Tries to reserve capacity for at least `additional` bytes more than the current length. The allocator may reserve more space to speculatively avoid frequent allocations. After calling `try_reserve`, capacity will be greater than or equal to `self.len() + additional` if it returns `Ok(())`. Does nothing if capacity is already sufficient. This method preserves the contents even if an error occurs."}
+{"id": "a413f73c6a00", "src": "alloc/src/string.rs:1289", "en": "If the capacity overflows, or the allocator reports a failure, then an error is returned."}
+{"id": "bef6853e22ec", "src": "alloc/src/string.rs:1324", "en": "Tries to reserve the minimum capacity for at least `additional` bytes more than the current length. Unlike `try_reserve`, this will not deliberately over-allocate to speculatively avoid frequent allocations. After calling `try_reserve_exact`, capacity will be greater than or equal to `self.len() + additional` if it returns `Ok(())`. Does nothing if the capacity is already sufficient."}
+{"id": "f62baf6894a7", "src": "alloc/src/string.rs:1324", "en": "Note that the allocator may give the collection more space than it requests. Therefore, capacity can not be relied upon to be precisely minimal. Prefer `try_reserve` if future insertions are expected."}
+{"id": "8c0a601b5c93", "src": "alloc/src/string.rs:1324", "en": "`try_reserve`: String::try_reserve"}
+{"id": "69165827eb29", "src": "alloc/src/string.rs:1365", "en": "Shrinks the capacity of this `String` to match its length."}
+{"id": "1bff80825a03", "src": "alloc/src/string.rs:1385", "en": "Shrinks the capacity of this `String` with a lower bound."}
+{"id": "a70fb21498da", "src": "alloc/src/string.rs:1385", "en": "The capacity will remain at least as large as both the length and the supplied value."}
+{"id": "d9f66e7f179d", "src": "alloc/src/string.rs:1385", "en": "If the current capacity is less than the lower limit, this is a no-op."}
+{"id": "f0bda322d585", "src": "alloc/src/string.rs:1412", "en": "Appends the given `char` to the end of this `String`."}
+{"id": "95122364eb93", "src": "alloc/src/string.rs:1444", "en": "Returns a byte slice of this `String`'s contents."}
+{"id": "dd8443756804", "src": "alloc/src/string.rs:1444", "en": "The inverse of this method is `from_utf8`."}
+{"id": "e1ff7146c92f", "src": "alloc/src/string.rs:1465", "en": "Shortens this `String` to the specified length."}
+{"id": "a3d764e988d1", "src": "alloc/src/string.rs:1465", "en": "If `new_len` is greater than or equal to the string's current length, this has no effect."}
+{"id": "be7d3b69a88f", "src": "alloc/src/string.rs:1465", "en": "Note that this method has no effect on the allocated capacity of the string"}
+{"id": "75cd8c438ad3", "src": "alloc/src/string.rs:1465", "en": "Panics if `new_len` does not lie on a `char` boundary."}
+{"id": "ebad829527c3", "src": "alloc/src/string.rs:1496", "en": "Removes the last character from the string buffer and returns it."}
+{"id": "f7133c202388", "src": "alloc/src/string.rs:1496", "en": "Returns `None` if this `String` is empty."}
+{"id": "eb89d3c3b4b9", "src": "alloc/src/string.rs:1522", "en": "Removes a `char` from this `String` at byte position `idx` and returns it."}
+{"id": "96e8054f63fe", "src": "alloc/src/string.rs:1522", "en": "Copies all bytes after the removed char to new positions."}
+{"id": "020490716f11", "src": "alloc/src/string.rs:1522", "en": "Note that calling this in a loop can result in quadratic behavior."}
+{"id": "050b0fbf773b", "src": "alloc/src/string.rs:1522", "en": "Panics if `idx` is larger than or equal to the `String`'s length, or if it does not lie on a `char` boundary."}
+{"id": "e90961ba91ec", "src": "alloc/src/string.rs:1561", "en": "Remove all matches of pattern `pat` in the `String`."}
+{"id": "2739bf4cabe8", "src": "alloc/src/string.rs:1561", "en": "Matches will be detected and removed iteratively, so in cases where patterns overlap, only the first pattern will be removed:"}
+{"id": "eb517b18a7c3", "src": "alloc/src/string.rs:1632", "en": "Retains only the characters specified by the predicate."}
+{"id": "ff28bc24c755", "src": "alloc/src/string.rs:1632", "en": "In other words, remove all characters `c` such that `f(c)` returns `false`. This method operates in place, visiting each character exactly once in the original order, and preserves the order of the retained characters."}
+{"id": "b77c4ef2e244", "src": "alloc/src/string.rs:1632", "en": "Because the elements are visited exactly once in the original order, external state may be used to decide which elements to keep."}
+{"id": "4c3f9cd73041", "src": "alloc/src/string.rs:1713", "en": "Inserts a character into this `String` at byte position `idx`."}
+{"id": "14e634598908", "src": "alloc/src/string.rs:1713", "en": "Reallocates if `self.capacity()` is insufficient, which may involve copying all `self.capacity()` bytes. Makes space for the insertion by copying all bytes of `&self[idx..]` to new positions."}
+{"id": "706720196cd5", "src": "alloc/src/string.rs:1713", "en": "Panics if `idx` is larger than the `String`'s length, or if it does not lie on a `char` boundary."}
+{"id": "ca502044236c", "src": "alloc/src/string.rs:1772", "en": "Inserts a string slice into this `String` at byte position `idx`."}
+{"id": "c1e0643c0bab", "src": "alloc/src/string.rs:1826", "en": "Returns a mutable reference to the contents of this `String`."}
+{"id": "5ec52168364c", "src": "alloc/src/string.rs:1826", "en": "This function is unsafe because the returned `&mut Vec` allows writing bytes which are not valid UTF-8. If this constraint is violated, using the original `String` after dropping the `&mut Vec` may violate memory safety, as the rest of the standard library assumes that `String`s are valid UTF-8."}
+{"id": "6ffccc01123b", "src": "alloc/src/string.rs:1856", "en": "Returns the length of this `String`, in bytes, not `char`s or graphemes. In other words, it might not be what a human considers the length of the string."}
+{"id": "8fa6b26eb1fd", "src": "alloc/src/string.rs:1880", "en": "Returns `true` if this `String` has a length of zero, and `false` otherwise."}
+{"id": "db080b996893", "src": "alloc/src/string.rs:1900", "en": "Splits the string into two at the given byte index."}
+{"id": "c1a0a65f2f4c", "src": "alloc/src/string.rs:1900", "en": "Returns a newly allocated `String`. `self` contains bytes `[0, at)`, and the returned `String` contains bytes `[at, len)`. `at` must be on the boundary of a UTF-8 code point."}
+{"id": "f063014ab13c", "src": "alloc/src/string.rs:1900", "en": "Note that the capacity of `self` does not change."}
+{"id": "8e6fd3aed296", "src": "alloc/src/string.rs:1900", "en": "Panics if `at` is not on a `UTF-8` code point boundary, or if it is beyond the last code point of the string."}
+{"id": "03276943b22a", "src": "alloc/src/string.rs:1934", "en": "Truncates this `String`, removing all contents."}
+{"id": "f5c4c67f8d77", "src": "alloc/src/string.rs:1934", "en": "While this means the `String` will have a length of zero, it does not touch its capacity."}
+{"id": "15c0018768b3", "src": "alloc/src/string.rs:1956", "en": "Removes the specified range from the string in bulk, returning all removed characters as an iterator."}
+{"id": "9317bcba66f5", "src": "alloc/src/string.rs:1956", "en": "The returned iterator keeps a mutable borrow on the string to optimize its implementation."}
+{"id": "2150d49a7eea", "src": "alloc/src/string.rs:1956", "en": "Panics if the range has `start_bound > end_bound`, or, if the range is bounded on either end and does not lie on a `char` boundary."}
+{"id": "b2c6d7cd56bd", "src": "alloc/src/string.rs:1956", "en": "Leaking"}
+{"id": "4e28f4597d78", "src": "alloc/src/string.rs:1956", "en": "If the returned iterator goes out of scope without being dropped (due to `core::mem::forget`, for example), the string may still contain a copy of any drained characters, or may have lost characters arbitrarily, including characters outside the range."}
+{"id": "bef88c64e505", "src": "alloc/src/string.rs:2014", "en": "Converts a `String` into an iterator over the `char`s of the string."}
+{"id": "685029c2ccb9", "src": "alloc/src/string.rs:2014", "en": "As a string consists of valid UTF-8, we can iterate through a string by `char`. This method returns such an iterator."}

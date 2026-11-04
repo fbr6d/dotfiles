@@ -1,0 +1,238 @@
+{"id": "adc867bd49ec", "src": "std/src/process.rs:2576", "en": "The process's termination will be similar to that from the C `abort()` function. On Unix, the process will terminate with signal `SIGABRT`, which typically means that the shell prints \"Aborted\"."}
+{"id": "6052545bbff9", "src": "std/src/process.rs:2576", "en": "The `abort` function terminates the process, so the destructor will not get run on the example below:"}
+{"id": "cd9018e89fa2", "src": "std/src/process.rs:2576", "en": "[panic hook]: crate::panic::set_hook"}
+{"id": "d2642c21b17a", "src": "std/src/process.rs:2646", "en": "Returns the OS-assigned process identifier associated with this process."}
+{"id": "d2fd38a1089e", "src": "std/src/process.rs:2661", "en": "A trait for implementing arbitrary return types in the `main` function."}
+{"id": "b2949baf27a0", "src": "std/src/process.rs:2661", "en": "The C-main function only supports returning integers. So, every type implementing the `Termination` trait has to be converted to an integer."}
+{"id": "c2b422ad327a", "src": "std/src/process.rs:2661", "en": "The default implementations are returning `libc::EXIT_SUCCESS` to indicate a successful execution. In case of a failure, `libc::EXIT_FAILURE` is returned."}
+{"id": "9e3c1fa27974", "src": "std/src/process.rs:2661", "en": "Because different runtimes have different specifications on the return value of the `main` function, this trait is likely to be available only on standard library's runtime for convenience. Other runtimes are not required to provide similar functionality."}
+{"id": "1ded365c250b", "src": "std/src/process.rs:2682", "en": "Is called to get the representation of the value as status code. This status code is returned to the operating system."}
+{"id": "973c2c12a376", "src": "std/src/path.rs:1", "en": "Cross-platform path manipulation."}
+{"id": "da09b49117d1", "src": "std/src/path.rs:1", "en": "This module provides two types, `PathBuf` and `Path` (akin to `String` and `str`), for working with paths abstractly. These types are thin wrappers around `OsString` and `OsStr` respectively, meaning that they work directly on strings according to the local platform's path syntax."}
+{"id": "3f2125a04336", "src": "std/src/path.rs:1", "en": "Paths can be parsed into `Component`s by iterating over the structure returned by the `components` method on `Path`. `Component`s roughly correspond to the substrings between path separators (`/` or `\\`). You can reconstruct an equivalent path from components with the `push` method on `PathBuf`; note that the paths may differ syntactically by the normalization described in the documentation for the `components` method."}
+{"id": "a5c2f31f1232", "src": "std/src/path.rs:1", "en": "Case sensitivity"}
+{"id": "e1a94a2f4ee7", "src": "std/src/path.rs:1", "en": "Unless otherwise indicated path methods that do not access the filesystem, such as `Path::starts_with` and `Path::ends_with`, are case sensitive no matter the platform or filesystem. An exception to this is made for Windows drive letters."}
+{"id": "eada80735983", "src": "std/src/path.rs:1", "en": "Path normalization"}
+{"id": "4b8ba553a61b", "src": "std/src/path.rs:1", "en": "Several methods in this module perform basic path normalization by disregarding repeated separators, non-leading `.` components, and trailing separators. These include: - Methods for iteration, such as `Path::components` and `Path::iter` - Methods for inspection, such as `Path::has_root` - Comparisons using `PartialEq`, `PartialOrd`, and `Ord`"}
+{"id": "5ac1cf1ca839", "src": "std/src/path.rs:1", "en": "`Path::join` and `PathBuf::push` also disregard trailing slashes."}
+{"id": "ddaca08ea66c", "src": "std/src/path.rs:33", "en": "These methods **do not** resolve `..` components or symlinks. For full normalization including `..` resolution, use `Path::canonicalize` (which does access the filesystem)."}
+{"id": "f9e72abc4ccb", "src": "std/src/path.rs:33", "en": "Simple usage"}
+{"id": "d9f02f1c3287", "src": "std/src/path.rs:33", "en": "Path manipulation includes both parsing components from slices and building new owned paths."}
+{"id": "c97d9873a299", "src": "std/src/path.rs:33", "en": "To parse a path, you can create a `Path` slice from a `str` slice and start asking questions:"}
+{"id": "b28beedb4a33", "src": "std/src/path.rs:33", "en": "To build or modify paths, use `PathBuf`:"}
+{"id": "d0c30f7d3ac2", "src": "std/src/path.rs:33", "en": "`components`: Path::components `push`: PathBuf::push"}
+{"id": "b8c091456679", "src": "std/src/path.rs:113", "en": "Windows path prefixes, e.g., `C:` or `\\\\server\\share`."}
+{"id": "87436df9769d", "src": "std/src/path.rs:113", "en": "Windows uses a variety of path prefix styles, including references to drive volumes (like `C:`), network shared folders (like `\\\\server\\share`), and others. In addition, some path prefixes are \"verbatim\" (i.e., prefixed with `\\\\?\\`), in which case `/` is *not* treated as a separator and essentially no normalization is performed."}
+{"id": "ec9fe11cd5f9", "src": "std/src/path.rs:152", "en": "Verbatim prefix, e.g., `\\\\?\\cat_pics`."}
+{"id": "32c30f7f8552", "src": "std/src/path.rs:152", "en": "Verbatim prefixes consist of `\\\\?\\` immediately followed by the given component."}
+{"id": "6fafd2aeea1e", "src": "std/src/path.rs:159", "en": "Verbatim prefix using Windows' _**U**niform **N**aming **C**onvention_, e.g., `\\\\?\\UNC\\server\\share`."}
+{"id": "6acfe0fab40b", "src": "std/src/path.rs:159", "en": "Verbatim UNC prefixes consist of `\\\\?\\UNC\\` immediately followed by the server's hostname and a share name."}
+{"id": "a9e83c48c150", "src": "std/src/path.rs:170", "en": "Verbatim disk prefix, e.g., `\\\\?\\C:`."}
+{"id": "32545376c8a8", "src": "std/src/path.rs:170", "en": "Verbatim disk prefixes consist of `\\\\?\\` immediately followed by the drive letter and `:`."}
+{"id": "6afba6cf0cea", "src": "std/src/path.rs:177", "en": "Device namespace prefix, e.g., `\\\\.\\COM42`."}
+{"id": "20902d5ea8ba", "src": "std/src/path.rs:177", "en": "Device namespace prefixes consist of `\\\\.\\` (possibly using `/` instead of `\\`), immediately followed by the device name."}
+{"id": "30c70e9be661", "src": "std/src/path.rs:184", "en": "Prefix using Windows' _**U**niform **N**aming **C**onvention_, e.g. `\\\\server\\share`."}
+{"id": "0dd9df57e983", "src": "std/src/path.rs:184", "en": "UNC prefixes consist of the server's hostname and a share name."}
+{"id": "8465f810080c", "src": "std/src/path.rs:194", "en": "Prefix `C:` for the given disk drive."}
+{"id": "45d74604b63b", "src": "std/src/path.rs:218", "en": "Determines if the prefix is verbatim, i.e., begins with `\\\\?\\`."}
+{"id": "231b3f6195b9", "src": "std/src/path.rs:256", "en": "Determines whether the character is one of the permitted path separators for the current platform."}
+{"id": "ca617342e4c7", "src": "std/src/path.rs:274", "en": "All path separators recognized on the current platform, represented as `char`s; for example, this is `&['/'][..]` on Unix and `&['\\\\', '/'][..]` on Windows. The primary separator is always element 0 of the slice."}
+{"id": "7af8367c65d7", "src": "std/src/path.rs:280", "en": "All path separators recognized on the current platform, represented as `&str`s; for example, this is `&[\"/\"][..]` on Unix and `&[\"\\\\\", \"/\"][..]` on Windows. The primary separator is always element 0 of the slice."}
+{"id": "13f824a6aa11", "src": "std/src/path.rs:286", "en": "The primary separator of path components for the current platform, represented as a `char`; for example, this is `'/'` on Unix and `'\\\\'` on Windows."}
+{"id": "4605cfa24b33", "src": "std/src/path.rs:292", "en": "The primary separator of path components for the current platform, represented as a `&str`; for example, this is `\"/\"` on Unix and `\"\\\\\"` on Windows."}
+{"id": "b4f6c3605961", "src": "std/src/path.rs:326", "en": "Says whether the first byte after the prefix is a separator."}
+{"id": "de1e5522ee02", "src": "std/src/path.rs:381", "en": "Checks whether the string is valid as a file extension, or panics otherwise."}
+{"id": "c3848e642c03", "src": "std/src/path.rs:394", "en": "Component parsing works by a double-ended state machine; the cursors at the front and back of the path each keep track of what parts of the path have been consumed so far."}
+{"id": "1bf791092564", "src": "std/src/path.rs:394", "en": "Going front to back, a path is made up of a prefix, a starting directory component, and a body (of normal components)"}
+{"id": "2859b7dadbca", "src": "std/src/path.rs:408", "en": "A structure wrapping a Windows path prefix as well as its unparsed string representation."}
+{"id": "c5d8bbc8a0d3", "src": "std/src/path.rs:408", "en": "In addition to the parsed `Prefix` information returned by `kind`, `PrefixComponent` also holds the raw and unparsed `OsStr` slice, returned by `as_os_str`."}
+{"id": "361d7e1c4c76", "src": "std/src/path.rs:408", "en": "Instances of this `struct` can be obtained by matching against the [`Prefix` variant] on `Component`."}
+{"id": "ea133f7a6c3d", "src": "std/src/path.rs:408", "en": "Does not occur on Unix."}
+{"id": "4a687a31826e", "src": "std/src/path.rs:408", "en": "`as_os_str`: PrefixComponent::as_os_str `kind`: PrefixComponent::kind [`Prefix` variant]: Component::Prefix"}
+{"id": "a65751f0d300", "src": "std/src/path.rs:444", "en": "The prefix as an unparsed `OsStr` slice."}
+{"id": "6ccc729b1683", "src": "std/src/path.rs:447", "en": "The parsed prefix data."}
+{"id": "a1316e8e7b8a", "src": "std/src/path.rs:452", "en": "Returns the parsed prefix data."}
+{"id": "27d366cf0f7e", "src": "std/src/path.rs:452", "en": "See `Prefix`'s documentation for more information on the different kinds of prefixes."}
+{"id": "29b38f0044f3", "src": "std/src/path.rs:463", "en": "Returns the raw `OsStr` slice for this prefix."}
+{"id": "538d82224c46", "src": "std/src/path.rs:503", "en": "A single component of a path."}
+{"id": "c81af43e6a17", "src": "std/src/path.rs:503", "en": "A `Component` roughly corresponds to a substring between path separators (`/` or `\\`)."}
+{"id": "edd654c7be38", "src": "std/src/path.rs:503", "en": "This `enum` is created by iterating over `Components`, which in turn is created by the `components` method on `Path`."}
+{"id": "bb744fd0af01", "src": "std/src/path.rs:528", "en": "A Windows path prefix, e.g., `C:` or `\\\\server\\share`."}
+{"id": "ddf5b75534a7", "src": "std/src/path.rs:528", "en": "There is a large variety of prefix types, see `Prefix`'s documentation for more."}
+{"id": "93b14b29a7ae", "src": "std/src/path.rs:537", "en": "The root directory component, appears after any prefix and before anything else."}
+{"id": "a96e5b042b30", "src": "std/src/path.rs:537", "en": "It represents a separator that designates that a path starts from root."}
+{"id": "435b78cd8c32", "src": "std/src/path.rs:543", "en": "A reference to the current directory, i.e., `.`."}
+{"id": "38814bde8e72", "src": "std/src/path.rs:547", "en": "A reference to the parent directory, i.e., `..`."}
+{"id": "c95305c59344", "src": "std/src/path.rs:551", "en": "A normal component, e.g., `a` and `b` in `a/b`."}
+{"id": "413d9b4dc552", "src": "std/src/path.rs:551", "en": "This variant is the most common one, it represents references to files or directories."}
+{"id": "4efccbf12073", "src": "std/src/path.rs:560", "en": "Extracts the underlying `OsStr` slice."}
+{"id": "370e43892c9b", "src": "std/src/path.rs:600", "en": "An iterator over the `Component`s of a `Path`."}
+{"id": "140998695799", "src": "std/src/path.rs:600", "en": "This `struct` is created by the `components` method on `Path`. See its documentation for more."}
+{"id": "a295e81cc677", "src": "std/src/path.rs:600", "en": "`components`: Path::components"}
+{"id": "03f5306783ec", "src": "std/src/path.rs:639", "en": "An iterator over the `Component`s of a `Path`, as `OsStr` slices."}
+{"id": "9674c61b5cfe", "src": "std/src/path.rs:639", "en": "This `struct` is created by the `iter` method on `Path`. See its documentation for more."}
+{"id": "b82aa2d19961", "src": "std/src/path.rs:639", "en": "`iter`: Path::iter"}
+{"id": "47845216bfe3", "src": "std/src/path.rs:685", "en": "how much of the prefix is left from the point of view of iteration?"}
+{"id": "bc4640cdf655", "src": "std/src/path.rs:713", "en": "Extracts a slice corresponding to the portion of the path remaining for iteration."}
+{"id": "682c0f60a130", "src": "std/src/path.rs:739", "en": "Is the *original* path rooted?"}
+{"id": "48db4f3329ab", "src": "std/src/path.rs:752", "en": "Should the normalized path include a leading . ?"}
+{"id": "750fbbd855b9", "src": "std/src/path.rs:1103", "en": "An iterator over `Path` and its ancestors."}
+{"id": "3aabaedf65c4", "src": "std/src/path.rs:1103", "en": "This `struct` is created by the `ancestors` method on `Path`. See its documentation for more."}
+{"id": "d7eab93d1788", "src": "std/src/path.rs:1103", "en": "`ancestors`: Path::ancestors"}
+{"id": "dd0198a6bcdd", "src": "std/src/path.rs:1147", "en": "An owned, mutable path (akin to `String`)."}
+{"id": "8890c066f5f1", "src": "std/src/path.rs:1147", "en": "This type provides methods like `push` and `set_extension` that mutate the path in place. It also implements `Deref` to `Path`, meaning that all methods on `Path` slices are available on `PathBuf` values as well."}
+{"id": "f11fb79d90d6", "src": "std/src/path.rs:1147", "en": "`push`: PathBuf::push `set_extension`: PathBuf::set_extension"}
+{"id": "6b002b456682", "src": "std/src/path.rs:1147", "en": "More details about the overall approach can be found in the module documentation."}
+{"id": "f0e4f4a418cb", "src": "std/src/path.rs:1147", "en": "You can use `push` to build up a `PathBuf` from components:"}
+{"id": "5d01bd3f6e18", "src": "std/src/path.rs:1147", "en": "However, `push` is best used for dynamic situations. This is a better way to do this when you know all of the components ahead of time:"}
+{"id": "c4ff0f9938d9", "src": "std/src/path.rs:1147", "en": "We can still do better than this! Since these are all strings, we can use `From::from`:"}
+{"id": "0807125208ce", "src": "std/src/path.rs:1147", "en": "Which method works best depends on what kind of situation you're in."}
+{"id": "d69a7c5bfbf5", "src": "std/src/path.rs:1147", "en": "Note that `PathBuf` does not always sanitize arguments, for example `push` allows paths built from strings which include separators:"}
+{"id": "0b74c6122a58", "src": "std/src/path.rs:1147", "en": "The behavior of `PathBuf` may be changed to a panic on such inputs in the future. `Extend::extend` should be used to add multi-part paths."}
+{"id": "9032dc4c08b9", "src": "std/src/path.rs:1219", "en": "Allocates an empty `PathBuf`."}
+{"id": "edd462964d2d", "src": "std/src/path.rs:1236", "en": "Creates a new `PathBuf` with a given capacity used to create the internal `OsString`. See `with_capacity` defined on `OsString`."}
+{"id": "11ad7842f970", "src": "std/src/path.rs:1236", "en": "`with_capacity`: OsString::with_capacity"}
+{"id": "9164a5341e51", "src": "std/src/path.rs:1261", "en": "Coerces to a `Path` slice."}
+{"id": "850fd6f9d633", "src": "std/src/path.rs:1279", "en": "Consumes and leaks the `PathBuf`, returning a mutable reference to the contents, `&'a mut Path`."}
+{"id": "95bff6cc8c1e", "src": "std/src/path.rs:1279", "en": "The caller has free choice over the returned lifetime, including 'static. Indeed, this function is ideally used for data that lives for the remainder of the program's life, as dropping the returned reference will cause a memory leak."}
+{"id": "e90ec0c9b8dc", "src": "std/src/path.rs:1279", "en": "It does not reallocate or shrink the `PathBuf`, so the leaked allocation may include unused capacity that is not part of the returned slice. If you want to discard excess capacity, call `into_boxed_path`, and then `Box::leak` instead. However, keep in mind that trimming the capacity may result in a reallocation and copy."}
+{"id": "3a46737d5260", "src": "std/src/path.rs:1279", "en": "`into_boxed_path`: Self::into_boxed_path"}
+{"id": "32af7417889a", "src": "std/src/path.rs:1298", "en": "Extends `self` with `path`."}
+{"id": "ad9b15b44244", "src": "std/src/path.rs:1298", "en": "If `path` is absolute, it replaces the current path."}
+{"id": "bb8d5fe44321", "src": "std/src/path.rs:1298", "en": "* if `path` has a root but no prefix (e.g., `\\windows`), it replaces everything except for the prefix (if any) of `self`. * if `path` has a prefix but no root, it replaces `self`. * if `self` has a verbatim prefix (e.g. `\\\\?\\C:\\windows`) and `path` is not empty, the new path is normalized: all references to `.` and `..` are removed."}
+{"id": "b16f0de58755", "src": "std/src/path.rs:1298", "en": "Consider using `Path::join` if you need a new `PathBuf` instead of using this function on a cloned `PathBuf`."}
+{"id": "96afa27d9e20", "src": "std/src/path.rs:1298", "en": "Pushing a relative path extends the existing path:"}
+{"id": "264934981c05", "src": "std/src/path.rs:1298", "en": "Pushing an absolute path replaces the existing path:"}
+{"id": "af7922e97c1e", "src": "std/src/path.rs:1422", "en": "Truncates `self` to `self.parent`."}
+{"id": "4cba564ee2a7", "src": "std/src/path.rs:1422", "en": "Returns `false` and does nothing if `self.parent` is `None`. Otherwise, returns `true`."}
+{"id": "605db3dac6ae", "src": "std/src/path.rs:1422", "en": "`self.parent`: Path::parent"}
+{"id": "39f3c9aa84b2", "src": "std/src/path.rs:1452", "en": "Sets whether the path has a trailing separator."}
+{"id": "78ffb523ba04", "src": "std/src/path.rs:1452", "en": "The value returned by `has_trailing_sep` will be equivalent to the provided value if possible."}
+{"id": "83c37a636ddc", "src": "std/src/path.rs:1483", "en": "Adds a trailing separator to the path."}
+{"id": "fbeb7c61620e", "src": "std/src/path.rs:1483", "en": "This acts similarly to `Path::with_trailing_sep`, but mutates the underlying `PathBuf`."}
+{"id": "f90cbaf1c855", "src": "std/src/path.rs:1513", "en": "Removes a trailing separator from the path, if possible."}
+{"id": "b3860e040e7a", "src": "std/src/path.rs:1513", "en": "This acts similarly to `Path::trim_trailing_sep`, but mutates the underlying `PathBuf`."}
+{"id": "9809aa8f9caa", "src": "std/src/path.rs:1545", "en": "Updates `self.file_name` to `file_name`."}
+{"id": "e909fc28e90f", "src": "std/src/path.rs:1545", "en": "If `self.file_name` was `None`, this is equivalent to pushing `file_name`."}
+{"id": "c1605b7dbeba", "src": "std/src/path.rs:1545", "en": "Otherwise it is equivalent to calling `pop` and then pushing `file_name`. The new path will be a sibling of the original path. (That is, it will have the same parent.)"}
+{"id": "d92793c2ab27", "src": "std/src/path.rs:1545", "en": "The argument is not sanitized, so can include separators. This behavior may be changed to a panic in the future."}
+{"id": "bf813ea2cba8", "src": "std/src/path.rs:1545", "en": "`self.file_name`: Path::file_name `pop`: PathBuf::pop"}
+{"id": "b3632afd10e9", "src": "std/src/path.rs:1597", "en": "Updates `self.extension` to `Some(extension)` or to `None` if `extension` is empty."}
+{"id": "f833e69dd5af", "src": "std/src/path.rs:1597", "en": "Returns `false` and does nothing if `self.file_name` is `None`, returns `true` and updates the extension otherwise."}
+{"id": "0a33315e7cf4", "src": "std/src/path.rs:1597", "en": "If `self.extension` is `None`, the extension is added; otherwise it is replaced."}
+{"id": "f0fd98722cc5", "src": "std/src/path.rs:1597", "en": "If `extension` is the empty string, `self.extension` will be `None` afterwards, not `Some(\"\")`."}
+{"id": "d6021ea44bd7", "src": "std/src/path.rs:1597", "en": "Panics if the passed extension contains a path separator (see `is_separator`)."}
+{"id": "a8a6b969ea78", "src": "std/src/path.rs:1597", "en": "The new `extension` may contain dots and will be used in its entirety, but only the part after the final dot will be reflected in `self.extension`."}
+{"id": "fc07c1f4fadc", "src": "std/src/path.rs:1597", "en": "If the file stem contains internal dots and `extension` is empty, part of the old file stem will be considered the new `self.extension`."}
+{"id": "55dfbc1ba052", "src": "std/src/path.rs:1597", "en": "See the examples below."}
+{"id": "c6fb70da45ad", "src": "std/src/path.rs:1597", "en": "`self.file_name`: Path::file_name `self.extension`: Path::extension"}
+{"id": "b44408216484", "src": "std/src/path.rs:1684", "en": "Append `self.extension` with `extension`."}
+{"id": "9c48d24cd14c", "src": "std/src/path.rs:1684", "en": "The appended `extension` may contain dots and will be used in its entirety, but only the part after the final dot will be reflected in `self.extension`."}
+{"id": "d58c82f7b8e2", "src": "std/src/path.rs:1759", "en": "Yields a mutable reference to the underlying `OsString` instance."}
+{"id": "18dc531cd0a3", "src": "std/src/path.rs:1782", "en": "Consumes the `PathBuf`, yielding its internal `OsString` storage."}
+{"id": "94a3a2e7f423", "src": "std/src/path.rs:1799", "en": "Converts the `PathBuf` into a `String` if it contains valid Unicode data."}
+{"id": "90ba54f3aac8", "src": "std/src/path.rs:1799", "en": "On failure, ownership of the original `PathBuf` is returned."}
+{"id": "e3db01063075", "src": "std/src/path.rs:1817", "en": "Converts this `PathBuf` into a boxed `Path`."}
+{"id": "9065566411f6", "src": "std/src/path.rs:1826", "en": "Invokes `capacity` on the underlying instance of `OsString`."}
+{"id": "364e6c0fdce5", "src": "std/src/path.rs:1826", "en": "`capacity`: OsString::capacity"}
+{"id": "a62e70ee6c47", "src": "std/src/path.rs:1836", "en": "Invokes `clear` on the underlying instance of `OsString`."}
+{"id": "6bd727395502", "src": "std/src/path.rs:1836", "en": "`clear`: OsString::clear"}
+{"id": "cc9bbc5d3c47", "src": "std/src/path.rs:1845", "en": "Invokes `reserve` on the underlying instance of `OsString`."}
+{"id": "944f94696700", "src": "std/src/path.rs:1845", "en": "`reserve`: OsString::reserve"}
+{"id": "3b7b930d1f34", "src": "std/src/path.rs:1854", "en": "Invokes `try_reserve` on the underlying instance of `OsString`."}
+{"id": "139b6b82d62c", "src": "std/src/path.rs:1854", "en": "`try_reserve`: OsString::try_reserve"}
+{"id": "00129683f211", "src": "std/src/path.rs:1863", "en": "Invokes `reserve_exact` on the underlying instance of `OsString`."}
+{"id": "58e0062117ce", "src": "std/src/path.rs:1863", "en": "`reserve_exact`: OsString::reserve_exact"}
+{"id": "905a4683d0d2", "src": "std/src/path.rs:1872", "en": "Invokes `try_reserve_exact` on the underlying instance of `OsString`."}
+{"id": "1f7eda625685", "src": "std/src/path.rs:1872", "en": "`try_reserve_exact`: OsString::try_reserve_exact"}
+{"id": "a36d8d638109", "src": "std/src/path.rs:1881", "en": "Invokes `shrink_to_fit` on the underlying instance of `OsString`."}
+{"id": "d5d380202140", "src": "std/src/path.rs:1881", "en": "`shrink_to_fit`: OsString::shrink_to_fit"}
+{"id": "ef98c07f0ed8", "src": "std/src/path.rs:1890", "en": "Invokes `shrink_to` on the underlying instance of `OsString`."}
+{"id": "3f40e53dc623", "src": "std/src/path.rs:1890", "en": "`shrink_to`: OsString::shrink_to"}
+{"id": "6278b87d7d12", "src": "std/src/path.rs:1919", "en": "Creates a boxed `Path` from a reference."}
+{"id": "f863d493e253", "src": "std/src/path.rs:1919", "en": "This will allocate and clone `path` to it."}
+{"id": "135d904218ca", "src": "std/src/path.rs:1939", "en": "Creates a boxed `Path` from a clone-on-write pointer."}
+{"id": "49e52d037fa7", "src": "std/src/path.rs:1939", "en": "Converting from a `Cow::Owned` does not clone or allocate."}
+{"id": "adae7db0ffb3", "src": "std/src/path.rs:1953", "en": "Converts a <code>[Box]&lt;[Path]&gt;</code> into a `PathBuf`."}
+{"id": "ece3abafa7c5", "src": "std/src/path.rs:1953", "en": "This conversion does not allocate or copy memory."}
+{"id": "7ca36dbb33f4", "src": "std/src/path.rs:1964", "en": "Converts a `PathBuf` into a <code>[Box]&lt;[Path]&gt;</code>."}
+{"id": "3b1a65936a10", "src": "std/src/path.rs:1964", "en": "This conversion currently should not allocate memory, but this behavior is not guaranteed on all platforms or in all future versions."}
+{"id": "eecd6aa6ea0c", "src": "std/src/path.rs:1984", "en": "Converts a borrowed `OsStr` to a `PathBuf`."}
+{"id": "9c51ba4d56b2", "src": "std/src/path.rs:1984", "en": "Allocates a `PathBuf` and copies the data into it."}
+{"id": "41146d606ebe", "src": "std/src/path.rs:1995", "en": "Converts an `OsString` into a `PathBuf`."}
+{"id": "314eb5a551a1", "src": "std/src/path.rs:2006", "en": "Converts a `PathBuf` into an `OsString`"}
+{"id": "8751885a9e23", "src": "std/src/path.rs:2017", "en": "Converts a `String` into a `PathBuf`"}
+{"id": "c00138878d12", "src": "std/src/path.rs:2038", "en": "Creates a new `PathBuf` from the `Path` elements of an iterator."}
+{"id": "b58e25fdeb58", "src": "std/src/path.rs:2038", "en": "This uses `push` to add each element, so can be used to adjoin multiple path components."}
+{"id": "6c4fa6d5174a", "src": "std/src/path.rs:2038", "en": "See documentation for `push` for more details on how the path is constructed."}
+{"id": "c8d9ce15e7f4", "src": "std/src/path.rs:2060", "en": "Extends `self` with `Path` elements from `iter`."}
+{"id": "324383e0b661", "src": "std/src/path.rs:2126", "en": "Creates a clone-on-write pointer from a reference to `Path`."}
+{"id": "415fc3c80704", "src": "std/src/path.rs:2126", "en": "This conversion does not clone or allocate."}
+{"id": "456fa4ff397c", "src": "std/src/path.rs:2138", "en": "Creates a clone-on-write pointer from an owned instance of `PathBuf`."}
+{"id": "5ecdb1e131a4", "src": "std/src/path.rs:2150", "en": "Creates a clone-on-write pointer from a reference to `PathBuf`."}
+{"id": "89de02ffa545", "src": "std/src/path.rs:2162", "en": "Converts a clone-on-write pointer to an owned path."}
+{"id": "f818385ce1d4", "src": "std/src/path.rs:2173", "en": "Converts a `PathBuf` into an <code>[Arc]<[Path]></code> by moving the `PathBuf` data into a new `Arc` buffer."}
+{"id": "097afc5170f3", "src": "std/src/path.rs:2184", "en": "Converts a `Path` into an `Arc` by copying the `Path` data into a new `Arc` buffer."}
+{"id": "0f0f860d9370", "src": "std/src/path.rs:2203", "en": "Converts a `PathBuf` into an <code>[Rc]<[Path]></code> by moving the `PathBuf` data into a new `Rc` buffer."}
+{"id": "1493a3459f62", "src": "std/src/path.rs:2214", "en": "Converts a `Path` into an `Rc` by copying the `Path` data into a new `Rc` buffer."}
+{"id": "aaba9983613d", "src": "std/src/path.rs:2318", "en": "A slice of a path (akin to `str`)."}
+{"id": "d6f9ce8fe844", "src": "std/src/path.rs:2318", "en": "This type supports a number of operations for inspecting a path, including breaking the path into its components (separated by `/` on Unix and by either `/` or `\\` on Windows), extracting the file name, determining whether the path is absolute, and so on."}
+{"id": "51b718e04353", "src": "std/src/path.rs:2318", "en": "This is an *unsized* type, meaning that it must always be used behind a pointer like `&` or `Box`. For an owned version of this type, see `PathBuf`."}
+{"id": "6926d561d8f1", "src": "std/src/path.rs:2360", "en": "An error returned from `Path::strip_prefix` if the prefix was not found."}
+{"id": "aa56e5d34428", "src": "std/src/path.rs:2360", "en": "This `struct` is created by the `strip_prefix` method on `Path`. See its documentation for more."}
+{"id": "45b55200dc58", "src": "std/src/path.rs:2360", "en": "`strip_prefix`: Path::strip_prefix"}
+{"id": "9c6e2148fb56", "src": "std/src/path.rs:2370", "en": "An error returned from `Path::normalize_lexically` if a `..` parent reference would escape the path."}
+{"id": "6c4dbd71b5f3", "src": "std/src/path.rs:2388", "en": "Directly wraps a string slice as a `Path` slice."}
+{"id": "748753921bdc", "src": "std/src/path.rs:2388", "en": "This is a cost-free conversion."}
+{"id": "7f3de8fd67db", "src": "std/src/path.rs:2388", "en": "You can create `Path`s from `String`s, or even other `Path`s:"}
+{"id": "c95a92ce3054", "src": "std/src/path.rs:2423", "en": "Yields the underlying `OsStr` slice."}
+{"id": "28e989848998", "src": "std/src/path.rs:2440", "en": "Yields a mutable reference to the underlying `OsStr` slice."}
+{"id": "fd2fba3da31f", "src": "std/src/path.rs:2461", "en": "Yields a `&str` slice if the `Path` is valid unicode."}
+{"id": "0fd6ab28cb16", "src": "std/src/path.rs:2461", "en": "This conversion may entail doing a check for UTF-8 validity. Note that validation is performed because non-UTF-8 strings are perfectly valid for some OS."}
+{"id": "b381490d8054", "src": "std/src/path.rs:2461", "en": "`&str`: str"}
+{"id": "d1a59b6b3b91", "src": "std/src/path.rs:2485", "en": "Converts a `Path` to a `Cow<str>`."}
+{"id": "fe6562d0a57c", "src": "std/src/path.rs:2485", "en": "Any non-UTF-8 sequences are replaced with `U+FFFD REPLACEMENT CHARACTER`."}
+{"id": "6b3321c4a658", "src": "std/src/path.rs:2485", "en": "[U+FFFD]: super::char::REPLACEMENT_CHARACTER"}
+{"id": "2a16a31656e9", "src": "std/src/path.rs:2485", "en": "Calling `to_string_lossy` on a `Path` with valid unicode:"}
+{"id": "cc540f02fa6a", "src": "std/src/path.rs:2485", "en": "Had `path` contained invalid unicode, the `to_string_lossy` call might have returned `\"fo�.txt\"`."}
+{"id": "79a414de826d", "src": "std/src/path.rs:2513", "en": "Converts a `Path` to an owned `PathBuf`."}
+{"id": "21753075692e", "src": "std/src/path.rs:2532", "en": "Returns `true` if the `Path` is absolute, i.e., if it is independent of the current directory."}
+{"id": "5eb9684a0a4b", "src": "std/src/path.rs:2532", "en": "* On Unix, a path is absolute if it starts with the root, so `is_absolute` and `has_root` are equivalent."}
+{"id": "35c2b3c51058", "src": "std/src/path.rs:2532", "en": "* On Windows, a path is absolute if it has a prefix and starts with the root: `c:\\windows` is absolute, while `c:temp` and `\\temp` are not."}
+{"id": "b42d13aa7f3a", "src": "std/src/path.rs:2532", "en": "`has_root`: Path::has_root"}
+{"id": "832dbbd5e453", "src": "std/src/path.rs:2557", "en": "Returns `true` if the `Path` is relative, i.e., not absolute."}
+{"id": "eea190a2659a", "src": "std/src/path.rs:2557", "en": "See `is_absolute`'s documentation for more details."}
+{"id": "f1d42ae1696c", "src": "std/src/path.rs:2557", "en": "`is_absolute`: Path::is_absolute"}
+{"id": "80c387bc2473", "src": "std/src/path.rs:2581", "en": "Returns `true` if the `Path` has a root."}
+{"id": "296813bb8c99", "src": "std/src/path.rs:2581", "en": "* On Unix, a path has a root if it begins with `/`."}
+{"id": "f3d6f839db2b", "src": "std/src/path.rs:2581", "en": "* On Windows, a path has a root if it: * has no prefix and begins with a separator, e.g., `\\windows` * has a prefix followed by a separator, e.g., `c:\\windows` but not `c:windows` * has any non-disk prefix, e.g., `\\\\server\\share`"}
+{"id": "7965eba406e7", "src": "std/src/path.rs:2604", "en": "Returns the `Path` without its final component, if there is one."}
+{"id": "b9be48e3f360", "src": "std/src/path.rs:2604", "en": "This means it returns `Some(\"\")` for relative paths with one component."}
+{"id": "7b4a230091fb", "src": "std/src/path.rs:2604", "en": "Returns `None` if the path terminates in a root or prefix, or if it's the empty string."}
+{"id": "fc3551982386", "src": "std/src/path.rs:2646", "en": "Produces an iterator over `Path` and its ancestors."}
+{"id": "d3f48ad29cd9", "src": "std/src/path.rs:2646", "en": "The iterator will yield the `Path` that is returned if the `parent` method is used zero or more times. If the `parent` method returns `None`, the iterator will do likewise. The iterator will always yield at least one value, namely `Some(&self)`. Next it will yield `&self.parent()`, `&self.parent().and_then(Path::parent)` and so on."}
+{"id": "e688ae30088a", "src": "std/src/path.rs:2646", "en": "`parent`: Path::parent"}
+{"id": "9f5c0f88e6bf", "src": "std/src/path.rs:2679", "en": "Returns the final component of the `Path`, if there is one."}
+{"id": "7587948fbc56", "src": "std/src/path.rs:2679", "en": "If the path is a normal file, this is the file name. If it's the path of a directory, this is the directory name."}
+{"id": "63fe080efc0c", "src": "std/src/path.rs:2679", "en": "Returns `None` if the path terminates in `..`."}
+{"id": "cfc5f5c713cb", "src": "std/src/path.rs:2709", "en": "Returns a path that, when joined onto `base`, yields `self`."}
+{"id": "05965e5c8118", "src": "std/src/path.rs:2709", "en": "If `base` is not a prefix of `self` (i.e., `starts_with` returns `false`), returns `Err`."}
+{"id": "8921b6e96cd5", "src": "std/src/path.rs:2709", "en": "`starts_with`: Path::starts_with"}
+{"id": "05b890c871d1", "src": "std/src/path.rs:2746", "en": "Returns a path with the optional prefix removed."}
+{"id": "ed661aaf03c8", "src": "std/src/path.rs:2746", "en": "If `base` is not a prefix of `self` (i.e., `starts_with` returns `false`), returns the original path (`self`)"}
+{"id": "a0986fa6a814", "src": "std/src/path.rs:2787", "en": "Determines whether `base` is a prefix of `self`."}
+{"id": "1d9857467e96", "src": "std/src/path.rs:2787", "en": "Only considers whole path components to match."}
+{"id": "df28b62d2186", "src": "std/src/path.rs:2819", "en": "Determines whether `child` is a suffix of `self`."}
+{"id": "13f6c1b64d88", "src": "std/src/path.rs:2847", "en": "Checks whether the `Path` is empty."}
+{"id": "9e1c72f37658", "src": "std/src/path.rs:2847", "en": "Passing an empty path to most OS filesystem APIs will always result in an error."}
+{"id": "312e322467ce", "src": "std/src/path.rs:2847", "en": "[Pushing][PathBuf::push] an empty path to an existing path will append a directory separator unless it already ends with a separator or the existing path is itself empty."}
+{"id": "935fc42e160c", "src": "std/src/path.rs:2872", "en": "Extracts the stem (non-extension) portion of `self.file_name`."}
+{"id": "261362719ea2", "src": "std/src/path.rs:2872", "en": "`self.file_name`: Path::file_name"}
+{"id": "9e925de820aa", "src": "std/src/path.rs:2872", "en": "The stem is:"}
+{"id": "c21eba6ab57c", "src": "std/src/path.rs:2872", "en": "* `None`, if there is no file name; * The entire file name if there is no embedded `.`; * The entire file name if the file name begins with `.` and has no other `.`s within; * Otherwise, the portion of the file name before the final `.`"}
+{"id": "32affe73a522", "src": "std/src/path.rs:2872", "en": "This method is similar to `Path::file_prefix`, which extracts the portion of the file name before the *first* `.`"}
+{"id": "79962f68374e", "src": "std/src/path.rs:2872", "en": "`Path::file_prefix`: Path::file_prefix"}
+{"id": "a051782b96ce", "src": "std/src/path.rs:2904", "en": "Extracts the prefix of `self.file_name`."}
+{"id": "1735ef0df948", "src": "std/src/path.rs:2904", "en": "The prefix is:"}
+{"id": "4aeabc452670", "src": "std/src/path.rs:2904", "en": "* `None`, if there is no file name; * The entire file name if there is no embedded `.`; * The portion of the file name before the first non-beginning `.`; * The entire file name if the file name begins with `.` and has no other `.`s within; * The portion of the file name before the second `.` if the file name begins with `.`"}
+{"id": "87ee77dade70", "src": "std/src/path.rs:2904", "en": "This method is similar to `Path::file_stem`, which extracts the portion of the file name before the *last* `.`"}

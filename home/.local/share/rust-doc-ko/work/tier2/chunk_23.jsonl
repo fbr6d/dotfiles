@@ -1,0 +1,172 @@
+{"id": "e43e03ac95af", "src": "core/src/iter/traits/accum.rs:306", "en": "This multiplies each number in a vector of strings, if a string could not be parsed the operation returns `None`:"}
+{"id": "e5247a071bd2", "src": "core/src/iter/traits/collect.rs:3", "en": "Conversion from an `Iterator`."}
+{"id": "d8f8f211d16d", "src": "core/src/iter/traits/collect.rs:3", "en": "By implementing `FromIterator` for a type, you define how it will be created from an iterator. This is common for types which describe a collection of some kind."}
+{"id": "d7d37c767ac2", "src": "core/src/iter/traits/collect.rs:3", "en": "If you want to create a collection from the contents of an iterator, the `Iterator::collect()` method is preferred. However, when you need to specify the container type, `FromIterator::from_iter()` can be more readable than using a turbofish (e.g. `::<Vec<_>>()`). See the `Iterator::collect()` documentation for more examples of its use."}
+{"id": "ec1fc5bf08b3", "src": "core/src/iter/traits/collect.rs:3", "en": "See also: `IntoIterator`."}
+{"id": "2c24c0a9e321", "src": "core/src/iter/traits/collect.rs:3", "en": "Using `Iterator::collect()` to implicitly use `FromIterator`:"}
+{"id": "452f87becc40", "src": "core/src/iter/traits/collect.rs:3", "en": "Using `FromIterator::from_iter()` as a more readable alternative to `Iterator::collect()`:"}
+{"id": "dbeb7bf79b98", "src": "core/src/iter/traits/collect.rs:3", "en": "Implementing `FromIterator` for your type:"}
+{"id": "0ffd3724d14d", "src": "core/src/iter/traits/collect.rs:135", "en": "Creates a value from an iterator."}
+{"id": "7bd139766417", "src": "core/src/iter/traits/collect.rs:155", "en": "Conversion into an `Iterator`."}
+{"id": "ad4bd819fcab", "src": "core/src/iter/traits/collect.rs:155", "en": "By implementing `IntoIterator` for a type, you define how it will be converted to an iterator. This is common for types which describe a collection of some kind."}
+{"id": "b10a44a434c5", "src": "core/src/iter/traits/collect.rs:155", "en": "One benefit of implementing `IntoIterator` is that your type will work with Rust's `for` loop syntax."}
+{"id": "36608d5e0ba4", "src": "core/src/iter/traits/collect.rs:155", "en": "See also: `FromIterator`."}
+{"id": "f5b66b7b97a7", "src": "core/src/iter/traits/collect.rs:155", "en": "Implementing `IntoIterator` for your type:"}
+{"id": "6b44d1a148c0", "src": "core/src/iter/traits/collect.rs:155", "en": "It is common to use `IntoIterator` as a trait bound. This allows the input collection type to change, so long as it is still an iterator. Additional bounds can be specified by restricting on `Item`:"}
+{"id": "8e64a82a5b16", "src": "core/src/iter/traits/collect.rs:289", "en": "Which kind of iterator are we turning this into?"}
+{"id": "612ac638dfc6", "src": "core/src/iter/traits/collect.rs:293", "en": "Creates an iterator from a value."}
+{"id": "1aa1b8d09aea", "src": "core/src/iter/traits/collect.rs:327", "en": "Extend a collection with the contents of an iterator."}
+{"id": "3bec327624c3", "src": "core/src/iter/traits/collect.rs:327", "en": "Iterators produce a series of values, and collections can also be thought of as a series of values. The `Extend` trait bridges this gap, allowing you to extend a collection by including the contents of that iterator. When extending a collection with an already existing key, that entry is updated or, in the case of collections that permit multiple entries with equal keys, that entry is inserted."}
+{"id": "7f25bd77bdb5", "src": "core/src/iter/traits/collect.rs:327", "en": "Implementing `Extend`:"}
+{"id": "c596f05a0a37", "src": "core/src/iter/traits/collect.rs:398", "en": "Extends a collection with the contents of an iterator."}
+{"id": "31ebfa73af4b", "src": "core/src/iter/traits/collect.rs:398", "en": "As this is the only required method for this trait, the [trait-level] docs contain more details."}
+{"id": "5b0d8441b27a", "src": "core/src/iter/traits/collect.rs:418", "en": "Extends a collection with exactly one element."}
+{"id": "4fd162826ef4", "src": "core/src/iter/traits/collect.rs:424", "en": "Reserves capacity in a collection for the given number of additional elements."}
+{"id": "917b79291029", "src": "core/src/iter/traits/collect.rs:424", "en": "The default implementation does nothing."}
+{"id": "f615b02f3437", "src": "core/src/iter/traits/collect.rs:432", "en": "Extends a collection with one element, without checking there is enough capacity for it."}
+{"id": "5359630f0063", "src": "core/src/iter/traits/collect.rs:432", "en": "**For callers:** This must only be called when we know the collection has enough capacity to contain the new item, for example because we previously called `extend_reserve`."}
+{"id": "dcd2558e145c", "src": "core/src/iter/traits/collect.rs:432", "en": "**For implementors:** For a collection to unsafely rely on this method's safety precondition (that is, invoke UB if they are violated), it must implement `extend_reserve` correctly. In other words, callers may assume that if they `extend_reserve`ed enough space they can call this method."}
+{"id": "638bc0eb4c53", "src": "core/src/iter/traits/collect.rs:461", "en": "This trait is implemented for tuples up to twelve items long. The `impl`s for 1- and 3- through 12-ary tuples were stabilized after 2-tuples, in 1.85.0."}
+{"id": "e1a029f4d2af", "src": "core/src/iter/traits/collect.rs:469", "en": "Allows to `extend` a tuple of collections that also implement `Extend`."}
+{"id": "646280062f0d", "src": "core/src/iter/traits/collect.rs:469", "en": "See also: `Iterator::unzip`"}
+{"id": "d57052ce7c33", "src": "core/src/iter/traits/collect.rs:508", "en": "This implementation turns an iterator of tuples into a tuple of types which implement `Default` and `Extend`."}
+{"id": "e4e894a5e5e6", "src": "core/src/iter/traits/collect.rs:508", "en": "This is similar to `Iterator::unzip`, but is also composable with other `FromIterator` implementations:"}
+{"id": "6dcfc4e93322", "src": "core/src/iter/traits/collect.rs:541", "en": "An implementation of `extend` that calls `extend_one` or `extend_one_unchecked` for each element of the iterator."}
+{"id": "b44509fac782", "src": "core/src/iter/traits/double_ended.rs:6", "en": "An iterator able to yield elements from both ends."}
+{"id": "5b5ce7aaba71", "src": "core/src/iter/traits/double_ended.rs:6", "en": "Something that implements `DoubleEndedIterator` has one extra capability over something that implements `Iterator`: the ability to also take `Item`s from the back, as well as the front."}
+{"id": "c3de289a4739", "src": "core/src/iter/traits/double_ended.rs:6", "en": "It is important to note that both back and forth work on the same range, and do not cross: iteration is over when they meet in the middle."}
+{"id": "f8e851dd9b14", "src": "core/src/iter/traits/double_ended.rs:6", "en": "In a similar fashion to the `Iterator` protocol, once a `DoubleEndedIterator` returns `None` from a `next_back()`, calling it again may or may not ever return `Some` again. `next()` and `next_back()` are interchangeable for this purpose."}
+{"id": "71eb8019778f", "src": "core/src/iter/traits/double_ended.rs:45", "en": "Removes and returns an element from the end of the iterator."}
+{"id": "c51ae734e83f", "src": "core/src/iter/traits/double_ended.rs:45", "en": "Returns `None` when there are no more elements."}
+{"id": "7f37aa14efbc", "src": "core/src/iter/traits/double_ended.rs:45", "en": "The [trait-level] docs contain more details."}
+{"id": "d7020f448aaf", "src": "core/src/iter/traits/double_ended.rs:45", "en": "Remarks"}
+{"id": "d86bcac21a18", "src": "core/src/iter/traits/double_ended.rs:45", "en": "The elements yielded by `DoubleEndedIterator`'s methods may differ from the ones yielded by `Iterator`'s methods:"}
+{"id": "f5e4bc5425cd", "src": "core/src/iter/traits/double_ended.rs:99", "en": "Advances from the back of the iterator and returns an array containing the next `N` values in sequence."}
+{"id": "f47c5420502e", "src": "core/src/iter/traits/double_ended.rs:99", "en": "Note: This is not equivalent to doing `iter.rev().next_chunk()` as this method takes elements from the back of the iterator and preserves the order that the elements were seen in the original iterator."}
+{"id": "85b78b01b4a4", "src": "core/src/iter/traits/double_ended.rs:99", "en": "Split a string and get the last three items in sequence."}
+{"id": "06b066e01db2", "src": "core/src/iter/traits/double_ended.rs:146", "en": "Advances the iterator from the back by `n` elements."}
+{"id": "8986e3665608", "src": "core/src/iter/traits/double_ended.rs:146", "en": "`advance_back_by` is the reverse version of `advance_by`. This method will eagerly skip `n` elements starting from the back by calling `next_back` up to `n` times until `None` is encountered."}
+{"id": "2caa1bf0cbc9", "src": "core/src/iter/traits/double_ended.rs:146", "en": "`advance_back_by(n)` will return `Ok(())` if the iterator successfully advances by `n` elements, or a `Err(NonZero<usize>)` with value `k` if `None` is encountered, where `k` is remaining number of steps that could not be advanced because the iterator ran out. If `self` is empty and `n` is non-zero, then this returns `Err(n)`. Otherwise, `k` is always less than `n`."}
+{"id": "8500cae5e842", "src": "core/src/iter/traits/double_ended.rs:146", "en": "Calling `advance_back_by(0)` can do meaningful work, for example `Flatten` can advance its outer iterator until it finds an inner iterator that is not empty, which then often allows it to return a more accurate `size_hint()` than in its initial state."}
+{"id": "355a26bce027", "src": "core/src/iter/traits/double_ended.rs:199", "en": "Returns the `n`th element from the end of the iterator."}
+{"id": "de8683a7a236", "src": "core/src/iter/traits/double_ended.rs:199", "en": "This is essentially the reversed version of `Iterator::nth()`. Although like most indexing operations, the count starts from zero, so `nth_back(0)` returns the first value from the end, `nth_back(1)` the second, and so on."}
+{"id": "f5662bcdc805", "src": "core/src/iter/traits/double_ended.rs:199", "en": "Note that all elements between the end and the returned element will be consumed, including the returned element. This also means that calling `nth_back(0)` multiple times on the same iterator will return different elements."}
+{"id": "77b8bdbabafb", "src": "core/src/iter/traits/double_ended.rs:199", "en": "`nth_back()` will return `None` if `n` is greater than or equal to the length of the iterator."}
+{"id": "f0f5e19e3e0a", "src": "core/src/iter/traits/double_ended.rs:199", "en": "Calling `nth_back()` multiple times doesn't rewind the iterator:"}
+{"id": "534db909eb94", "src": "core/src/iter/traits/double_ended.rs:250", "en": "This is the reverse version of `Iterator::try_fold()`: it takes elements starting from the back of the iterator."}
+{"id": "e4cfaa2271cf", "src": "core/src/iter/traits/double_ended.rs:295", "en": "An iterator method that reduces the iterator's elements to a single, final value, starting from the back."}
+{"id": "20bf58d3677e", "src": "core/src/iter/traits/double_ended.rs:295", "en": "This is the reverse version of `Iterator::fold()`: it takes elements starting from the back of the iterator."}
+{"id": "3022bb34ebbd", "src": "core/src/iter/traits/double_ended.rs:295", "en": "`rfold()` takes two arguments: an initial value, and a closure with two arguments: an 'accumulator', and an element. The closure returns the value that the accumulator should have for the next iteration."}
+{"id": "3d56c2e0837f", "src": "core/src/iter/traits/double_ended.rs:295", "en": "After applying this closure to every element of the iterator, `rfold()` returns the accumulator."}
+{"id": "fc186e935374", "src": "core/src/iter/traits/double_ended.rs:295", "en": "Note: `rfold()` combines elements in a *right-associative* fashion. For associative operators like `+`, the order the elements are combined in is not important, but for non-associative operators like `-` the order will affect the final result. For a *left-associative* version of `rfold()`, see `Iterator::fold()`."}
+{"id": "7d4dfd2a7e38", "src": "core/src/iter/traits/double_ended.rs:295", "en": "This example demonstrates the right-associative nature of `rfold()`: it builds a string, starting with an initial value and continuing with each element from the back until the front:"}
+{"id": "9d823a12940d", "src": "core/src/iter/traits/double_ended.rs:365", "en": "Searches for an element of an iterator from the back that satisfies a predicate."}
+{"id": "127424271d82", "src": "core/src/iter/traits/double_ended.rs:365", "en": "`rfind()` takes a closure that returns `true` or `false`. It applies this closure to each element of the iterator, starting at the end, and if any of them return `true`, then `rfind()` returns `Some(element)`. If they all return `false`, it returns `None`."}
+{"id": "5bee594fbe72", "src": "core/src/iter/traits/double_ended.rs:365", "en": "`rfind()` is short-circuiting; in other words, it will stop processing as soon as the closure returns `true`."}
+{"id": "7ac2f20eaa45", "src": "core/src/iter/traits/double_ended.rs:365", "en": "Because `rfind()` takes a reference, and many iterators iterate over references, this leads to a possibly confusing situation where the argument is a double reference. You can see this effect in the examples below, with `&&x`."}
+{"id": "e332ba7f70ac", "src": "core/src/iter/traits/double_ended.rs:461", "en": "Helper trait to specialize `rfold` and `rtry_fold` for `&mut I where I: Sized`"}
+{"id": "ca3c41a43b14", "src": "core/src/iter/traits/exact_size.rs:1", "en": "An iterator that knows its exact length."}
+{"id": "4ebd30bb996c", "src": "core/src/iter/traits/exact_size.rs:1", "en": "Many `Iterator`s don't know how many times they will iterate, but some do. If an iterator knows how many times it can iterate, providing access to that information can be useful. For example, if you want to iterate backwards, a good start is to know where the end is."}
+{"id": "3359a4fa9a71", "src": "core/src/iter/traits/exact_size.rs:1", "en": "When implementing an `ExactSizeIterator`, you must also implement `Iterator`. When doing so, the implementation of `Iterator::size_hint` *must* return the exact size of the iterator."}
+{"id": "9b7b480ffbc5", "src": "core/src/iter/traits/exact_size.rs:1", "en": "The `len` method has a default implementation, so you usually shouldn't implement it. However, you may be able to provide a more performant implementation than the default, so overriding it in this case makes sense."}
+{"id": "1d9c10cbf4a6", "src": "core/src/iter/traits/exact_size.rs:1", "en": "Note that this trait is a safe trait and as such does *not* and *cannot* guarantee that the returned length is correct. This means that `unsafe` code **must not** rely on the correctness of `Iterator::size_hint`. The unstable and unsafe `TrustedLen` trait gives this additional guarantee."}
+{"id": "159ae6501ba2", "src": "core/src/iter/traits/exact_size.rs:1", "en": "When *shouldn't* an adapter be `ExactSizeIterator`?"}
+{"id": "5cc271c38fe4", "src": "core/src/iter/traits/exact_size.rs:1", "en": "If an adapter makes an iterator *longer*, then it's usually incorrect for that adapter to implement `ExactSizeIterator`. The inner exact-sized iterator might already be `usize::MAX`-long, and thus the length of the longer adapted iterator would no longer be exactly representable in `usize`."}
+{"id": "596c381be236", "src": "core/src/iter/traits/exact_size.rs:1", "en": "This is why `Chain<A, B>` isn't `ExactSizeIterator`, even when `A` and `B` are both `ExactSizeIterator`."}
+{"id": "c22d90ae6e0f", "src": "core/src/iter/traits/exact_size.rs:1", "en": "In the [module-level docs], we implemented an `Iterator`, `Counter`. Let's implement `ExactSizeIterator` for it as well:"}
+{"id": "5da933c9217f", "src": "core/src/iter/traits/exact_size.rs:87", "en": "Returns the exact remaining length of the iterator."}
+{"id": "742aef84a15c", "src": "core/src/iter/traits/exact_size.rs:87", "en": "The implementation ensures that the iterator will return exactly `len()` more times a `Some(T)` value, before returning `None`. This method has a default implementation, so you usually should not implement it directly. However, if you can provide a more efficient implementation, you can do so. See the [trait-level] docs for an example."}
+{"id": "b444a8163270", "src": "core/src/iter/traits/exact_size.rs:87", "en": "This function has the same safety guarantees as the `Iterator::size_hint` function."}
+{"id": "e0152644a209", "src": "core/src/iter/traits/exact_size.rs:126", "en": "Returns `true` if the iterator is empty."}
+{"id": "28b390f5243a", "src": "core/src/iter/traits/exact_size.rs:126", "en": "This method has a default implementation using `ExactSizeIterator::len()`, so you don't need to implement it yourself."}
+{"id": "3979ef4ff5ab", "src": "core/src/iter/traits/marker.rs:4", "en": "Same as FusedIterator"}
+{"id": "8f5a2fa30531", "src": "core/src/iter/traits/marker.rs:4", "en": "This is used for specialization. Therefore implementations must not be lifetime-dependent."}
+{"id": "b4196a9fc418", "src": "core/src/iter/traits/marker.rs:15", "en": "An iterator that always continues to yield `None` when exhausted."}
+{"id": "02d5fbee79df", "src": "core/src/iter/traits/marker.rs:15", "en": "Calling next on a fused iterator that has returned `None` once is guaranteed to return `None` again. This trait should be implemented by all iterators that behave this way because it allows optimizing `Iterator::fuse()`."}
+{"id": "74ac103133cc", "src": "core/src/iter/traits/marker.rs:15", "en": "Note: In general, you should not use `FusedIterator` in generic bounds if you need a fused iterator. Instead, you should just call `Iterator::fuse()` on the iterator. If the iterator is already fused, the additional `Fuse` wrapper will be a no-op with no performance penalty."}
+{"id": "905426af2dba", "src": "core/src/iter/traits/marker.rs:37", "en": "An iterator that reports an accurate length using size_hint."}
+{"id": "7935b6c388d5", "src": "core/src/iter/traits/marker.rs:37", "en": "The iterator reports a size hint where it is either exact (lower bound is equal to upper bound), or the upper bound is `None`. The upper bound must only be `None` if the actual iterator length is larger than `usize::MAX`. In that case, the lower bound must be `usize::MAX`, resulting in an `Iterator::size_hint()` of `(usize::MAX, None)`."}
+{"id": "6824e2e2ab73", "src": "core/src/iter/traits/marker.rs:37", "en": "The iterator must produce exactly the number of elements it reported or diverge before reaching the end."}
+{"id": "cb63ab9081e6", "src": "core/src/iter/traits/marker.rs:37", "en": "When *shouldn't* an adapter be `TrustedLen`?"}
+{"id": "ea042d0cf4fd", "src": "core/src/iter/traits/marker.rs:37", "en": "If an adapter makes an iterator *shorter* by a given amount, then it's usually incorrect for that adapter to implement `TrustedLen`. The inner iterator might return more than `usize::MAX` items, but there's no way to know what `k` elements less than that will be, since the `size_hint` from the inner iterator has already saturated and lost that information."}
+{"id": "a05763bf869a", "src": "core/src/iter/traits/marker.rs:37", "en": "This is why `Skip<I>` isn't `TrustedLen`, even when `I` implements `TrustedLen`."}
+{"id": "a0bd8c0f8af2", "src": "core/src/iter/traits/marker.rs:37", "en": "This trait must only be implemented when the contract is upheld. Consumers of this trait must inspect `Iterator::size_hint()`’s upper bound."}
+{"id": "39beb28069e7", "src": "core/src/iter/traits/marker.rs:73", "en": "An iterator that when yielding an item will have taken at least one element from its underlying `SourceIter`."}
+{"id": "5ffed9f6d248", "src": "core/src/iter/traits/marker.rs:73", "en": "Calling any method that advances the iterator, e.g. `next()` or `try_fold()`, guarantees that for each step at least one value of the iterator's underlying source has been moved out and the result of the iterator chain could be inserted in its place, assuming structural constraints of the source allow such an insertion. In other words this trait indicates that an iterator pipeline can be collected in place."}
+{"id": "6bd1d9479ddf", "src": "core/src/iter/traits/marker.rs:93", "en": "The product of one-to-many item expansions that happen throughout the iterator pipeline. E.g. [[u8; 4]; 4].iter().flatten().flatten() would have a `EXPAND_BY` of 16. This is an upper bound, i.e. the transformations will produce at most this many items per input. It's meant for layout calculations."}
+{"id": "5211c0c15a83", "src": "core/src/iter/traits/marker.rs:98", "en": "The product of many-to-one item reductions that happen throughout the iterator pipeline. E.g. [u8].iter().array_chunks::<4>().array_chunks::<4>() would have a `MERGE_BY` of 16. This is a lower bound, i.e. the transformations will consume at least this many items per output."}
+{"id": "831e12200c70", "src": "core/src/iter/traits/marker.rs:105", "en": "A type that upholds all invariants of `Step`."}
+{"id": "c52eaac76166", "src": "core/src/iter/traits/marker.rs:105", "en": "The invariants of `Step::steps_between()` are a superset of the invariants of `TrustedLen`. As such, `TrustedLen` is implemented for all range types with the same generic type argument."}
+{"id": "1a45ac95653f", "src": "core/src/iter/traits/marker.rs:105", "en": "The implementation of `Step` for the given type must guarantee all invariants of all methods are upheld. See the `Step` trait's documentation for details. Consumers are free to rely on the invariants in unsafe code."}
+{"id": "ecffeb9462d3", "src": "core/src/char/convert.rs:1", "en": "Character conversions."}
+{"id": "a8d33d363606", "src": "core/src/char/convert.rs:10", "en": "Converts a `u32` to a `char`. See `char::from_u32`."}
+{"id": "51dac56e5625", "src": "core/src/char/convert.rs:21", "en": "Converts a `u32` to a `char`, ignoring validity. See `char::from_u32_unchecked`."}
+{"id": "8700b17aa8cf", "src": "core/src/char/convert.rs:41", "en": "Converts a `char` into a `u32`."}
+{"id": "a03a7cec335c", "src": "core/src/char/convert.rs:60", "en": "Converts a `char` into a `u64`."}
+{"id": "23d6db9e2f2c", "src": "core/src/char/convert.rs:81", "en": "Converts a `char` into a `u128`."}
+{"id": "7251ff4d038f", "src": "core/src/char/convert.rs:99", "en": "Maps a `char` with a code point from U+0000 to U+00FF (inclusive) to a byte in `0x00..=0xFF` with the same value, failing if the code point is greater than U+00FF."}
+{"id": "1af3a192c33e", "src": "core/src/char/convert.rs:99", "en": "See `impl From<u8> for char` for details on the encoding."}
+{"id": "af6ea7af0431", "src": "core/src/char/convert.rs:108", "en": "Tries to convert a `char` into a `u8`."}
+{"id": "8ba1ab459c9b", "src": "core/src/char/convert.rs:129", "en": "Maps a `char` with a code point from U+0000 to U+FFFF (inclusive) to a `u16` in `0x0000..=0xFFFF` with the same value, failing if the code point is greater than U+FFFF."}
+{"id": "466f7d71dea3", "src": "core/src/char/convert.rs:129", "en": "This corresponds to the UCS-2 encoding, as specified in ISO/IEC 10646:2003."}
+{"id": "703f757c0043", "src": "core/src/char/convert.rs:138", "en": "Tries to convert a `char` into a `u16`."}
+{"id": "0d39c4f933d5", "src": "core/src/char/convert.rs:159", "en": "Maps a `char` with a code point from U+0000 to U+10FFFF (inclusive) to a `usize` in `0x0000..=0x10FFFF` with the same value, failing if the final value is unrepresentable by `usize`."}
+{"id": "17356b0b525f", "src": "core/src/char/convert.rs:159", "en": "Generally speaking, this conversion can be seen as obtaining the character's corresponding UTF-32 code point to the extent representable by pointer addresses."}
+{"id": "4975c8a07be4", "src": "core/src/char/convert.rs:170", "en": "Tries to convert a `char` into a `usize`."}
+{"id": "28e8ad8447df", "src": "core/src/char/convert.rs:196", "en": "Maps a byte in `0x00..=0xFF` to a `char` whose code point has the same value from U+0000 to U+00FF (inclusive)."}
+{"id": "049c2f43b308", "src": "core/src/char/convert.rs:196", "en": "Unicode is designed such that this effectively decodes bytes with the character encoding that IANA calls ISO-8859-1. This encoding is compatible with ASCII."}
+{"id": "5e7c41ce1c84", "src": "core/src/char/convert.rs:196", "en": "Note that this is different from ISO/IEC 8859-1 a.k.a. ISO 8859-1 (with one less hyphen), which leaves some \"blanks\", byte values that are not assigned to any character. ISO-8859-1 (the IANA one) assigns them to the C0 and C1 control codes."}
+{"id": "b5f2a5e5ea36", "src": "core/src/char/convert.rs:196", "en": "Note that this is *also* different from Windows-1252 a.k.a. code page 1252, which is a superset ISO/IEC 8859-1 that assigns some (not all!) blanks to punctuation and various Latin characters."}
+{"id": "173c80410997", "src": "core/src/char/convert.rs:196", "en": "To confuse things further, on the Web `ascii`, `iso-8859-1`, and `windows-1252` are all aliases for a superset of Windows-1252 that fills the remaining blanks with corresponding C0 and C1 control codes."}
+{"id": "91c3cbe63ee2", "src": "core/src/char/convert.rs:218", "en": "Converts a `u8` into a `char`."}
+{"id": "a8c4d17e1952", "src": "core/src/char/convert.rs:234", "en": "An error which can be returned when parsing a char."}
+{"id": "8ea093c42230", "src": "core/src/char/convert.rs:234", "en": "This `struct` is created when using the `char::from_str` method."}
+{"id": "534c443dd7cd", "src": "core/src/char/convert.rs:312", "en": "The error type returned when a conversion from `prim@u32` to `prim@char` fails."}
+{"id": "54ff521d6f29", "src": "core/src/char/convert.rs:312", "en": "This `struct` is created by the `char::try_from<u32>` method. See its documentation for more."}
+{"id": "bb0298a392ed", "src": "core/src/char/convert.rs:327", "en": "Converts a digit in the given radix to a `char`. See `char::from_digit`."}
+{"id": "8f8d060adbcc", "src": "core/src/char/decode.rs:1", "en": "UTF-8 and UTF-16 decoding iterators"}
+{"id": "6d91bd51443b", "src": "core/src/char/decode.rs:7", "en": "An iterator that decodes UTF-16 encoded code points from an iterator of `u16`s."}
+{"id": "e815a20b9738", "src": "core/src/char/decode.rs:7", "en": "This `struct` is created by the `decode_utf16` method on `char`. See its documentation for more."}
+{"id": "01956aad1d91", "src": "core/src/char/decode.rs:23", "en": "An error that can be returned when decoding UTF-16 code points."}
+{"id": "c78694a9ab2a", "src": "core/src/char/decode.rs:23", "en": "This `struct` is created when using the `DecodeUtf16` type."}
+{"id": "1a86763af00a", "src": "core/src/char/decode.rs:32", "en": "Creates an iterator over the UTF-16 encoded code points in `iter`, returning unpaired surrogates as `Err`s. See `char::decode_utf16`."}
+{"id": "d905f4d6997c", "src": "core/src/char/decode.rs:113", "en": "Returns the unpaired surrogate which caused this error."}
+{"id": "532fcdfcc738", "src": "core/src/char/methods.rs:1", "en": "impl char {}"}
+{"id": "27ccf8363e2b", "src": "core/src/char/methods.rs:11", "en": "The lowest valid code point a `char` can have, `'\\0'`."}
+{"id": "c04b04667c21", "src": "core/src/char/methods.rs:11", "en": "Unlike integer types, `char` actually has a gap in the middle, meaning that the range of possible `char`s is smaller than you might expect. Ranges of `char` will automatically hop this gap for you:"}
+{"id": "c2b118da5c49", "src": "core/src/char/methods.rs:11", "en": "Despite this gap, the `MIN` and `MAX` values can be used as bounds for all `char` values."}
+{"id": "b034b8ab476a", "src": "core/src/char/methods.rs:42", "en": "The highest valid code point a `char` can have, `'\\u{10FFFF}'`."}
+{"id": "21c3c6d2262b", "src": "core/src/char/methods.rs:74", "en": "The maximum number of bytes required to encode a `char` to UTF-8 encoding."}
+{"id": "8f4775bf5ce6", "src": "core/src/char/methods.rs:79", "en": "The maximum number of two-byte units required to encode a `char` to UTF-16 encoding."}
+{"id": "96327a6696dc", "src": "core/src/char/methods.rs:84", "en": "`U+FFFD REPLACEMENT CHARACTER` (�) is used in Unicode to represent a decoding error."}
+{"id": "c578b9a5bb62", "src": "core/src/char/methods.rs:84", "en": "It can occur, for example, when giving ill-formed UTF-8 bytes to `String::from_utf8_lossy`."}
+{"id": "9f6664f75150", "src": "core/src/char/methods.rs:92", "en": "The version of Unicode that the Unicode parts of `char` and `str` methods are based on."}
+{"id": "afb72495e9db", "src": "core/src/char/methods.rs:92", "en": "New versions of Unicode are released regularly, and subsequently all methods in the standard library depending on Unicode are updated. Therefore, the behavior of some `char` and `str` methods, and the value of this constant, change over time (within the boundaries of Unicode's [stability policies]). This is *not* considered to be a breaking change."}
+{"id": "75f75c158a08", "src": "core/src/char/methods.rs:92", "en": "The version numbering scheme is explained in [Section 3.1 (Version Numbering)] of the Unicode Standard."}
+{"id": "d3d665f46a73", "src": "core/src/char/methods.rs:110", "en": "Creates an iterator over the native endian UTF-16 encoded code points in `iter`, returning unpaired surrogates as `Err`s."}
+{"id": "ef317811b5c1", "src": "core/src/char/methods.rs:110", "en": "A lossy decoder can be obtained by replacing `Err` results with the replacement character:"}
+{"id": "bcb40f0f764f", "src": "core/src/char/methods.rs:158", "en": "Converts a `u32` to a `char`."}
+{"id": "49dc64574470", "src": "core/src/char/methods.rs:158", "en": "Note that all `char`s are valid `u32`s, and can be cast to one with `as`:"}
+{"id": "20c839166be5", "src": "core/src/char/methods.rs:158", "en": "However, the reverse is not true: not all valid `u32`s are valid `char`s. `from_u32()` will return `None` if the input is not a valid value for a `char`."}
+{"id": "7d81d88ef2af", "src": "core/src/char/methods.rs:158", "en": "For an unsafe version of this function which ignores these checks, see `from_u32_unchecked`."}
+{"id": "2214f7c3d1fa", "src": "core/src/char/methods.rs:158", "en": "Returning `None` when the input is not a valid `char`:"}
+{"id": "1e74df58dda4", "src": "core/src/char/methods.rs:204", "en": "Converts a `u32` to a `char`, ignoring validity."}
+{"id": "a8a89dc81c55", "src": "core/src/char/methods.rs:204", "en": "However, the reverse is not true: not all valid `u32`s are valid `char`s. `from_u32_unchecked()` will ignore this, and blindly cast to `char`, possibly creating an invalid one."}
+{"id": "6240f1665a58", "src": "core/src/char/methods.rs:204", "en": "This function is unsafe, as it may construct invalid `char` values."}
+{"id": "976c5f162934", "src": "core/src/char/methods.rs:204", "en": "For a safe version of this function, see the `from_u32` function."}
+{"id": "76a669618c94", "src": "core/src/char/methods.rs:246", "en": "Converts a digit in the given radix to a `char`."}
+{"id": "b64a876ef415", "src": "core/src/char/methods.rs:246", "en": "A 'radix' here is sometimes also called a 'base'. A radix of two indicates a binary number, a radix of ten, decimal, and a radix of sixteen, hexadecimal, to give some common values. Arbitrary radices are supported."}
+{"id": "f0b97bcc8124", "src": "core/src/char/methods.rs:246", "en": "`from_digit()` will return `None` if the input is not a digit in the given radix."}
+{"id": "ef2c3dc1ec92", "src": "core/src/char/methods.rs:246", "en": "Panics if given a radix larger than 36."}
+{"id": "2b8e6900aa09", "src": "core/src/char/methods.rs:246", "en": "Returning `None` when the input is not a digit:"}
+{"id": "b7e82107ba47", "src": "core/src/char/methods.rs:246", "en": "Passing a large radix, causing a panic:"}
+{"id": "004c5300e056", "src": "core/src/char/methods.rs:297", "en": "Checks if a `char` is a digit in the given radix."}
+{"id": "6c6be9332d82", "src": "core/src/char/methods.rs:297", "en": "Compared to `is_numeric()`, this function only recognizes the characters `0-9`, `a-z` and `A-Z`."}
+{"id": "4a03f8c1d7c0", "src": "core/src/char/methods.rs:297", "en": "'Digit' is defined to be only the following characters:"}
+{"id": "356f9439012e", "src": "core/src/char/methods.rs:297", "en": "For a more comprehensive understanding of 'digit', see `is_numeric()`."}
+{"id": "6c78405a0882", "src": "core/src/char/methods.rs:297", "en": "Panics if given a radix smaller than 2 or larger than 36."}
+{"id": "fd789dedc904", "src": "core/src/char/methods.rs:297", "en": "Passing a small radix, causing a panic:"}
+{"id": "ac53dd371906", "src": "core/src/char/methods.rs:351", "en": "Converts a `char` to a digit in the given radix."}
+{"id": "d707aaffe7f7", "src": "core/src/char/methods.rs:351", "en": "Returns `None` if the `char` does not refer to a digit in the given radix."}
+{"id": "b018c56d189d", "src": "core/src/char/methods.rs:351", "en": "Passing a non-digit results in failure:"}
+{"id": "2903f8b31d4d", "src": "core/src/char/methods.rs:430", "en": "Returns an iterator that yields the hexadecimal Unicode escape of a character as `char`s."}

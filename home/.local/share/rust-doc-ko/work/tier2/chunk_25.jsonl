@@ -1,0 +1,127 @@
+{"id": "24a3152ee842", "src": "core/src/char/methods.rs:2534", "en": "For a safe version of this function, see the `encode_utf8_raw` function."}
+{"id": "210e7afc6b6a", "src": "core/src/char/methods.rs:2587", "en": "Encodes a raw `u32` value as native endian UTF-16 into the provided `u16` buffer, and then returns the subslice of the buffer that contains the encoded character."}
+{"id": "80b091025594", "src": "core/src/char/methods.rs:2587", "en": "Unlike `char::encode_utf16`, this method also handles codepoints in the surrogate range. (Creating a `char` in the surrogate range is UB.)"}
+{"id": "7f08a62da408", "src": "core/src/char/mod.rs:1", "en": "Utilities for the `char` primitive type."}
+{"id": "2b13ea5044c9", "src": "core/src/char/mod.rs:1", "en": "*See also the `char` primitive type.*"}
+{"id": "e421c217f5ae", "src": "core/src/char/mod.rs:1", "en": "The `char` type represents a single character. More specifically, since 'character' isn't a well-defined concept in Unicode, `char` is a '[Unicode scalar value]', which is similar to, but not the same as, a '[Unicode code point]'."}
+{"id": "2eb21346a77a", "src": "core/src/char/mod.rs:1", "en": "This module exists for technical reasons, the primary documentation for `char` is directly on [the `char` primitive type][char] itself."}
+{"id": "2cac6e50ea8f", "src": "core/src/char/mod.rs:1", "en": "This module is the home of the iterator implementations for the iterators implemented on `char`, as well as some useful constants and conversion functions that convert various types to `char`."}
+{"id": "3800e8e3cc05", "src": "core/src/char/mod.rs:94", "en": "The highest valid code point a `char` can have, `'\\u{10FFFF}'`. Use `char::MAX` instead."}
+{"id": "b0655280829c", "src": "core/src/char/mod.rs:99", "en": "`U+FFFD REPLACEMENT CHARACTER` (�) is used in Unicode to represent a decoding error. Use `char::REPLACEMENT_CHARACTER` instead."}
+{"id": "7734856299ef", "src": "core/src/char/mod.rs:108", "en": "The version of Unicode that the Unicode parts of `char` and `str` methods are based on. Use `char::UNICODE_VERSION` instead."}
+{"id": "9154aeedaef3", "src": "core/src/char/mod.rs:117", "en": "Creates an iterator over the UTF-16 encoded code points in `iter`, returning unpaired surrogates as `Err`s. Use `char::decode_utf16` instead."}
+{"id": "aedc74659991", "src": "core/src/char/mod.rs:126", "en": "Converts a `u32` to a `char`. Use `char::from_u32` instead."}
+{"id": "aae5372d27d3", "src": "core/src/char/mod.rs:136", "en": "Converts a `u32` to a `char`, ignoring validity. Use `char::from_u32_unchecked` instead."}
+{"id": "f50ec9c7154c", "src": "core/src/char/mod.rs:148", "en": "Converts a digit in the given radix to a `char`. Use `char::from_digit` instead."}
+{"id": "102ae3b7e119", "src": "core/src/char/mod.rs:158", "en": "Returns an iterator that yields the hexadecimal Unicode escape of a character, as `char`s."}
+{"id": "25582f9ac9ce", "src": "core/src/char/mod.rs:158", "en": "This `struct` is created by the `escape_unicode` method on `char`. See its documentation for more."}
+{"id": "11a6f149e994", "src": "core/src/char/mod.rs:225", "en": "An iterator that yields the literal escape code of a `char`."}
+{"id": "a07471c6b2df", "src": "core/src/char/mod.rs:225", "en": "This `struct` is created by the `escape_default` method on `char`. See its documentation for more."}
+{"id": "d72df6d606ec", "src": "core/src/char/mod.rs:302", "en": "This `struct` is created by the `escape_debug` method on `char`. See its documentation for more."}
+{"id": "9644d1c3716b", "src": "core/src/char/mod.rs:483", "en": "Returns an iterator that yields the uppercase equivalent of a `char`."}
+{"id": "2e1472bacd1c", "src": "core/src/char/mod.rs:483", "en": "This `struct` is created by the `to_uppercase` method on `char`. See its documentation for more."}
+{"id": "56481445c4b9", "src": "core/src/char/mod.rs:498", "en": "Returns an iterator that yields the titlecase equivalent of a `char`."}
+{"id": "af25e1352cc7", "src": "core/src/char/mod.rs:498", "en": "This `struct` is created by the `to_titlecase` method on `char`. See its documentation for more."}
+{"id": "8effa9170eb1", "src": "core/src/char/mod.rs:513", "en": "Returns an iterator that yields the lowercase equivalent of a `char`."}
+{"id": "55b1696c704f", "src": "core/src/char/mod.rs:513", "en": "This `struct` is created by the `to_lowercase` method on `char`. See its documentation for more."}
+{"id": "ec9947cfccc2", "src": "core/src/char/mod.rs:528", "en": "Returns an iterator that yields the case-folded equivalent of a `char`."}
+{"id": "28b287ab2c52", "src": "core/src/char/mod.rs:528", "en": "This `struct` is created by the `to_casefold_unnormalized` method on `char`. See its documentation for more."}
+{"id": "575f59df93b0", "src": "core/src/char/mod.rs:643", "en": "The error type returned when a checked char conversion fails."}
+{"id": "46472b7eb5e7", "src": "core/src/char/mod.rs:658", "en": "The case of a cased character, as returned by `char::case`."}
+{"id": "134364bdff5b", "src": "core/src/char/mod.rs:658", "en": "Titlecase characters conceptually are composed of an uppercase portion followed by a lowercase portion. The variant discriminants represent this: the most significant bit represents whether the case conceptually starts as uppercase, while the least significant bit represents whether it conceptually ends as uppercase."}
+{"id": "25a05905515b", "src": "core/src/char/mod.rs:670", "en": "Lowercase. Corresponds to the `Lowercase` Unicode property."}
+{"id": "cc44139505dc", "src": "core/src/char/mod.rs:672", "en": "Titlecase. Corresponds to the `Titlecase_Letter` Unicode general category."}
+{"id": "12c1241e4a0c", "src": "core/src/char/mod.rs:674", "en": "Uppercase. Corresponds to the `Uppercase` Unicode property."}
+{"id": "4bcab43ed4f0", "src": "core/src/hash/mod.rs:1", "en": "Generic hashing support."}
+{"id": "6fb3c190f419", "src": "core/src/hash/mod.rs:1", "en": "This module provides a generic way to compute the [hash] of a value. Hashes are most commonly used with `HashMap` and `HashSet`."}
+{"id": "ea4949ade9d3", "src": "core/src/hash/mod.rs:1", "en": "The simplest way to make a type hashable is to use `#[derive(Hash)]`:"}
+{"id": "9ee79020f3ee", "src": "core/src/hash/mod.rs:1", "en": "If you need more control over how a value is hashed, you need to implement the `Hash` trait:"}
+{"id": "4944fd02934c", "src": "core/src/hash/mod.rs:96", "en": "A hashable type."}
+{"id": "df2c798215a8", "src": "core/src/hash/mod.rs:96", "en": "Types implementing `Hash` are able to be `hash`ed with an instance of `Hasher`."}
+{"id": "cc9d4e18818f", "src": "core/src/hash/mod.rs:96", "en": "Implementing `Hash`"}
+{"id": "dd50901d4003", "src": "core/src/hash/mod.rs:96", "en": "You can derive `Hash` with `#[derive(Hash)]` if all fields implement `Hash`. The resulting hash will be the combination of the values from calling `hash` on each field."}
+{"id": "44ac8149450f", "src": "core/src/hash/mod.rs:96", "en": "If you need more control over how a value is hashed, you can of course implement the `Hash` trait yourself:"}
+{"id": "31ab9836c7a1", "src": "core/src/hash/mod.rs:96", "en": "`Hash` and `Eq`"}
+{"id": "7462ee2073dc", "src": "core/src/hash/mod.rs:96", "en": "When implementing both `Hash` and `Eq`, it is important that the following property holds:"}
+{"id": "725edc876a69", "src": "core/src/hash/mod.rs:96", "en": "In other words, if two keys are equal, their hashes must also be equal. `HashMap` and `HashSet` both rely on this behavior."}
+{"id": "c26a52f13e65", "src": "core/src/hash/mod.rs:96", "en": "Thankfully, you won't need to worry about upholding this property when deriving both `Eq` and `Hash` with `#[derive(PartialEq, Eq, Hash)]`."}
+{"id": "7efc31d19807", "src": "core/src/hash/mod.rs:96", "en": "Prefix collisions"}
+{"id": "2a7de4094c8f", "src": "core/src/hash/mod.rs:96", "en": "Implementations of `hash` should ensure that the data they pass to the `Hasher` are prefix-free. That is, values which are not equal should cause two different sequences of values to be written, and neither of the two sequences should be a prefix of the other."}
+{"id": "e52be7bc08a7", "src": "core/src/hash/mod.rs:96", "en": "For example, the standard implementation of [`Hash` for `&str`][impl] passes an extra `0xFF` byte to the `Hasher` so that the values `(\"ab\", \"c\")` and `(\"a\", \"bc\")` hash differently."}
+{"id": "b307b88c8432", "src": "core/src/hash/mod.rs:96", "en": "Portability"}
+{"id": "8863176a38e7", "src": "core/src/hash/mod.rs:96", "en": "Due to differences in endianness and type sizes, data fed by `Hash` to a `Hasher` should not be considered portable across platforms. Additionally the data passed by most standard library types should not be considered stable between compiler versions."}
+{"id": "e5a8ed72a61e", "src": "core/src/hash/mod.rs:96", "en": "This means tests shouldn't probe hard-coded hash values or data fed to a `Hasher` and instead should check consistency with `Eq`."}
+{"id": "d73199fb28c5", "src": "core/src/hash/mod.rs:96", "en": "Serialization formats intended to be portable between platforms or compiler versions should either avoid encoding hashes or only rely on `Hash` and `Hasher` implementations that provide additional guarantees."}
+{"id": "a135f8f158e3", "src": "core/src/hash/mod.rs:186", "en": "Feeds this value into the given `Hasher`."}
+{"id": "0cf36e77d3b7", "src": "core/src/hash/mod.rs:200", "en": "Feeds a slice of this type into the given `Hasher`."}
+{"id": "d360efcfdad6", "src": "core/src/hash/mod.rs:200", "en": "This method is meant as a convenience, but its implementation is also explicitly left unspecified. It isn't guaranteed to be equivalent to repeated calls of `hash` and implementations of `Hash` should keep that in mind and call `hash` themselves if the slice isn't treated as a whole unit in the `PartialEq` implementation."}
+{"id": "6f92f98e402d", "src": "core/src/hash/mod.rs:200", "en": "For example, a `VecDeque` implementation might naïvely call `as_slices` and then `hash_slice` on each slice, but this is wrong since the two slices can change with a call to `make_contiguous` without affecting the `PartialEq` result. Since these slices aren't treated as singular units, and instead part of a larger deque, this method cannot be used."}
+{"id": "3304780ffbe9", "src": "core/src/hash/mod.rs:246", "en": "Derive macro generating an impl of the trait `Hash`."}
+{"id": "e18827eba48f", "src": "core/src/hash/mod.rs:258", "en": "A trait for hashing an arbitrary stream of bytes."}
+{"id": "65a6d72c589c", "src": "core/src/hash/mod.rs:258", "en": "Instances of `Hasher` usually represent state that is changed while hashing data."}
+{"id": "2bcae2e350bb", "src": "core/src/hash/mod.rs:258", "en": "`Hasher` provides a fairly basic interface for retrieving the generated hash (with `finish`), and writing integers as well as slices of bytes into an instance (with `write` and `write_u8` etc.). Most of the time, `Hasher` instances are used in conjunction with the `Hash` trait."}
+{"id": "9d35740323fe", "src": "core/src/hash/mod.rs:258", "en": "end up producing different hashes."}
+{"id": "a387592ee6d4", "src": "core/src/hash/mod.rs:258", "en": "Thus to produce the same hash value, `Hash` implementations must ensure for equivalent items that exactly the same sequence of calls is made -- the same methods with the same parameters in the same order."}
+{"id": "bc1701d22842", "src": "core/src/hash/mod.rs:313", "en": "Returns the hash value for the values written so far."}
+{"id": "a1f0d7e85560", "src": "core/src/hash/mod.rs:313", "en": "Despite its name, the method does not reset the hasher’s internal state. Additional `write`s will continue from the current value. If you need to start a fresh hash value, you will have to create a new hasher."}
+{"id": "09d6d4410769", "src": "core/src/hash/mod.rs:336", "en": "Writes some data into this `Hasher`."}
+{"id": "c852ad0e93bd", "src": "core/src/hash/mod.rs:336", "en": "Note to Implementers"}
+{"id": "277611ac05f9", "src": "core/src/hash/mod.rs:336", "en": "You generally should not do length-prefixing as part of implementing this method. It's up to the `Hash` implementation to call `Hasher::write_length_prefix` before sequences that need it."}
+{"id": "05d4416bc3e9", "src": "core/src/hash/mod.rs:359", "en": "Writes a single `u8` into this hasher."}
+{"id": "97993ec7a7f7", "src": "core/src/hash/mod.rs:365", "en": "Writes a single `u16` into this hasher."}
+{"id": "aeab8c6c288e", "src": "core/src/hash/mod.rs:371", "en": "Writes a single `u32` into this hasher."}
+{"id": "dab135ae6917", "src": "core/src/hash/mod.rs:377", "en": "Writes a single `u64` into this hasher."}
+{"id": "e94e2a5d81d3", "src": "core/src/hash/mod.rs:383", "en": "Writes a single `u128` into this hasher."}
+{"id": "262637576283", "src": "core/src/hash/mod.rs:389", "en": "Writes a single `usize` into this hasher."}
+{"id": "f2005b4c75f9", "src": "core/src/hash/mod.rs:396", "en": "Writes a single `i8` into this hasher."}
+{"id": "138baca54065", "src": "core/src/hash/mod.rs:402", "en": "Writes a single `i16` into this hasher."}
+{"id": "26d616144066", "src": "core/src/hash/mod.rs:408", "en": "Writes a single `i32` into this hasher."}
+{"id": "263aa6d44217", "src": "core/src/hash/mod.rs:414", "en": "Writes a single `i64` into this hasher."}
+{"id": "5c9bad259efb", "src": "core/src/hash/mod.rs:420", "en": "Writes a single `i128` into this hasher."}
+{"id": "d83888a42644", "src": "core/src/hash/mod.rs:426", "en": "Writes a single `isize` into this hasher."}
+{"id": "aef69ada16b4", "src": "core/src/hash/mod.rs:433", "en": "Writes a length prefix into this hasher, as part of being prefix-free."}
+{"id": "e665bd17771a", "src": "core/src/hash/mod.rs:433", "en": "If you're implementing `Hash` for a custom collection, call this before writing its contents to this `Hasher`. That way `(collection![1, 2, 3], collection![4, 5])` and `(collection![1, 2], collection![3, 4, 5])` will provide different sequences of values to the `Hasher`"}
+{"id": "3e7d1fd946cb", "src": "core/src/hash/mod.rs:433", "en": "The `impl<T> Hash for [T]` includes a call to this method, so if you're hashing a slice (or array or vector) via its `Hash::hash` method, you should **not** call this yourself."}
+{"id": "3b90cfa859b2", "src": "core/src/hash/mod.rs:433", "en": "This method is only for providing domain separation. If you want to hash a `usize` that represents part of the *data*, then it's important that you pass it to `Hasher::write_usize` instead of to this method."}
+{"id": "3dab43ea65e7", "src": "core/src/hash/mod.rs:433", "en": "If you've decided that your `Hasher` is willing to be susceptible to Hash-DoS attacks, then you might consider skipping hashing some or all of the `len` provided in the name of increased performance."}
+{"id": "2082609dd292", "src": "core/src/hash/mod.rs:487", "en": "Writes a single `str` into this hasher."}
+{"id": "9411166876a9", "src": "core/src/hash/mod.rs:487", "en": "If you're implementing `Hash`, you generally do not need to call this, as the `impl Hash for str` does, so you should prefer that instead."}
+{"id": "a0269c4add5f", "src": "core/src/hash/mod.rs:487", "en": "This includes the domain separator for prefix-freedom, so you should **not** call `Self::write_length_prefix` before calling this."}
+{"id": "75d110cbba9c", "src": "core/src/hash/mod.rs:487", "en": "There are at least two reasonable default ways to implement this. Which one will be the default is not yet decided, so for now you probably want to override it specifically."}
+{"id": "78d314eaefae", "src": "core/src/hash/mod.rs:487", "en": "The general answer"}
+{"id": "ad7e648d748f", "src": "core/src/hash/mod.rs:487", "en": "It's always correct to implement this with a length prefix:"}
+{"id": "77f416494639", "src": "core/src/hash/mod.rs:487", "en": "And, if your `Hasher` works in `usize` chunks, this is likely a very efficient way to do it, as anything more complicated may well end up slower than just running the round with the length."}
+{"id": "1c8a0e01510b", "src": "core/src/hash/mod.rs:487", "en": "If your `Hasher` works byte-wise"}
+{"id": "a1fe70399100", "src": "core/src/hash/mod.rs:487", "en": "One nice thing about `str` being UTF-8 is that the `b'\\xFF'` byte never happens. That means that you can append that to the byte stream being hashed and maintain prefix-freedom:"}
+{"id": "0960f37f6f64", "src": "core/src/hash/mod.rs:487", "en": "This does require that your implementation not add extra padding, and thus generally requires that you maintain a buffer, running a round only once that buffer is full (or `finish` is called)."}
+{"id": "03d6508d7559", "src": "core/src/hash/mod.rs:487", "en": "That's because if `write` pads data out to a fixed chunk size, it's likely that it does it in such a way that `\"a\"` and `\"a\\x00\"` would end up hashing the same sequence of things, introducing conflicts."}
+{"id": "dd1810092e19", "src": "core/src/hash/mod.rs:608", "en": "A trait for creating instances of `Hasher`."}
+{"id": "6f6e27fde39b", "src": "core/src/hash/mod.rs:608", "en": "A `BuildHasher` is typically used (e.g., by `HashMap`) to create `Hasher`s for each key such that they are hashed independently of one another, since `Hasher`s contain state."}
+{"id": "714f54fd4204", "src": "core/src/hash/mod.rs:608", "en": "For each instance of `BuildHasher`, the `Hasher`s created by `build_hasher` should be identical. That is, if the same stream of bytes is fed into each hasher, the same output will also be generated."}
+{"id": "483996222a68", "src": "core/src/hash/mod.rs:638", "en": "Type of the hasher that will be created."}
+{"id": "e6be82de9e5f", "src": "core/src/hash/mod.rs:642", "en": "Creates a new hasher."}
+{"id": "532d271f8dd6", "src": "core/src/hash/mod.rs:642", "en": "Each call to `build_hasher` on the same instance should produce identical `Hasher`s."}
+{"id": "5099ba652ce1", "src": "core/src/hash/mod.rs:658", "en": "Calculates the hash of a single value."}
+{"id": "62fa03814c3a", "src": "core/src/hash/mod.rs:658", "en": "This is intended as a convenience for code which *consumes* hashes, such as the implementation of a hash table or in unit tests that check whether a custom `Hash` implementation behaves as expected."}
+{"id": "29a82aaf9107", "src": "core/src/hash/mod.rs:658", "en": "This must not be used in any code which *creates* hashes, such as in an implementation of `Hash`. The way to create a combined hash of multiple values is to call `Hash::hash` multiple times using the same `Hasher`, not to call this method repeatedly and combine the results."}
+{"id": "1d107820beae", "src": "core/src/hash/mod.rs:705", "en": "Used to create a default `BuildHasher` instance for types that implement `Hasher` and `Default`."}
+{"id": "4b2d607041e5", "src": "core/src/hash/mod.rs:705", "en": "`BuildHasherDefault<H>` can be used when a type `H` implements `Hasher` and `Default`, and you need a corresponding `BuildHasher` instance, but none is defined."}
+{"id": "c4ffbf865163", "src": "core/src/hash/mod.rs:705", "en": "Any `BuildHasherDefault` is [zero-sized]. It can be created with `default`. When using `BuildHasherDefault` with `HashMap` or `HashSet`, this doesn't need to be done, since they implement appropriate `Default` instances themselves."}
+{"id": "f8d83c5b4730", "src": "core/src/hash/mod.rs:705", "en": "Using `BuildHasherDefault` to specify a custom `BuildHasher` for `HashMap`:"}
+{"id": "27f6b3d40b8e", "src": "core/src/hash/mod.rs:754", "en": "Creates a new BuildHasherDefault for Hasher `H`."}
+{"id": "4252ab0f6578", "src": "core/src/hash/sip.rs:1", "en": "An implementation of SipHash."}
+{"id": "702771618bb3", "src": "core/src/hash/sip.rs:8", "en": "An implementation of SipHash 1-3."}
+{"id": "09f340c2314c", "src": "core/src/hash/sip.rs:8", "en": "This is currently the default hashing function used by standard library (e.g., `collections::HashMap` uses it by default)."}
+{"id": "0a0669960e42", "src": "core/src/hash/sip.rs:8", "en": "See: <https://github.com/veorq/SipHash>"}
+{"id": "350059cec849", "src": "core/src/hash/sip.rs:25", "en": "An implementation of SipHash 2-4."}
+{"id": "ba51858715a4", "src": "core/src/hash/sip.rs:34", "en": "SipHash is a general-purpose hashing function: it runs at a good speed (competitive with Spooky and City) and permits strong _keyed_ hashing. This lets you key your hash tables from a strong RNG, such as `rand::os::OsRng`."}
+{"id": "fe1ea760997b", "src": "core/src/hash/sip.rs:34", "en": "Although the SipHash algorithm is considered to be generally strong, it is not intended for cryptographic purposes. As such, all cryptographic uses of this implementation are _strongly discouraged_."}
+{"id": "646ab7560c7c", "src": "core/src/hash/sip.rs:96", "en": "Loads an integer of the desired type from a byte stream, in LE order. Uses `copy_nonoverlapping` to let the compiler generate the most efficient way to load it from a possibly unaligned address."}
+{"id": "aa4a5ce34a92", "src": "core/src/hash/sip.rs:96", "en": "Safety: this performs unchecked indexing of `$buf` at `$i..$i+size_of::<$int_ty>()`, so that must be in-bounds."}
+{"id": "f59a4a520edb", "src": "core/src/hash/sip.rs:115", "en": "Loads a u64 using up to 7 bytes of a byte slice. It looks clumsy but the `copy_nonoverlapping` calls that occur (via `load_int_le!`) all have fixed sizes and avoid calling `memcpy`, which is good for speed."}
+{"id": "b8e954fa04c6", "src": "core/src/hash/sip.rs:115", "en": "Safety: this performs unchecked indexing of `buf` at `start..start+len`, so that must be in-bounds."}
+{"id": "180d0b11a435", "src": "core/src/hash/sip.rs:147", "en": "Creates a new `SipHasher` with the two initial keys set to 0."}
+{"id": "aa82f1bf69b8", "src": "core/src/hash/sip.rs:156", "en": "Creates a `SipHasher` that is keyed off the provided keys."}
+{"id": "2a351be157a7", "src": "core/src/hash/sip.rs:167", "en": "Creates a new `SipHasher13` with the two initial keys set to 0."}
+{"id": "bacdb7e6817b", "src": "core/src/hash/sip.rs:175", "en": "Creates a `SipHasher13` that is keyed off the provided keys."}
+{"id": "cfa75eed99c6", "src": "core/src/hash/sip.rs:344", "en": "Creates a `Hasher<S>` with the two initial keys set to 0."}

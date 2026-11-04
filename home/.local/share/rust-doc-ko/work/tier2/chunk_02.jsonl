@@ -1,0 +1,152 @@
+{"id": "30c1456fd942", "src": "core/src/ops/drop.rs:3", "en": "When a value is no longer needed, Rust will run a \"destructor\" on that value. The most common way that a value is no longer needed is when it goes out of scope. Destructors may still run in other circumstances, but we're going to focus on scope for the examples here. To learn about some of those other cases, please see [the reference] section on destructors."}
+{"id": "b63688e63696", "src": "core/src/ops/drop.rs:3", "en": "This destructor consists of two components: - A call to `Drop::drop` for that value, if this special `Drop` trait is implemented for its type. - The automatically generated \"drop glue\" which recursively calls the destructors of all the fields of this value."}
+{"id": "a7c3aae564c4", "src": "core/src/ops/drop.rs:3", "en": "As Rust automatically calls the destructors of all contained fields, you don't have to implement `Drop` in most cases. But there are some cases where it is useful, for example for types which directly manage a resource. That resource may be memory, it may be a file descriptor, it may be a network socket. Once a value of that type is no longer going to be used, it should \"clean up\" its resource by freeing the memory or closing the file or socket. This is the job of a destructor, and therefore the job of `Drop::drop`."}
+{"id": "0acf6acdd951", "src": "core/src/ops/drop.rs:3", "en": "To see destructors in action, let's take a look at the following program:"}
+{"id": "08c9c3faeca3", "src": "core/src/ops/drop.rs:3", "en": "Rust will first call `Drop::drop` for `_x` and then for both `_x.one` and `_x.two`, meaning that running this will print"}
+{"id": "88a3602a9541", "src": "core/src/ops/drop.rs:3", "en": "Even if we remove the implementation of `Drop` for `HasTwoDrop`, the destructors of its fields are still called. This would result in"}
+{"id": "b0ba6582e492", "src": "core/src/ops/drop.rs:3", "en": "You cannot call `Drop::drop` yourself"}
+{"id": "67a8cceccba2", "src": "core/src/ops/drop.rs:3", "en": "Because `Drop::drop` is used to clean up a value, it may be dangerous to use this value after the method has been called. As `Drop::drop` does not take ownership of its input, Rust prevents misuse by not allowing you to call `Drop::drop` directly."}
+{"id": "1d0b69d4741c", "src": "core/src/ops/drop.rs:3", "en": "In other words, if you tried to explicitly call `Drop::drop` in the above example, you'd get a compiler error."}
+{"id": "e59d3780b462", "src": "core/src/ops/drop.rs:3", "en": "If you'd like to explicitly call the destructor of a value, `mem::drop` can be used instead."}
+{"id": "2cd90832cf73", "src": "core/src/ops/drop.rs:3", "en": "Drop order"}
+{"id": "852239dae57f", "src": "core/src/ops/drop.rs:3", "en": "Which of our two `HasDrop` drops first, though? For structs, it's the same order that they're declared: first `one`, then `two`. If you'd like to try this yourself, you can modify `HasDrop` above to contain some data, like an integer, and then use it in the `println!` inside of `Drop`. This behavior is guaranteed by the language."}
+{"id": "ddb54f325fe3", "src": "core/src/ops/drop.rs:3", "en": "Unlike for structs, local variables are dropped in reverse order:"}
+{"id": "2ed7ee115582", "src": "core/src/ops/drop.rs:3", "en": "This will print"}
+{"id": "509c533a9f0c", "src": "core/src/ops/drop.rs:3", "en": "Please see [the reference] for the full rules."}
+{"id": "ff231b2bf549", "src": "core/src/ops/drop.rs:3", "en": "`Copy` and `Drop` are exclusive"}
+{"id": "0751f5159cd2", "src": "core/src/ops/drop.rs:3", "en": "You cannot implement both `Copy` and `Drop` on the same type. Types that are `Copy` get implicitly duplicated by the compiler, making it very hard to predict when, and how often destructors will be executed. As such, these types cannot have destructors."}
+{"id": "fdbc16aa45ff", "src": "core/src/ops/drop.rs:3", "en": "Drop check"}
+{"id": "db1b2689bacc", "src": "core/src/ops/drop.rs:3", "en": "Dropping interacts with the borrow checker in subtle ways: when a type `T` is being implicitly dropped as some variable of this type goes out of scope, the borrow checker needs to ensure that calling `T`'s destructor at this moment is safe. In particular, it also needs to be safe to recursively drop all the fields of `T`. For example, it is crucial that code like the following is being rejected:"}
+{"id": "3ed3bd1ccab5", "src": "core/src/ops/drop.rs:3", "en": "The Nomicon discusses the need for [drop check in more detail][drop check]."}
+{"id": "68e1c450d3f5", "src": "core/src/ops/drop.rs:3", "en": "To reject such code, the \"drop check\" analysis determines which types and lifetimes need to still be live when `T` gets dropped. The exact details of this analysis are not yet stably guaranteed and **subject to change**. Currently, the analysis works as follows: - If `T` has no drop glue, then trivially nothing is required to be live. This is the case if neither `T` nor any of its (recursive) fields have a destructor (`impl Drop`). `PhantomData`, arrays of length 0 and `ManuallyDrop` are considered to never have a destructor, no matter their field type. - If `T` has drop glue, then, for all types `U` that are *owned* by any field of `T`, recursively add the types and lifetimes that need to be live when `U` gets dropped. The set of owned types is determined by recursively traversing `T`: - Recursively descend through `PhantomData`, `Box`, tuples, and arrays (excluding arrays of length 0). - Stop at reference and raw pointer types as well as function pointers and function items; they do not own anything. - Stop at non-composite types (type parameters that remain generic in the current context and base types such as integers and `bool`); these types are owned. - When hitting an ADT with `impl Drop`, stop there; this type is owned. - When hitting an ADT without `impl Drop`, recursively descend to its fields. (For an `enum`, consider all fields of all variants.) - Furthermore, if `T` implements `Drop`, then all generic (lifetime and type) parameters of `T` must be live."}
+{"id": "633d29add4da", "src": "core/src/ops/drop.rs:3", "en": "In the above example, the last clause implies that `'a` must be live when `S<'a>` is dropped, and hence the example is rejected. If we remove the `impl Drop`, the liveness requirement disappears and the example is accepted."}
+{"id": "1956283b607d", "src": "core/src/ops/drop.rs:3", "en": "There exists an unstable way for a type to opt-out of the last clause; this is called \"drop check eyepatch\" or `may_dangle`. For more details on this nightly-only feature, see the [discussion in the Nomicon][nomicon]."}
+{"id": "17bebc4fe982", "src": "core/src/ops/drop.rs:210", "en": "Executes the destructor for this type."}
+{"id": "e52e0b368e39", "src": "core/src/ops/drop.rs:210", "en": "This method is called implicitly when the value goes out of scope, and cannot be called explicitly (this is compiler error [E0040]). However, the `mem::drop` function in the prelude can be used to call the argument's `Drop` implementation."}
+{"id": "ed0b34c488d1", "src": "core/src/ops/drop.rs:210", "en": "When this method has been called, `self` has not yet been deallocated. That only happens after the method is over. If this wasn't the case, `self` would be a dangling reference."}
+{"id": "d65a2fcfced6", "src": "core/src/ops/drop.rs:210", "en": "Implementations should generally avoid `panic!`ing, because `drop()` may itself be called during unwinding due to a panic, and if the `drop()` panics in that situation (a “double panic”), this will likely abort the program. It is possible to check `panicking()` first, which may be desirable for a `Drop` implementation that is reporting a bug of the kind “you didn't finish using this before it was dropped”; but most types should simply clean up their owned allocations or other resources and return normally from `drop()`, regardless of what state they are in."}
+{"id": "b19f21e4d0b2", "src": "core/src/ops/drop.rs:210", "en": "Note that even if this panics, the value is considered to be dropped; you must not cause `drop` to be called again. This is normally automatically handled by the compiler, but when using unsafe code, can sometimes occur unintentionally, particularly when using `ptr::drop_in_place`."}
+{"id": "793f0ea0d04b", "src": "core/src/ops/drop.rs:248", "en": "Execute the destructor for this type, but different to `Drop::drop`, it requires `self` to be pinned."}
+{"id": "366dda0f5fe6", "src": "core/src/ops/drop.rs:248", "en": "By implementing this method instead of `Drop::drop`, the receiver type `Pin<&mut Self>` makes sure that the value is pinned until it is deallocated (See [`std::pin` module docs] for more details), which enables us to support field projections of `Self` type safely."}
+{"id": "5ddd857c38c7", "src": "core/src/ops/drop.rs:248", "en": "For types that support pin-projection (i.e., marked with `#[pin_v2]`), this method must be used."}
+{"id": "a1f56b6274b6", "src": "core/src/ops/drop.rs:248", "en": "For any type, at least and at most one of `Drop::drop` and `Drop::pin_drop` should be implemented."}
+{"id": "8a39fc5fb19f", "src": "core/src/ops/drop.rs:248", "en": "See also `Drop::drop` for more details."}
+{"id": "a10ea779af62", "src": "core/src/ops/function.rs:3", "en": "The version of the call operator that takes an immutable receiver."}
+{"id": "cc51ebeeb566", "src": "core/src/ops/function.rs:3", "en": "Instances of `Fn` can be called repeatedly without mutating state."}
+{"id": "f6a226c6f630", "src": "core/src/ops/function.rs:3", "en": "*This trait (`Fn`) is not to be confused with [function pointers] (`fn`).*"}
+{"id": "3ca5d73ed06f", "src": "core/src/ops/function.rs:3", "en": "`Fn` is implemented automatically by closures which only take immutable references to captured variables or don't capture anything at all, as well as (safe) [function pointers] (with some caveats, see their documentation for more details). Additionally, for any type `F` that implements `Fn`, `&F` implements `Fn`, too."}
+{"id": "fe3d0d7e6a0c", "src": "core/src/ops/function.rs:3", "en": "Since both `FnMut` and `FnOnce` are supertraits of `Fn`, any instance of `Fn` can be used as a parameter where a `FnMut` or `FnOnce` is expected."}
+{"id": "118182cc171d", "src": "core/src/ops/function.rs:3", "en": "Use `Fn` as a bound when you want to accept a parameter of function-like type and need to call it repeatedly and without mutating state (e.g., when calling it concurrently). If you do not need such strict requirements, use `FnMut` or `FnOnce` as bounds."}
+{"id": "6fa916d2ec85", "src": "core/src/ops/function.rs:3", "en": "See the [chapter on closures in *The Rust Programming Language*][book] for some more information on this topic."}
+{"id": "7a1795f24c1b", "src": "core/src/ops/function.rs:3", "en": "Also of note is the special syntax for `Fn` traits (e.g. `Fn(usize, bool) -> usize`). Those interested in the technical details of this can refer to [the relevant section in the *Rustonomicon*][nomicon]."}
+{"id": "c225172ba8dd", "src": "core/src/ops/function.rs:3", "en": "Calling a closure"}
+{"id": "3df88eead395", "src": "core/src/ops/function.rs:3", "en": "Using a `Fn` parameter"}
+{"id": "24454fc0698a", "src": "core/src/ops/function.rs:77", "en": "Performs the call operation."}
+{"id": "98bb0c84eb64", "src": "core/src/ops/function.rs:82", "en": "The version of the call operator that takes a mutable receiver."}
+{"id": "d53d08758534", "src": "core/src/ops/function.rs:82", "en": "Instances of `FnMut` can be called repeatedly and may mutate state."}
+{"id": "ae0138963396", "src": "core/src/ops/function.rs:82", "en": "`FnMut` is implemented automatically by closures which take mutable references to captured variables, as well as all types that implement `Fn`, e.g., (safe) [function pointers] (since `FnMut` is a supertrait of `Fn`). Additionally, for any type `F` that implements `FnMut`, `&mut F` implements `FnMut`, too."}
+{"id": "79fd3c341a28", "src": "core/src/ops/function.rs:82", "en": "Since `FnOnce` is a supertrait of `FnMut`, any instance of `FnMut` can be used where a `FnOnce` is expected, and since `Fn` is a subtrait of `FnMut`, any instance of `Fn` can be used where `FnMut` is expected."}
+{"id": "13d29baec048", "src": "core/src/ops/function.rs:82", "en": "Use `FnMut` as a bound when you want to accept a parameter of function-like type and need to call it repeatedly, while allowing it to mutate state. If you don't want the parameter to mutate state, use `Fn` as a bound; if you don't need to call it repeatedly, use `FnOnce`."}
+{"id": "430899e63ff0", "src": "core/src/ops/function.rs:82", "en": "Calling a mutably capturing closure"}
+{"id": "9ddb7bccaf18", "src": "core/src/ops/function.rs:82", "en": "Using a `FnMut` parameter"}
+{"id": "2e7d7937a98a", "src": "core/src/ops/function.rs:169", "en": "The version of the call operator that takes a by-value receiver."}
+{"id": "e45009a88845", "src": "core/src/ops/function.rs:169", "en": "Instances of `FnOnce` can be called, but might not be callable multiple times. Because of this, if the only thing known about a type is that it implements `FnOnce`, it can only be called once."}
+{"id": "eb9e49000852", "src": "core/src/ops/function.rs:169", "en": "`FnOnce` is implemented automatically by closures that might consume captured variables, as well as all types that implement `FnMut`, e.g., (safe) [function pointers] (since `FnOnce` is a supertrait of `FnMut`)."}
+{"id": "f2e656adb493", "src": "core/src/ops/function.rs:169", "en": "Since both `Fn` and `FnMut` are subtraits of `FnOnce`, any instance of `Fn` or `FnMut` can be used where a `FnOnce` is expected."}
+{"id": "9481813724eb", "src": "core/src/ops/function.rs:169", "en": "Use `FnOnce` as a bound when you want to accept a parameter of function-like type and only need to call it once. If you need to call the parameter repeatedly, use `FnMut` as a bound; if you also need it to not mutate state, use `Fn`."}
+{"id": "e418163679ee", "src": "core/src/ops/function.rs:169", "en": "Using a `FnOnce` parameter"}
+{"id": "323e9e5f7457", "src": "core/src/ops/function.rs:243", "en": "The returned type after the call operator is used."}
+{"id": "ba472b781532", "src": "core/src/ops/index.rs:1", "en": "Used for indexing operations (`container[index]`) in immutable contexts."}
+{"id": "2280e6798854", "src": "core/src/ops/index.rs:1", "en": "`container[index]` is actually syntactic sugar for `*container.index(index)`, but only when used as an immutable value. If a mutable value is requested, `IndexMut` is used instead. This allows nice things such as `let value = v[index]` if the type of `value` implements `Copy`."}
+{"id": "28a33dbb7588", "src": "core/src/ops/index.rs:1", "en": "The following example implements `Index` on a read-only `NucleotideCount` container, enabling individual counts to be retrieved with index syntax."}
+{"id": "ca6695d62fb3", "src": "core/src/ops/index.rs:60", "en": "The returned type after indexing."}
+{"id": "3b849afe53ac", "src": "core/src/ops/index.rs:65", "en": "Performs the indexing (`container[index]`) operation."}
+{"id": "27720cc8e8e3", "src": "core/src/ops/index.rs:65", "en": "May panic if the index is out of bounds."}
+{"id": "34bacd6f444b", "src": "core/src/ops/index.rs:76", "en": "Used for indexing operations (`container[index]`) in mutable contexts."}
+{"id": "658828cddf18", "src": "core/src/ops/index.rs:76", "en": "`container[index]` is actually syntactic sugar for `*container.index_mut(index)`, but only when used as a mutable value. If an immutable value is requested, the `Index` trait is used instead. This allows nice things such as `v[index] = value`."}
+{"id": "a24441cd217f", "src": "core/src/ops/index.rs:76", "en": "A very simple implementation of a `Balance` struct that has two sides, where each can be indexed mutably and immutably."}
+{"id": "d9b464c13d0a", "src": "core/src/ops/index.rs:171", "en": "Performs the mutable indexing (`container[index]`) operation."}
+{"id": "51002be35ea5", "src": "core/src/ops/index_range.rs:6", "en": "Like a `Range<usize>`, but with a safety invariant that `start <= end`."}
+{"id": "ccfc971e6df7", "src": "core/src/ops/index_range.rs:6", "en": "This means that `end - start` cannot overflow, allowing some μoptimizations."}
+{"id": "34649bd31962", "src": "core/src/ops/index_range.rs:6", "en": "(Normal `Range` code needs to handle degenerate ranges like `10..0`, which takes extra checks compared to only handling the canonical form.)"}
+{"id": "a767441eee5e", "src": "core/src/ops/index_range.rs:20", "en": "- `start <= end`"}
+{"id": "a9e8039a2e91", "src": "core/src/ops/index_range.rs:55", "en": "- Can only be called when `start < end`, aka when `len > 0`."}
+{"id": "f9c7c52e6cd0", "src": "core/src/ops/index_range.rs:79", "en": "Removes the first `n` items from this range, returning them as an `IndexRange`. If there are fewer than `n`, then the whole range is returned and `self` is left empty."}
+{"id": "4a7e3d66f508", "src": "core/src/ops/index_range.rs:79", "en": "This is designed to help implement `Iterator::advance_by`."}
+{"id": "cb7f69fca6bf", "src": "core/src/ops/index_range.rs:99", "en": "Removes the last `n` items from this range, returning them as an `IndexRange`. If there are fewer than `n`, then the whole range is returned and `self` is left empty."}
+{"id": "86a22d17d958", "src": "core/src/ops/index_range.rs:99", "en": "This is designed to help implement `Iterator::advance_back_by`."}
+{"id": "1a536f91d51d", "src": "core/src/ops/mod.rs:1", "en": "Overloadable operators."}
+{"id": "b82c6b339ac0", "src": "core/src/ops/mod.rs:1", "en": "Implementing these traits allows you to overload certain operators."}
+{"id": "4a39b30b7118", "src": "core/src/ops/mod.rs:1", "en": "Some of these traits are imported by the prelude, so they are available in every Rust program. Only operators backed by traits can be overloaded. For example, the addition operator (`+`) can be overloaded through the `Add` trait, but since the assignment operator (`=`) has no backing trait, there is no way of overloading its semantics. Additionally, this module does not provide any mechanism to create new operators. If traitless overloading or custom operators are required, you should look toward macros to extend Rust's syntax."}
+{"id": "dd9d66ecaa4d", "src": "core/src/ops/mod.rs:1", "en": "Implementations of operator traits should be unsurprising in their respective contexts, keeping in mind their usual meanings and [operator precedence]. For example, when implementing `Mul`, the operation should have some resemblance to multiplication (and share expected properties like associativity)."}
+{"id": "337fcf7751c9", "src": "core/src/ops/mod.rs:1", "en": "Note that the `&&` and `||` operators are currently not supported for overloading. Due to their short circuiting nature, they require a different design from traits for other operators like `BitAnd`. Designs for them are under discussion."}
+{"id": "820bbea18a0a", "src": "core/src/ops/mod.rs:1", "en": "Many of the operators take their operands by value. In non-generic contexts involving built-in types, this is usually not a problem. However, using these operators in generic code, requires some attention if values have to be reused as opposed to letting the operators consume them. One option is to occasionally use `clone`. Another option is to rely on the types involved providing additional operator implementations for references. For example, for a user-defined type `T` which is supposed to support addition, it is probably a good idea to have both `T` and `&T` implement the traits `Add<T>` and `Add<&T>` so that generic code can be written without unnecessary cloning."}
+{"id": "23b89cc8d73f", "src": "core/src/ops/mod.rs:1", "en": "This example creates a `Point` struct that implements `Add` and `Sub`, and then demonstrates adding and subtracting two `Point`s."}
+{"id": "59d420255aed", "src": "core/src/ops/mod.rs:1", "en": "See the documentation for each trait for an example implementation."}
+{"id": "1a590c25c5c1", "src": "core/src/ops/mod.rs:1", "en": "The `Fn`, `FnMut`, and `FnOnce` traits are implemented by types that can be invoked like functions. Note that `Fn` takes `&self`, `FnMut` takes `&mut self` and `FnOnce` takes `self`. These correspond to the three kinds of methods that can be invoked on an instance: call-by-reference, call-by-mutable-reference, and call-by-value. The most common use of these traits is to act as bounds to higher-level functions that take functions or closures as arguments."}
+{"id": "0d0daa40a804", "src": "core/src/ops/mod.rs:1", "en": "Taking a `Fn` as a parameter:"}
+{"id": "da5a13e30d5f", "src": "core/src/ops/mod.rs:1", "en": "Taking a `FnMut` as a parameter:"}
+{"id": "80e6d6616d44", "src": "core/src/ops/mod.rs:1", "en": "Taking a `FnOnce` as a parameter:"}
+{"id": "409d347ed3f6", "src": "core/src/ops/range.rs:4", "en": "An unbounded range (`..`)."}
+{"id": "bb74f4b9d85e", "src": "core/src/ops/range.rs:4", "en": "`RangeFull` is primarily used as a [slicing index], its shorthand is `..`. It cannot serve as an `Iterator` because it doesn't have a starting point."}
+{"id": "71f46fd9d8c4", "src": "core/src/ops/range.rs:4", "en": "The `..` syntax is a `RangeFull`:"}
+{"id": "3fe0cb12357d", "src": "core/src/ops/range.rs:4", "en": "It does not have an `IntoIterator` implementation, so you can't use it in a `for` loop directly. This won't compile:"}
+{"id": "b3fe797eea09", "src": "core/src/ops/range.rs:4", "en": "Used as a [slicing index], `RangeFull` produces the full array as a slice."}
+{"id": "fbe55cfdec38", "src": "core/src/ops/range.rs:53", "en": "A (half-open) range bounded inclusively below and exclusively above (`start..end`)."}
+{"id": "165a8c284528", "src": "core/src/ops/range.rs:53", "en": "The range `start..end` contains all values with `start <= x < end`. It is empty if `start >= end`."}
+{"id": "31a3e23465ca", "src": "core/src/ops/range.rs:53", "en": "The `start..end` syntax is a `Range`:"}
+{"id": "f2cf3737106d", "src": "core/src/ops/range.rs:83", "en": "The lower bound of the range (inclusive)."}
+{"id": "2d2ce136339d", "src": "core/src/ops/range.rs:86", "en": "The upper bound of the range (exclusive)."}
+{"id": "749fd7f733a3", "src": "core/src/ops/range.rs:102", "en": "Returns `true` if `item` is contained in the range."}
+{"id": "b73ed9616118", "src": "core/src/ops/range.rs:131", "en": "Returns `true` if the range contains no items."}
+{"id": "510a943d569c", "src": "core/src/ops/range.rs:131", "en": "The range is empty if either side is incomparable:"}
+{"id": "f7221d38c4bb", "src": "core/src/ops/range.rs:159", "en": "A range only bounded inclusively below (`start..`)."}
+{"id": "b185b55d670f", "src": "core/src/ops/range.rs:159", "en": "The `RangeFrom` `start..` contains all values with `x >= start`."}
+{"id": "4744aeff6449", "src": "core/src/ops/range.rs:159", "en": "*Note*: Overflow in the `Iterator` implementation (when the contained data type reaches its numerical limit) is allowed to panic, wrap, or saturate. This behavior is defined by the implementation of the `Step` trait. For primitive integers, this follows the normal rules, and respects the overflow checks profile (panic in debug, wrap in release). Note also that overflow happens earlier than you might assume: the overflow happens in the call to `next` that yields the maximum value, as the range must be set to a state to yield the next value."}
+{"id": "fa8465ba8dce", "src": "core/src/ops/range.rs:159", "en": "The `start..` syntax is a `RangeFrom`:"}
+{"id": "7a147d4c84f2", "src": "core/src/ops/range.rs:238", "en": "A range only bounded exclusively above (`..end`)."}
+{"id": "ccd80aeb4ca4", "src": "core/src/ops/range.rs:238", "en": "The `RangeTo` `..end` contains all values with `x < end`. It cannot serve as an `Iterator` because it doesn't have a starting point."}
+{"id": "6b4e3c7f4604", "src": "core/src/ops/range.rs:238", "en": "The `..end` syntax is a `RangeTo`:"}
+{"id": "bac356629848", "src": "core/src/ops/range.rs:238", "en": "When used as a [slicing index], `RangeTo` produces a slice of all array elements before the index indicated by `end`."}
+{"id": "50e01ee2d1ff", "src": "core/src/ops/range.rs:322", "en": "A range bounded inclusively below and above (`start..=end`)."}
+{"id": "40eb1744005a", "src": "core/src/ops/range.rs:322", "en": "The `RangeInclusive` `start..=end` contains all values with `x >= start` and `x <= end`. It is empty unless `start <= end`."}
+{"id": "dc095a490e40", "src": "core/src/ops/range.rs:322", "en": "This iterator is [fused], but the specific values of `start` and `end` after iteration has finished are **unspecified** other than that `.is_empty()` will return `true` once no more values will be produced."}
+{"id": "420acee61114", "src": "core/src/ops/range.rs:322", "en": "The `start..=end` syntax is a `RangeInclusive`:"}
+{"id": "4a5ff44b6fab", "src": "core/src/ops/range.rs:381", "en": "Creates a new inclusive range. Equivalent to writing `start..=end`."}
+{"id": "4b628909503d", "src": "core/src/ops/range.rs:399", "en": "Returns the lower bound of the range (inclusive)."}
+{"id": "bb2ab1230096", "src": "core/src/ops/range.rs:399", "en": "When using an inclusive range for iteration, the values of `start()` and `end()` are unspecified after the iteration ended. To determine whether the inclusive range is empty, use the `is_empty()` method instead of comparing `start() > end()`."}
+{"id": "c7cb38696a69", "src": "core/src/ops/range.rs:399", "en": "Note: the value returned by this method is unspecified after the range has been iterated to exhaustion."}
+{"id": "d89ba898545e", "src": "core/src/ops/range.rs:424", "en": "Returns the upper bound of the range (inclusive)."}
+{"id": "686b6ca701d4", "src": "core/src/ops/range.rs:449", "en": "Destructures the `RangeInclusive` into (lower bound, upper (inclusive) bound)."}
+{"id": "41f843f7f405", "src": "core/src/ops/range.rs:468", "en": "Converts to an exclusive `Range` for `SliceIndex` implementations. The caller is responsible for dealing with `end == usize::MAX`."}
+{"id": "e73f80e1527a", "src": "core/src/ops/range.rs:502", "en": "This method always returns `false` after iteration has finished:"}
+{"id": "c37c31acb648", "src": "core/src/ops/range.rs:542", "en": "This method returns `true` after iteration has finished:"}
+{"id": "bc610bb8f64f", "src": "core/src/ops/range.rs:579", "en": "A range only bounded inclusively above (`..=end`)."}
+{"id": "c9f0a8768459", "src": "core/src/ops/range.rs:579", "en": "The `RangeToInclusive` `..=end` contains all values with `x <= end`. It cannot serve as an `Iterator` because it doesn't have a starting point."}
+{"id": "85e47eab40a5", "src": "core/src/ops/range.rs:579", "en": "The `..=end` syntax is a `RangeToInclusive`:"}
+{"id": "70417cf64da9", "src": "core/src/ops/range.rs:579", "en": "When used as a [slicing index], `RangeToInclusive` produces a slice of all array elements up to and including the index indicated by `end`."}
+{"id": "20d82b105410", "src": "core/src/ops/range.rs:623", "en": "The upper bound of the range (inclusive)"}
+{"id": "95f62854280c", "src": "core/src/ops/range.rs:666", "en": "An endpoint of a range of keys."}
+{"id": "012c0186aad2", "src": "core/src/ops/range.rs:666", "en": "`Bound`s are range endpoints:"}
+{"id": "034d1403003e", "src": "core/src/ops/range.rs:666", "en": "Using a tuple of `Bound`s as an argument to `BTreeMap::range`. Note that in most cases, it's better to use range syntax (`1..5`) instead."}
+{"id": "8f9e81cf6c35", "src": "core/src/ops/range.rs:705", "en": "An inclusive bound."}
+{"id": "9b338a4ae7f3", "src": "core/src/ops/range.rs:708", "en": "An exclusive bound."}
+{"id": "c9900f693c2e", "src": "core/src/ops/range.rs:711", "en": "An infinite endpoint. Indicates that there is no bound in this direction."}
+{"id": "5b74c8d7907b", "src": "core/src/ops/range.rs:717", "en": "Converts from `&Bound<T>` to `Bound<&T>`."}
+{"id": "f4ef362cd972", "src": "core/src/ops/range.rs:729", "en": "Converts from `&mut Bound<T>` to `Bound<&mut T>`."}
+{"id": "7714a87d78b3", "src": "core/src/ops/range.rs:740", "en": "Maps a `Bound<T>` to a `Bound<U>` by applying a function to the contained value (including both `Included` and `Excluded`), returning a `Bound` of the same kind."}
+{"id": "0920f4592975", "src": "core/src/ops/range.rs:773", "en": "Map a `Bound<&T>` to a `Bound<T>` by copying the contents of the bound."}
+{"id": "72c510384213", "src": "core/src/ops/range.rs:798", "en": "Map a `Bound<&T>` to a `Bound<T>` by cloning the contents of the bound."}
+{"id": "6539867537e4", "src": "core/src/ops/range.rs:827", "en": "`RangeBounds` is implemented by Rust's built-in range types, produced by range syntax like `..`, `a..`, `..b`, `..=c`, `d..e`, or `f..=g`."}
+{"id": "0d17ac6abe11", "src": "core/src/ops/range.rs:833", "en": "Start index bound."}
+{"id": "98b8483bacd1", "src": "core/src/ops/range.rs:833", "en": "Returns the start value as a `Bound`."}
+{"id": "367635962125", "src": "core/src/ops/range.rs:849", "en": "End index bound."}
+{"id": "2546e5e4f097", "src": "core/src/ops/range.rs:849", "en": "Returns the end value as a `Bound`."}
+{"id": "16f415c3b112", "src": "core/src/ops/range.rs:896", "en": "Returns `true` if the range contains no items. One-sided ranges (`RangeFrom`, etc) always return `false`."}
+{"id": "0ad805afe6e6", "src": "core/src/ops/range.rs:896", "en": "But never empty if either side is unbounded:"}
+{"id": "3ec9fd5154fd", "src": "core/src/ops/range.rs:896", "en": "`(Excluded(a), Excluded(b))` is only empty if `a >= b`:"}
+{"id": "a4ce4e9ce1a9", "src": "core/src/ops/range.rs:962", "en": "Used to convert a range into start and end bounds, consuming the range by value."}
+{"id": "461d3c2584ff", "src": "core/src/ops/range.rs:962", "en": "`IntoBounds` is implemented by Rust’s built-in range types, produced by range syntax like `..`, `a..`, `..b`, `..=c`, `d..e`, or `f..=g`."}
+{"id": "93ecf614567b", "src": "core/src/ops/range.rs:970", "en": "Convert this range into the start and end bounds. Returns `(start_bound, end_bound)`."}
+{"id": "60ea1cf6f62b", "src": "core/src/ops/range.rs:985", "en": "Compute the intersection of `self` and `other`."}
+{"id": "22481c7a3d38", "src": "core/src/ops/range.rs:985", "en": "Combine with `is_empty` to determine if two ranges overlap."}

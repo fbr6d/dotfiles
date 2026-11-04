@@ -1,0 +1,152 @@
+{"id": "da9c1135350d", "src": "alloc/src/fmt.rs:1", "en": "Additionally, the return value of this function is `fmt::Result` which is a type alias of <code>[Result]<(), [std::fmt::Error]></code>. Formatting implementations should ensure that they propagate errors from the `Formatter` (e.g., when calling `write!`). However, they should never return errors spuriously. That is, a formatting implementation must and may only return an error if the passed-in `Formatter` returns an error. This is because, contrary to what the function signature might suggest, string formatting is an infallible operation. This function only returns a `Result` because writing to the underlying stream might fail and it must provide a way to propagate the fact that an error has occurred back up the stack."}
+{"id": "6e09c1385fee", "src": "alloc/src/fmt.rs:1", "en": "An example of implementing the formatting traits would look like:"}
+{"id": "1af199e01e04", "src": "alloc/src/fmt.rs:1", "en": "`fmt::Display` vs `fmt::Debug`"}
+{"id": "dca9d4b1de7c", "src": "alloc/src/fmt.rs:1", "en": "These two formatting traits have distinct purposes:"}
+{"id": "c52131ab7be5", "src": "alloc/src/fmt.rs:1", "en": "- `fmt::Display` implementations assert that the type can be faithfully represented as a UTF-8 string at all times. It is **not** expected that all types implement the `Display` trait. - `fmt::Debug` implementations should be implemented for **all** public types. Output will typically represent the internal state as faithfully as possible. The purpose of the `Debug` trait is to facilitate debugging Rust code. In most cases, using `#[derive(Debug)]` is sufficient and recommended."}
+{"id": "e9573b985828", "src": "alloc/src/fmt.rs:1", "en": "Some examples of the output from both traits:"}
+{"id": "b13c3ff3e36c", "src": "alloc/src/fmt.rs:1", "en": "Related macros"}
+{"id": "6abbbbadeb3f", "src": "alloc/src/fmt.rs:1", "en": "There are a number of related macros in the `format!` family. The ones that are currently implemented are:"}
+{"id": "5f8dc2398fd0", "src": "alloc/src/fmt.rs:1", "en": "`write!`"}
+{"id": "f656ccdaa904", "src": "alloc/src/fmt.rs:1", "en": "`write!` and `writeln!` are two macros which are used to emit the format string to a specified stream. This is used to prevent intermediate allocations of format strings and instead directly write the output. Under the hood, this function is actually invoking the `write_fmt` function defined on the `std::io::Write` and the `std::fmt::Write` trait. Example usage is:"}
+{"id": "0e538fc535f2", "src": "alloc/src/fmt.rs:1", "en": "`print!`"}
+{"id": "f700af4ed087", "src": "alloc/src/fmt.rs:1", "en": "This and `println!` emit their output to stdout. Similarly to the `write!` macro, the goal of these macros is to avoid intermediate allocations when printing output. Example usage is:"}
+{"id": "9387785eb0d1", "src": "alloc/src/fmt.rs:1", "en": "`eprint!`"}
+{"id": "99ddb6e0bbd1", "src": "alloc/src/fmt.rs:1", "en": "The `eprint!` and `eprintln!` macros are identical to `print!` and `println!`, respectively, except they emit their output to stderr."}
+{"id": "ebc4a01fda3f", "src": "alloc/src/fmt.rs:1", "en": "`format_args!`"}
+{"id": "9df3556d4312", "src": "alloc/src/fmt.rs:1", "en": "`format_args!` is a curious macro used to safely pass around an opaque object describing the format string. This object does not require any heap allocations to create, and it only references information on the stack. Under the hood, all of the related macros are implemented in terms of this. First off, some example usage is:"}
+{"id": "549b24fdb807", "src": "alloc/src/fmt.rs:1", "en": "The result of the `format_args!` macro is a value of type `fmt::Arguments`. This structure can then be passed to the `write` and `format` functions inside this module in order to process the format string. The goal of this macro is to even further prevent intermediate allocations when dealing with formatting strings."}
+{"id": "8e2494ae56a5", "src": "alloc/src/fmt.rs:1", "en": "For example, a logging library could use the standard formatting syntax, but it would internally pass around this structure until it has been determined where output should go to."}
+{"id": "4b1f4228a6c5", "src": "alloc/src/fmt.rs:622", "en": "Takes an `Arguments` struct and returns the resulting formatted string."}
+{"id": "fa047b6717c5", "src": "alloc/src/fmt.rs:622", "en": "The `Arguments` instance can be created with the `format_args!` macro."}
+{"id": "d4aed1ee52a1", "src": "alloc/src/fmt.rs:622", "en": "Please note that using `format!` might be preferable. Example:"}
+{"id": "9a1b243a9ebd", "src": "std/src/macros.rs:1", "en": "Standard library macros"}
+{"id": "aca476281f1b", "src": "std/src/macros.rs:1", "en": "This module contains a set of macros which are exported from the standard library. Each macro is available for use when linking against the standard library."}
+{"id": "7a0506c67bdf", "src": "std/src/macros.rs:25", "en": "Prints to the standard output."}
+{"id": "938b482d9d7a", "src": "std/src/macros.rs:25", "en": "Equivalent to the `println!` macro except that a newline is not printed at the end of the message."}
+{"id": "56610c01599b", "src": "std/src/macros.rs:25", "en": "Note that stdout is frequently line-buffered by default so it may be necessary to use `io::stdout().flush()` to ensure the output is emitted immediately."}
+{"id": "113e45e058fa", "src": "std/src/macros.rs:25", "en": "Use `print!` only for the primary output of your program. Use `eprint!` instead to print error and progress messages."}
+{"id": "bab40ce50f81", "src": "std/src/macros.rs:25", "en": "See the formatting documentation in `std::fmt` for details of the macro argument syntax."}
+{"id": "cf78c3a7ce23", "src": "std/src/macros.rs:25", "en": "Panics if writing to `io::stdout()` fails."}
+{"id": "846879a4a0a5", "src": "std/src/macros.rs:25", "en": "Writing to non-blocking stdout can cause an error, which will lead this macro to panic."}
+{"id": "dd9200f52a71", "src": "std/src/macros.rs:92", "en": "Prints to the standard output, with a newline."}
+{"id": "f9e721120ec8", "src": "std/src/macros.rs:92", "en": "On all platforms, the newline is the LINE FEED character (`\\n`/`U+000A`) alone (no additional CARRIAGE RETURN (`\\r`/`U+000D`))."}
+{"id": "a6f4651bcc63", "src": "std/src/macros.rs:92", "en": "This macro uses the same syntax as `format!`, but writes to the standard output instead. See `std::fmt` for more information."}
+{"id": "4f4dfb32b3fe", "src": "std/src/macros.rs:92", "en": "Use `println!` only for the primary output of your program. Use `eprintln!` instead to print error and progress messages."}
+{"id": "a8d00844e09e", "src": "std/src/macros.rs:92", "en": "Panics if writing to `io::stdout` fails."}
+{"id": "408254da4a0f", "src": "std/src/macros.rs:152", "en": "Prints to the standard error."}
+{"id": "dc192b14fe4e", "src": "std/src/macros.rs:152", "en": "Equivalent to the `print!` macro, except that output goes to `io::stderr` instead of `io::stdout`. See `print!` for example usage."}
+{"id": "05059167b271", "src": "std/src/macros.rs:152", "en": "Use `eprint!` only for error and progress messages. Use `print!` instead for the primary output of your program."}
+{"id": "6c8c60440d2b", "src": "std/src/macros.rs:152", "en": "Panics if writing to `io::stderr` fails."}
+{"id": "2af991bad04a", "src": "std/src/macros.rs:152", "en": "Writing to non-blocking stderr can cause an error, which will lead this macro to panic."}
+{"id": "aa202bbbab74", "src": "std/src/macros.rs:189", "en": "Prints to the standard error, with a newline."}
+{"id": "0a157aa29351", "src": "std/src/macros.rs:189", "en": "Equivalent to the `println!` macro, except that output goes to `io::stderr` instead of `io::stdout`. See `println!` for example usage."}
+{"id": "a993c2eff938", "src": "std/src/macros.rs:189", "en": "Use `eprintln!` only for error and progress messages. Use `println!` instead for the primary output of your program."}
+{"id": "5e2535a543d3", "src": "std/src/macros.rs:230", "en": "Prints and returns the value of a given expression for quick and dirty debugging."}
+{"id": "f481ad49809e", "src": "std/src/macros.rs:230", "en": "An example:"}
+{"id": "fe7214289448", "src": "std/src/macros.rs:230", "en": "The macro works by using the `Debug` implementation of the type of the given expression to print the value to [stderr] along with the source location of the macro invocation as well as the source code of the expression."}
+{"id": "4ca04697566f", "src": "std/src/macros.rs:230", "en": "Invoking the macro on an expression moves and takes ownership of it before returning the evaluated expression unchanged. If the type of the expression does not implement `Copy` and you don't want to give up ownership, you can instead borrow with `dbg!(&expr)` for some expression `expr`."}
+{"id": "9156caea3e12", "src": "std/src/macros.rs:230", "en": "The `dbg!` macro works exactly the same in release builds. This is useful when debugging issues that only occur in release builds or when debugging in release mode is significantly faster."}
+{"id": "2f9f48802a37", "src": "std/src/macros.rs:230", "en": "Note that the macro is intended as a debugging tool and therefore you should avoid having uses of it in version control for long periods (other than in tests and similar). Debug output from production code is better done with other facilities such as the `debug!` macro from the `log` crate."}
+{"id": "8fe495e6414b", "src": "std/src/macros.rs:230", "en": "The exact output printed by this macro should not be relied upon and is subject to future changes."}
+{"id": "33aa27b63995", "src": "std/src/macros.rs:230", "en": "Further examples"}
+{"id": "b24837e9bbb4", "src": "std/src/macros.rs:230", "en": "With a method call:"}
+{"id": "fdc3a33f54ac", "src": "std/src/macros.rs:230", "en": "This prints to [stderr]:"}
+{"id": "69fbc7b4d017", "src": "std/src/macros.rs:230", "en": "Naive factorial implementation:"}
+{"id": "b862629a5f7e", "src": "std/src/macros.rs:230", "en": "The `dbg!(..)` macro moves the input:"}
+{"id": "f55209eb7318", "src": "std/src/macros.rs:230", "en": "You can also use `dbg!()` without a value to just print the file and line whenever it's reached."}
+{"id": "5790b46ce1c6", "src": "std/src/macros.rs:230", "en": "Finally, if you want to `dbg!(..)` multiple values, it will treat them as a tuple (and return it, too):"}
+{"id": "ee975de6dd07", "src": "std/src/macros.rs:230", "en": "However, a single argument with a trailing comma will still not be treated as a tuple, following the convention of ignoring trailing commas in macro invocations. You can use a 1-tuple directly if you need one:"}
+{"id": "0b5f4d887e31", "src": "std/src/macros.rs:401", "en": "Creates a `HashMap` containing the arguments."}
+{"id": "2200ea2d7a61", "src": "std/src/macros.rs:401", "en": "`hash_map!` allows specifying the entries that make up the `HashMap` where the key and value are separated by a `=>`."}
+{"id": "f11150343231", "src": "std/src/macros.rs:401", "en": "The entries are separated by commas with a trailing comma being allowed."}
+{"id": "8b2e492783ed", "src": "std/src/macros.rs:401", "en": "It is semantically equivalent to using repeated `HashMap::insert` on a newly created hashmap."}
+{"id": "4dc84148d552", "src": "std/src/macros.rs:401", "en": "`hash_map!` will attempt to avoid repeated reallocations by using `HashMap::with_capacity`."}
+{"id": "bd76d0b5b125", "src": "std/src/macros.rs:401", "en": "And with a trailing comma"}
+{"id": "7a9d2bdc4fb7", "src": "std/src/macros.rs:401", "en": "The key and value are moved into the HashMap."}
+{"id": "888b842c2798", "src": "alloc/src/macros.rs:1", "en": "Creates a `Vec` containing the arguments."}
+{"id": "6ed6ca861e7e", "src": "alloc/src/macros.rs:1", "en": "`vec!` allows `Vec`s to be defined with the same syntax as array expressions. There are two forms of this macro:"}
+{"id": "59421c66b418", "src": "alloc/src/macros.rs:1", "en": "- Create a `Vec` containing a given list of elements:"}
+{"id": "e2229dfbc553", "src": "alloc/src/macros.rs:1", "en": "- Create a `Vec` from a given element and size:"}
+{"id": "6a66c4303807", "src": "alloc/src/macros.rs:1", "en": "Note that unlike array expressions this syntax supports all elements which implement `Clone` and the number of elements doesn't have to be a constant."}
+{"id": "8aae18bc0a06", "src": "alloc/src/macros.rs:1", "en": "This will use `clone` to duplicate an expression, so one should be careful using this with types having a nonstandard `Clone` implementation. For example, `vec![Rc::new(1); 5]` will create a vector of five references to the same boxed integer value, not five references pointing to independently boxed integers."}
+{"id": "0a44531b039c", "src": "alloc/src/macros.rs:1", "en": "Also, note that `vec![expr; 0]` is allowed, and produces an empty vector. This will still evaluate `expr`, however, and immediately drop the resulting value, so be mindful of side effects."}
+{"id": "7f2097240821", "src": "alloc/src/macros.rs:65", "en": "Creates a `String` using interpolation of runtime expressions."}
+{"id": "c181cf0f9440", "src": "alloc/src/macros.rs:65", "en": "The first argument `format!` receives is a format string. This must be a string literal. The power of the formatting string is in the `{}`s contained. Additional parameters passed to `format!` replace the `{}`s within the formatting string in the order given unless named or positional parameters are used."}
+{"id": "c0c02a60ba57", "src": "alloc/src/macros.rs:65", "en": "See the formatting syntax documentation in `std::fmt` for details."}
+{"id": "cf56e78dd50a", "src": "alloc/src/macros.rs:65", "en": "A common use for `format!` is concatenation and interpolation of strings. The same convention is used with `print!` and `write!` macros, depending on the intended destination of the string; all these macros internally use `format_args!`."}
+{"id": "35941a52667e", "src": "alloc/src/macros.rs:65", "en": "To concatenate literals into a `&'static str`, use the `concat!` macro."}
+{"id": "2b18649ae2f1", "src": "alloc/src/macros.rs:65", "en": "`format!` panics if a formatting trait implementation returns an error. This indicates an incorrect implementation since `fmt::Write for String` never returns an error itself."}
+{"id": "f68b3bfcdfd0", "src": "core/src/macros/mod.rs:15", "en": "Asserts that two expressions are equal to each other (using `PartialEq`)."}
+{"id": "98763c8fb7a4", "src": "core/src/macros/mod.rs:15", "en": "Assertions are always checked in both debug and release builds, and cannot be disabled. See `debug_assert_eq!` for assertions that are disabled in release builds by default."}
+{"id": "152e667068d0", "src": "core/src/macros/mod.rs:15", "en": "On panic, this macro will print the values of the expressions with their debug representations."}
+{"id": "01d5adef69d8", "src": "core/src/macros/mod.rs:15", "en": "Like `assert!`, this macro has a second form, where a custom panic message can be provided."}
+{"id": "c06370202509", "src": "core/src/macros/mod.rs:72", "en": "Asserts that two expressions are not equal to each other (using `PartialEq`)."}
+{"id": "517957d8a5ef", "src": "core/src/macros/mod.rs:72", "en": "Assertions are always checked in both debug and release builds, and cannot be disabled. See `debug_assert_ne!` for assertions that are disabled in release builds by default."}
+{"id": "5737260e617e", "src": "core/src/macros/mod.rs:129", "en": "Asserts that an expression matches the provided pattern."}
+{"id": "7b25eaf36951", "src": "core/src/macros/mod.rs:129", "en": "This macro is generally preferable to `assert!(matches!(value, pattern))`, because it can print the debug representation of the actual value shape that did not meet expectations. In contrast, using `assert!` will only print that expectations were not met, but not why."}
+{"id": "44302617aedb", "src": "core/src/macros/mod.rs:129", "en": "The pattern syntax is exactly the same as found in a match arm and the `matches!` macro. The optional if guard can be used to add additional checks that must be true for the matched value, otherwise this macro will panic."}
+{"id": "cd57ea8a8e42", "src": "core/src/macros/mod.rs:129", "en": "Assertions are always checked in both debug and release builds, and cannot be disabled. See `debug_assert_matches!` for assertions that are disabled in release builds by default."}
+{"id": "263a4055dfe1", "src": "core/src/macros/mod.rs:129", "en": "On panic, this macro will print the value of the expression with its debug representation."}
+{"id": "f447937dea8d", "src": "core/src/macros/mod.rs:199", "en": "Selects code at compile-time based on `cfg` predicates."}
+{"id": "3097bcd0053e", "src": "core/src/macros/mod.rs:199", "en": "This macro evaluates, at compile-time, a series of `cfg` predicates, selects the first that is true, and emits the code guarded by that predicate. The code guarded by other predicates is not emitted."}
+{"id": "1a21ce5d05a5", "src": "core/src/macros/mod.rs:199", "en": "An optional trailing `_` wildcard can be used to specify a fallback. If none of the predicates are true, a `compile_error` is emitted."}
+{"id": "088d6cd4cd85", "src": "core/src/macros/mod.rs:199", "en": "The `cfg_select!` macro can also be used in expression position, with or without braces on the right-hand side:"}
+{"id": "8825a993c42b", "src": "core/src/macros/mod.rs:241", "en": "Asserts that a boolean expression is `true` at runtime."}
+{"id": "09393fe85b46", "src": "core/src/macros/mod.rs:241", "en": "This will invoke the `panic!` macro if the provided expression cannot be evaluated to `true` at runtime."}
+{"id": "a841d27cb3dd", "src": "core/src/macros/mod.rs:241", "en": "Like `assert!`, this macro also has a second version, where a custom panic message can be provided."}
+{"id": "62be4731dedf", "src": "core/src/macros/mod.rs:241", "en": "Uses"}
+{"id": "f2a519fbe600", "src": "core/src/macros/mod.rs:241", "en": "Unlike `assert!`, `debug_assert!` statements are only enabled in non optimized builds by default. An optimized build will not execute `debug_assert!` statements unless `-C debug-assertions` is passed to the compiler. This makes `debug_assert!` useful for checks that are too expensive to be present in a release build but may be helpful during development. The result of expanding `debug_assert!` is always type checked."}
+{"id": "a7bdccc234fb", "src": "core/src/macros/mod.rs:241", "en": "An unchecked assertion allows a program in an inconsistent state to keep running, which might have unexpected consequences but does not introduce unsafety as long as this only happens in safe code. The performance cost of assertions, however, is not measurable in general. Replacing `assert!` with `debug_assert!` is thus only encouraged after thorough profiling, and more importantly, only in safe code!"}
+{"id": "ebf68c5dd99f", "src": "core/src/macros/mod.rs:298", "en": "Asserts that two expressions are equal to each other."}
+{"id": "34522aa271b3", "src": "core/src/macros/mod.rs:298", "en": "Unlike `assert_eq!`, `debug_assert_eq!` statements are only enabled in non optimized builds by default. An optimized build will not execute `debug_assert_eq!` statements unless `-C debug-assertions` is passed to the compiler. This makes `debug_assert_eq!` useful for checks that are too expensive to be present in a release build but may be helpful during development. The result of expanding `debug_assert_eq!` is always type checked."}
+{"id": "4b3283be054a", "src": "core/src/macros/mod.rs:328", "en": "Asserts that two expressions are not equal to each other."}
+{"id": "555ba14acbd9", "src": "core/src/macros/mod.rs:328", "en": "Unlike `assert_ne!`, `debug_assert_ne!` statements are only enabled in non optimized builds by default. An optimized build will not execute `debug_assert_ne!` statements unless `-C debug-assertions` is passed to the compiler. This makes `debug_assert_ne!` useful for checks that are too expensive to be present in a release build but may be helpful during development. The result of expanding `debug_assert_ne!` is always type checked."}
+{"id": "2297ec819861", "src": "core/src/macros/mod.rs:358", "en": "This macro is generally preferable to `debug_assert!(matches!(value, pattern))`, because it can print the debug representation of the actual value shape that did not meet expectations. In contrast, using `debug_assert!` will only print that expectations were not met, but not why."}
+{"id": "14d4cd26a148", "src": "core/src/macros/mod.rs:358", "en": "Unlike `assert_matches!`, `debug_assert_matches!` statements are only enabled in non optimized builds by default. An optimized build will not execute `debug_assert_matches!` statements unless `-C debug-assertions` is passed to the compiler. This makes `debug_assert_matches!` useful for checks that are too expensive to be present in a release build but may be helpful during development. The result of expanding `debug_assert_matches!` is always type checked."}
+{"id": "16dafec014b1", "src": "core/src/macros/mod.rs:407", "en": "Returns whether the given expression matches the provided pattern."}
+{"id": "545c07a02f7b", "src": "core/src/macros/mod.rs:407", "en": "The pattern syntax is exactly the same as found in a match arm. The optional if guard can be used to add additional checks that must be true for the matched value, otherwise this macro will return `false`."}
+{"id": "a65e5166fcbe", "src": "core/src/macros/mod.rs:407", "en": "When testing that a value matches a pattern, it's generally preferable to use `assert_matches!` as it will print the debug representation of the value if the assertion fails."}
+{"id": "2789441f00b1", "src": "core/src/macros/mod.rs:441", "en": "Unwraps a result or propagates its error."}
+{"id": "1bf1674c93fe", "src": "core/src/macros/mod.rs:441", "en": "The [`?` operator][propagating-errors] was added to replace `try!` and should be used instead. Furthermore, `try` is a reserved word in Rust 2018, so if you must use it, you will need to use the [raw-identifier syntax][ris]: `r#try`."}
+{"id": "ad82d18216e3", "src": "core/src/macros/mod.rs:441", "en": "`try!` matches the given `Result`. In case of the `Ok` variant, the expression has the value of the wrapped value."}
+{"id": "86e29bdcdfa9", "src": "core/src/macros/mod.rs:441", "en": "In case of the `Err` variant, it retrieves the inner error. `try!` then performs conversion using `From`. This provides automatic conversion between specialized errors and more general ones. The resulting error is then immediately returned."}
+{"id": "b82e02713abe", "src": "core/src/macros/mod.rs:441", "en": "Because of the early return, `try!` can only be used in functions that return `Result`."}
+{"id": "00e50e6072cf", "src": "core/src/macros/mod.rs:518", "en": "Writes formatted data into a buffer."}
+{"id": "8ff4ebed9ae2", "src": "core/src/macros/mod.rs:518", "en": "This macro accepts a 'writer', a format string, and a list of arguments. Arguments will be formatted according to the specified format string and the result will be passed to the writer. The writer may be any value with a `write_fmt` method; generally this comes from an implementation of either the `fmt::Write` or the `io::Write` trait. The macro returns whatever the `write_fmt` method returns; commonly a `fmt::Result`, or an `io::Result`."}
+{"id": "deb8605ebda2", "src": "core/src/macros/mod.rs:518", "en": "See `std::fmt` for more information on the format string syntax."}
+{"id": "f3d35f79d448", "src": "core/src/macros/mod.rs:518", "en": "A module can import both `std::fmt::Write` and `std::io::Write` and call `write!` on objects implementing either, as objects do not typically implement both. However, the module must avoid conflict between the trait names, such as by importing them as `_` or otherwise renaming them:"}
+{"id": "ec825229f041", "src": "core/src/macros/mod.rs:518", "en": "If you also need the trait names themselves, such as to implement one or both on your types, import the containing module and then name them with a prefix:"}
+{"id": "83ab33356522", "src": "core/src/macros/mod.rs:518", "en": "Note: This macro can be used in `no_std` setups as well. In a `no_std` setup you are responsible for the implementation details of the components."}
+{"id": "29ede21f4f5c", "src": "core/src/macros/mod.rs:617", "en": "Writes formatted data into a buffer, with a newline appended."}
+{"id": "61a64fdd4c24", "src": "core/src/macros/mod.rs:617", "en": "On all platforms, the newline is the LINE FEED character (`\\n`/`U+000A`) alone (no additional CARRIAGE RETURN (`\\r`/`U+000D`)."}
+{"id": "ec88824b9eda", "src": "core/src/macros/mod.rs:617", "en": "For more information, see `write!`. For information on the format string syntax, see `std::fmt`."}
+{"id": "4862445239fb", "src": "core/src/macros/mod.rs:659", "en": "Indicates unreachable code."}
+{"id": "5ce1e416198e", "src": "core/src/macros/mod.rs:659", "en": "This is useful any time that the compiler can't determine that some code is unreachable. For example:"}
+{"id": "7bd8ddb9a5f2", "src": "core/src/macros/mod.rs:659", "en": "* Match arms with guard conditions. * Loops that dynamically terminate. * Iterators that dynamically terminate."}
+{"id": "28f24f4e47c3", "src": "core/src/macros/mod.rs:659", "en": "If the determination that the code is unreachable proves incorrect, the program immediately terminates with a `panic!`."}
+{"id": "80a1eae6c77e", "src": "core/src/macros/mod.rs:659", "en": "The unsafe counterpart of this macro is the `unreachable_unchecked` function, which will cause undefined behavior if the code is reached."}
+{"id": "fb7243f7a8f0", "src": "core/src/macros/mod.rs:659", "en": "This will always `panic!` because `unreachable!` is just a shorthand for `panic!` with a fixed, specific message."}
+{"id": "81a8ef821731", "src": "core/src/macros/mod.rs:659", "en": "Like `panic!`, this macro has a second form for displaying custom values."}
+{"id": "705c230fc6ae", "src": "core/src/macros/mod.rs:659", "en": "Match arms:"}
+{"id": "c4a0156a59a9", "src": "core/src/macros/mod.rs:659", "en": "Iterators:"}
+{"id": "35472c24a202", "src": "core/src/macros/mod.rs:724", "en": "Indicates unimplemented code by panicking with a message of \"not implemented\"."}
+{"id": "f644a413a018", "src": "core/src/macros/mod.rs:724", "en": "This allows your code to type-check, which is useful if you are prototyping or implementing a trait that requires multiple methods which you don't plan to use all of."}
+{"id": "f10bb3533956", "src": "core/src/macros/mod.rs:724", "en": "The difference between `unimplemented!` and `todo!` is that while `todo!` conveys an intent of implementing the functionality later and the message is \"not yet implemented\", `unimplemented!` makes no such claims. Its message is \"not implemented\"."}
+{"id": "55ecb6d26971", "src": "core/src/macros/mod.rs:724", "en": "Also, some IDEs will mark `todo!`s."}
+{"id": "bd01eafa1938", "src": "core/src/macros/mod.rs:724", "en": "This will always `panic!` because `unimplemented!` is just a shorthand for `panic!` with a fixed, specific message."}
+{"id": "4fba74745781", "src": "core/src/macros/mod.rs:724", "en": "Say we have a trait `Foo`:"}
+{"id": "f170680c6f2a", "src": "core/src/macros/mod.rs:724", "en": "We want to implement `Foo` for 'MyStruct', but for some reason it only makes sense to implement the `bar()` function. `baz()` and `qux()` will still need to be defined in our implementation of `Foo`, but we can use `unimplemented!` in their definitions to allow our code to compile."}
+{"id": "2e44b4875102", "src": "core/src/macros/mod.rs:724", "en": "We still want to have our program stop running if the unimplemented methods are reached."}
+{"id": "888a497d6d0f", "src": "core/src/macros/mod.rs:812", "en": "Indicates unfinished code."}
+{"id": "ab60996c84dd", "src": "core/src/macros/mod.rs:812", "en": "This can be useful if you are prototyping and just want a placeholder to let your code pass type analysis."}
+{"id": "1ba04fd7aea0", "src": "core/src/macros/mod.rs:812", "en": "This will always `panic!` because `todo!` is just a shorthand for `panic!` with a fixed, specific message."}
+{"id": "b78605f61ba4", "src": "core/src/macros/mod.rs:812", "en": "Here's an example of some in-progress code. We have a trait `Foo`:"}
+{"id": "6863fb1df14a", "src": "core/src/macros/mod.rs:812", "en": "We want to implement `Foo` on one of our types, but we also want to work on just `bar()` first. In order for our code to compile, we need to implement `baz()` and `qux()`, so we can use `todo!`:"}
+{"id": "bb632a576a0b", "src": "core/src/macros/mod.rs:893", "en": "Definitions of built-in macros."}
+{"id": "cc6f7dcdd753", "src": "core/src/macros/mod.rs:893", "en": "Most of the macro properties (stability, visibility, etc.) are taken from the source code here, with exception of expansion functions transforming macro inputs into outputs, those functions are provided by the compiler."}
+{"id": "92542e5399f5", "src": "core/src/macros/mod.rs:900", "en": "Causes compilation to fail with the given error message when encountered."}
+{"id": "ea1a988e5c6a", "src": "core/src/macros/mod.rs:900", "en": "This macro should be used when a crate uses a conditional compilation strategy to provide better error messages for erroneous conditions. It's the compiler-level form of `panic!`, but emits an error during *compilation* rather than at *runtime*."}
+{"id": "7c5295b6779e", "src": "core/src/macros/mod.rs:900", "en": "Two such examples are macros and `#[cfg]` environments."}
+{"id": "030636f9d734", "src": "core/src/macros/mod.rs:900", "en": "Emit a better compiler error if a macro is passed invalid values. Without the final branch, the compiler would still emit an error, but the error's message would not mention the two valid values."}
+{"id": "dc6ce14f54d5", "src": "core/src/macros/mod.rs:900", "en": "Emit a compiler error if one of a number of features isn't available."}
+{"id": "271e62a3037c", "src": "core/src/macros/mod.rs:940", "en": "Constructs parameters for the other string-formatting macros."}
