@@ -19,6 +19,7 @@ cava
 chafa
 chromium
 cmake
+drawio-desktop
 efibootmgr
 fastfetch
 fcitx5
@@ -70,6 +71,7 @@ neovim
 networkmanager
 noto-fonts-cjk
 noto-fonts-emoji
+obsidian
 openocd
 papers
 picocom
