@@ -1,7 +1,8 @@
 -- Completion: Tab / Shift+Tab are left to LazyVim (jump between snippet fields,
 -- otherwise a normal tab); pick items with Ctrl+n / Ctrl+p or the arrow keys.
 -- Kept simple: only code (LSP), file paths and snippets are suggested (no words
--- from the buffer), with no documentation popup and no gray ghost text.
+-- from the buffer), no gray ghost text. The selected item's documentation
+-- opens beside the menu (Korean for Rust std, see config/rust_doc_ko.lua).
 -- Each item shows its kind (Function, Struct, Variable, ...) and type details.
 
 -- Basic snippets kept per filetype (friendly-snippets prefixes); other
@@ -19,7 +20,7 @@ return {
     "saghen/blink.cmp",
     opts = function(_, opts)
       opts.completion = opts.completion or {}
-      opts.completion.documentation = { auto_show = false }
+      opts.completion.documentation = { auto_show = true, auto_show_delay_ms = 200 }
       opts.completion.ghost_text = { enabled = false }
       opts.completion.menu = vim.tbl_deep_extend("force", opts.completion.menu or {}, {
         draw = {
