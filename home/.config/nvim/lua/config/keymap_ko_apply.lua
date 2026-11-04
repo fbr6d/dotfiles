@@ -22,7 +22,10 @@ local function swap(map, mode, buf)
     return
   end
   full.desc = new
-  pcall(vim.fn.mapset, mode, false, full)
+  -- one-argument mapset() restores the mapping in its own modes (full.mode);
+  -- passing the loop's mode would turn e.g. an "x" map into "v" and leak it
+  -- into select mode, where typing must replace snippet placeholders
+  pcall(vim.fn.mapset, full)
 end
 
 function M.keymaps(buf)
