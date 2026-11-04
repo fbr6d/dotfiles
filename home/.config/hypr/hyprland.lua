@@ -566,6 +566,14 @@ hl.window_rule({
     scrolling_width = 0.7,
 })
 
+-- Toss Invest web app (~/.local/share/applications/toss-invest.desktop): opens maximized
+hl.window_rule({
+    name  = "toss-invest",
+    match = { class = "^chrome-www\\.tossinvest\\.com__-Default$" },
+
+    maximize = true,
+})
+
 -- Keybind cheatsheet (~/.local/bin/hypr-cheatsheet, not started at login; SUPER+/
 -- shows/hides it): floating, on every workspace,
 -- no focus on open/hover, top right under waybar

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Toss Invest
+Comment=Toss Securities web (tossinvest.com) in a Chromium app window
+Exec=chromium --ozone-platform=wayland --app=https://www.tossinvest.com
+Icon=/home/leejaeik/.local/share/icons/toss-invest.png
+Type=Application
+Categories=Office;Finance;
