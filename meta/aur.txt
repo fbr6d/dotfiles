@@ -1,5 +1,6 @@
 claude-desktop
 clipse
+fcitx5-semoe
 hyprshell-bin
 overskride-bin
 teamviewer
