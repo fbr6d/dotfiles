@@ -78,6 +78,8 @@ noto-fonts-emoji
 obsidian
 openocd
 papers
+paru
+paru-debug
 picocom
 pipewire
 pipewire-pulse
@@ -108,10 +110,12 @@ ttf-nerd-fonts-symbols-mono
 unzip
 vim
 waybar
+wayvnc
 webkit2gtk-4.1
 wget
 wireplumber
 wl-clipboard
+xdg-desktop-portal-hyprland
 yazi
 zen-browser-bin
 zoxide

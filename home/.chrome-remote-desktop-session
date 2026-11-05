@@ -1,0 +1,4 @@
+# You will have to uncomment one of the following lines for CRD to work
+# Remove the # and save the file.
+# 
+export $(dbus-launch)

@@ -1,9 +1,14 @@
+1password
+chatgpt-desktop
+chrome-remote-desktop
 claude-desktop
 clipse
 fcitx5-semoe
 hyprshell-bin
 overskride-bin
+rustdesk-bin
 teamviewer
 waypaper
+xdg-desktop-portal-luminous
 yay
 yay-debug

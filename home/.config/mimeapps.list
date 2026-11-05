@@ -27,3 +27,4 @@ text/csv=nvim-kitty.desktop
 application/xml=nvim-kitty.desktop
 text/x-log=nvim-kitty.desktop
 application/x-zerosize=nvim-kitty.desktop
+x-scheme-handler/codex=chatgpt.desktop
