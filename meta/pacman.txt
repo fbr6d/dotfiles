@@ -1,4 +1,5 @@
 7zip
+anki
 apple-bcm-firmware-fetcher
 apple-t2-audio-config
 arch-mact2-mirrorlist
