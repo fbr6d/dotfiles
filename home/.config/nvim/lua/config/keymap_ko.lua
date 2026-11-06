@@ -492,4 +492,7 @@ return {
 
   -- Key history window (config/key_history.lua)
   ["키 기록 창 켜기/끄기"] = "키 기록 창 켜기/끄기",
+
+  -- F5 debugging (config/debug_f5.lua)
+  ["Debug: start / continue"] = "디버깅 시작 / 계속 (인자 입력)",
 }

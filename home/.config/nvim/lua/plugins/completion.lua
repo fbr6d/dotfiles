@@ -28,6 +28,19 @@ return {
         },
       })
 
+      -- File name list pops up while typing in the F5 debug-arguments prompt
+      -- (config/debug_f5.lua sets vim.g.debug_args_prompt while it is open);
+      -- in other prompts only ":" commands show it, as LazyVim does
+      opts.cmdline = vim.tbl_deep_extend("force", opts.cmdline or {}, {
+        completion = {
+          menu = {
+            auto_show = function()
+              return vim.fn.getcmdtype() == ":" or (vim.fn.getcmdtype() == "@" and vim.g.debug_args_prompt == true)
+            end,
+          },
+        },
+      })
+
       -- sources.default is a list LazyVim extends, so drop "buffer" here
       opts.sources.default = vim.tbl_filter(function(s)
         return s ~= "buffer"

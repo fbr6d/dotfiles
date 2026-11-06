@@ -99,3 +99,18 @@ scale slider { background: @text; border-radius: 999px; min-width: 16px; min-hei
   border-radius: 999px;
   font-size: 18px;
 }
+
+/* Battery level (slider#battery in config.json): its own card below the power
+   buttons, set apart from the volume / brightness controls: titled, thin
+   green bar, no knob (display only) */
+.widget-slider {
+  background: transparent;
+  border: 1px solid @raised;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 12px 0 4px 0;
+}
+.widget-slider label { color: @dim; font-size: 13px; margin-right: 10px; }
+.widget-slider scale trough { min-height: 6px; }
+.widget-slider scale highlight { background: #a6e3a1; }
+.widget-slider scale slider { opacity: 0; }

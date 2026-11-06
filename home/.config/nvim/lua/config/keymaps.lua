@@ -25,3 +25,6 @@ require("config.key_history")
 
 -- Ctrl+/: shell in a kitty split on the right instead of a terminal inside nvim; see config/project_terminal.lua
 require("config.project_terminal")
+
+-- F5: debug the Rust program (asks for its arguments; continues when already debugging); see config/debug_f5.lua
+require("config.debug_f5")

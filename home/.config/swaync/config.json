@@ -26,6 +26,7 @@
     "volume",
     "backlight",
     "buttons-grid#power",
+    "slider#battery",
     "title",
     "notifications"
   ],
@@ -42,6 +43,15 @@
     "backlight": {
       "label": "󰃠",
       "device": "acpi_video0"
+    },
+    "slider#battery": {
+      "label": "󰁹  배터리",
+      "cmd_getter": "cat /sys/class/power_supply/BAT0/capacity",
+      "cmd_setter": "true",
+      "min": 0,
+      "max": 100,
+      "min_limit": 0,
+      "max_limit": 100
     },
     "buttons-grid": {
       "actions": [
