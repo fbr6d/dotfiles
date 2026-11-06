@@ -1,0 +1,7 @@
+# SUPER+T terminal (hyprland.lua): one tab split left/right, left side wider.
+# --bias is the share (%) the new right-hand window takes.
+layout splits
+cd ~
+launch
+focus
+launch --location=vsplit --bias=40

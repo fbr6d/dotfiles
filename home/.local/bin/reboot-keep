@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+"""Reboot and reopen the open windows where they were.
+
+  reboot-keep            save the open windows, ask, then reboot
+  reboot-keep save       only save (~/.local/state/reboot-keep/windows.json)
+  reboot-keep restore    reopen the saved windows (hyprland.lua runs this at
+                         login; it does nothing unless a reboot-keep reboot
+                         saved them less than 15 minutes earlier)
+  --match REGEX          (save/restore) only windows whose class matches
+
+Per window it keeps the workspace, floating position and size, and maximized /
+fullscreen state; tiled windows are reopened in their left-to-right order.
+kitty windows started with a remote-control socket (listen_on in kitty.conf)
+come back with their tabs, splits, folders and running programs (nvim opens
+the same file again). Refuses to reboot while a Neovim has unsaved changes.
+"""
+import glob
+import json
+import os
+import re
+import shlex
+import subprocess
+import sys
+import time
+
+STATE = os.path.expanduser("~/.local/state/reboot-keep")
+SAVED = os.path.join(STATE, "windows.json")
+MAX_AGE = 15 * 60  # seconds between saving and restoring at login
+
+# windows that are started at login anyway, or are popups
+SKIP = re.compile(r"^(miku-greeter|local\.hypr\.cheatsheet|local\.LinuxCheatsheet|clipse|"
+                  r"io\.github\.kaii_lb\.Overskride|xdg-desktop-portal.*|polkit.*)$")
+
+
+def hypr(*args):
+    return json.loads(subprocess.run(["hyprctl", "-j", *args], capture_output=True, text=True).stdout)
+
+
+def lua_str(s):
+    level = "=" * 3
+    while f"]{level}]" in s:
+        level += "="
+    return f"[{level}[{s}]{level}]"
+
+
+def desktop_exec(cls):
+    """Exec line of the .desktop file for a window class (StartupWMClass or file name)."""
+    dirs = [os.path.expanduser("~/.local/share/applications"), "/usr/share/applications"]
+    by_name = None
+    for d in dirs:
+        for path in glob.glob(os.path.join(d, "*.desktop")):
+            try:
+                text = open(path, encoding="utf-8", errors="ignore").read()
+            except OSError:
+                continue
+            m = re.search(r"^Exec=(.*)$", text, re.M)
+            if not m:
+                continue
+            cmd = re.sub(r"\s*%[fFuUdDnNickvm]", "", m.group(1)).strip()
+            wm = re.search(r"^StartupWMClass=(.*)$", text, re.M)
+            if wm and wm.group(1).strip().lower() == cls.lower():
+                return cmd
+            if by_name is None and os.path.basename(path)[:-8].lower() == cls.lower():
+                by_name = cmd
+    return by_name
+
+
+def kitty_session(pid):
+    """Save a kitty instance's tabs/splits through its socket; None without one."""
+    sock = f"/tmp/kitty-{pid}"
+    if not os.path.exists(sock):
+        return None
+    path = os.path.join(STATE, f"kitty-{pid}.session")
+    r = subprocess.run(["kitty", "@", "--to", f"unix:{sock}", "action", "save_as_session",
+                        "--use-foreground-process", "--save-only", path], capture_output=True)
+    return path if r.returncode == 0 and os.path.exists(path) else None
+
+
+def command_for(c, seen_pids):
+    cls, pid = c["class"], c["pid"]
+    m = re.match(r"^chrome-(.+?)__(.*)-Default$", cls)
+    if m:  # Chromium web app: one browser process serves all of them, so use the class
+        path = m.group(2).replace("_", "/")
+        return f"chromium --ozone-platform=wayland --app=https://{m.group(1)}/{path}"
+    if pid in seen_pids:  # another window of an app that reopens its own windows
+        return None
+    seen_pids.add(pid)
+    is_kitty = open(f"/proc/{pid}/comm").read().strip() == "kitty"
+    if is_kitty:
+        session = kitty_session(pid)
+        if session:
+            return f"kitty --class {shlex.quote(cls)} --session {shlex.quote(session)}"
+    try:
+        argv = open(f"/proc/{pid}/cmdline", "rb").read().split(b"\0")
+        cmdline = " ".join(shlex.quote(a.decode()) for a in argv if a)
+    except OSError:
+        cmdline = None
+    if not is_kitty:
+        exe = desktop_exec(cls)
+        if exe:
+            return exe
+    return cmdline
+
+
+def save(match=None):
+    os.makedirs(STATE, exist_ok=True)
+    for old in glob.glob(os.path.join(STATE, "kitty-*.session")):
+        os.remove(old)
+    clients = [c for c in hypr("clients") if c["mapped"] and c["pid"] > 0 and not SKIP.match(c["class"])]
+    if match:
+        clients = [c for c in clients if re.search(match, c["class"])]
+    clients.sort(key=lambda c: (c["workspace"]["id"], c["floating"], c["at"][0], c["at"][1]))
+    seen, windows = set(), []
+    for c in clients:
+        cmd = command_for(c, seen)
+        if not cmd:
+            continue
+        windows.append({
+            "class": c["class"], "title": c["title"], "command": cmd,
+            "workspace": c["workspace"]["name"], "floating": c["floating"],
+            "at": c["at"], "size": c["size"], "fullscreen": c["fullscreen"],
+        })
+    json.dump({"saved": time.time(), "windows": windows}, open(SAVED, "w"), ensure_ascii=False, indent=2)
+    return windows
+
+
+def restore(match=None, force=False):
+    try:
+        data = json.load(open(SAVED))
+    except (OSError, ValueError):
+        return
+    if not force and time.time() - data["saved"] > MAX_AGE:
+        return
+    os.remove(SAVED)
+    open_classes = {c["class"] for c in hypr("clients")}
+    for w in data["windows"]:
+        if match and not re.search(match, w["class"]):
+            continue
+        if w["class"] in open_classes and not w["command"].startswith("kitty"):
+            continue  # already opened by autostart
+        rules = [f'workspace = {lua_str(w["workspace"] + " silent")}']
+        if w["floating"]:
+            rules += ["float = true", f'size = "{w["size"][0]} {w["size"][1]}"',
+                      f'move = "{w["at"][0]} {w["at"][1]}"']
+        if w["fullscreen"] == 1:
+            rules.append("maximize = true")
+        elif w["fullscreen"] == 2:
+            rules.append("fullscreen = true")
+        expr = f'hl.dsp.exec_cmd({lua_str(w["command"])}, {{ {", ".join(rules)} }})'
+        subprocess.run(["hyprctl", "dispatch", expr], capture_output=True)
+        time.sleep(0.4)  # keep the left-to-right order of tiled windows
+
+
+def unsaved_nvims():
+    found = []
+    for sock in glob.glob(f"/run/user/{os.getuid()}/nvim.*.0"):
+        r = subprocess.run(["nvim", "--server", sock, "--remote-expr",
+                            'join(map(getbufinfo({"bufmodified": 1}), {_, b -> fnamemodify(b.name, ":~")}), ", ")'],
+                           capture_output=True, text=True, timeout=5)
+        if r.returncode == 0 and r.stdout.strip():
+            found.append(r.stdout.strip())
+    return found
+
+
+def main():
+    args = sys.argv[1:]
+    match = None
+    if "--match" in args:
+        i = args.index("--match")
+        match = args[i + 1]
+        del args[i:i + 2]
+    cmd = args[0] if args else "reboot"
+    if cmd == "save":
+        for w in save(match):
+            print(f'{w["workspace"]:>3}  {w["class"]}  →  {w["command"]}')
+    elif cmd == "restore":
+        restore(match, force=bool(match))
+    elif cmd == "reboot":
+        unsaved = unsaved_nvims()
+        if unsaved:
+            print("저장 안 한 Neovim 파일이 있어서 재부팅하지 않습니다:", *unsaved, sep="\n  ")
+            sys.exit(1)
+        windows = save()
+        print(f"창 {len(windows)}개를 저장했습니다. 재부팅하면 같은 자리에 다시 엽니다.")
+        if input("지금 재부팅할까요? [y/N] ").strip().lower() not in ("y", "yes", "ㅛ"):
+            print("재부팅하지 않았습니다. (저장한 창 목록은 15분 동안만 쓰입니다)")
+            return
+        subprocess.run(["systemctl", "reboot"])
+    else:
+        print(__doc__)
+        sys.exit(2)
+
+
+if __name__ == "__main__":
+    main()

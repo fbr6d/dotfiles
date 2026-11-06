@@ -76,6 +76,7 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd("~/.local/bin/miku-boot")         -- Miku greeting terminal, first login after boot only
   hl.exec_cmd("/opt/localsend/localsend --hidden")   -- LocalSend in the tray (Hyprland does not run ~/.config/autostart)
   hl.exec_cmd("clipse -listen")   -- clipboard history (SUPER+SHIFT+V opens it)
+  hl.exec_cmd("sleep 2; ~/.local/bin/reboot-keep restore")   -- windows saved by a reboot-keep reboot, back in place
 
 end)
 
@@ -380,7 +381,8 @@ hl.bind(mainMod .. " + M",         hl.dsp.window.fullscreen({ mode = "maximized"
 hl.bind(mainMod .. " + V",         hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("kitty --class clipse -e clipse"))   -- clipboard history
 hl.bind(mainMod .. " + P",         hl.dsp.window.pseudo())
-hl.bind(mainMod .. " + T",         hl.dsp.exec_cmd(terminal, { float = true, size = "monitor_w*0.6 monitor_h*0.6", center = true }))
+-- maximized kitty split left (60%) / right (40%), see ~/.config/kitty/split.session
+hl.bind(mainMod .. " + T",         hl.dsp.exec_cmd(terminal .. " --session ~/.config/kitty/split.session", { maximize = true }))
 hl.bind(mainMod .. " + C",         hl.dsp.layout("center"))           -- center the focused column
 hl.bind(mainMod .. " + G",         hl.dsp.group.toggle())
 hl.bind(mainMod .. " + Tab",       hl.dsp.group.next())

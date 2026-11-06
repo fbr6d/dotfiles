@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+"""Restart the kitty window this runs from, keeping its state (Ctrl+Shift+F6 in kitty.conf).
+
+Saves the tabs, splits, folders and running programs with kitty's
+save_as_session, opens a new kitty with them at the same place and size
+(workspace, floating geometry, maximized), then closes the old one. Neovim
+instances are quit cleanly first (no swap files left); if one has unsaved
+changes nothing is restarted.
+
+Run by kitty as `launch --type=background --allow-remote-control`: the kitty
+to restart is the nearest kitty parent process; it is controlled through its
+listen_on socket, else through the fd kitty passes in KITTY_LISTEN_ON.
+"""
+import json
+import os
+import shlex
+import subprocess
+import sys
+import time
+
+
+def kitty_parent():
+    p = os.getppid()
+    while p > 1:
+        if open(f"/proc/{p}/comm").read().strip() == "kitty":
+            return p
+        p = int(open(f"/proc/{p}/stat").read().rsplit(")", 1)[1].split()[1])
+    sys.exit("not started from kitty")
+
+
+pid = kitty_parent()
+sock, fds = f"unix:/tmp/kitty-{pid}", ()
+if not os.path.exists(f"/tmp/kitty-{pid}"):
+    sock = os.environ["KITTY_LISTEN_ON"]  # e.g. fd:22
+    fds = (int(sock[3:]),) if sock.startswith("fd:") else ()
+state = os.path.expanduser("~/.local/state/kitty-restart")
+session = os.path.join(state, f"{pid}.session")
+
+
+def kitty(*args):
+    return subprocess.run(["kitty", "@", "--to", sock, *args], capture_output=True, text=True, pass_fds=fds)
+
+
+def notify(body):
+    subprocess.run(["notify-send", "-a", "kitty", "kitty 재시작", body])
+
+
+def lua_str(s):
+    level = "==="
+    while f"]{level}]" in s:
+        level += "="
+    return f"[{level}[{s}]{level}]"
+
+
+# Neovim instances running in this kitty, by their server socket
+nvims = []
+for osw in json.loads(kitty("ls").stdout):
+    for tab in osw["tabs"]:
+        for win in tab["windows"]:
+            for proc in win["foreground_processes"]:
+                if os.path.basename(proc["cmdline"][0]) == "nvim":
+                    s = f"/run/user/{os.getuid()}/nvim.{proc['pid']}.0"
+                    if os.path.exists(s):
+                        nvims.append(s)
+
+unsaved = []
+for s in nvims:
+    r = subprocess.run(["nvim", "--server", s, "--remote-expr",
+                        'join(map(getbufinfo({"bufmodified": 1}), {_, b -> fnamemodify(b.name, ":t")}), ", ")'],
+                       capture_output=True, text=True, timeout=5)
+    if r.stdout.strip():
+        unsaved.append(r.stdout.strip())
+if unsaved:
+    notify("저장 안 한 nvim 파일이 있어서 재시작하지 않았습니다: " + ", ".join(unsaved))
+    sys.exit(1)
+
+os.makedirs(state, exist_ok=True)
+if kitty("action", "save_as_session", "--use-foreground-process", "--save-only", session).returncode != 0 \
+        or not os.path.exists(session):
+    notify("지금 상태를 저장하지 못해서 재시작하지 않았습니다.")
+    sys.exit(1)
+
+# where the window is now
+hypr = json.loads(subprocess.run(["hyprctl", "-j", "clients"], capture_output=True, text=True).stdout)
+me = next((c for c in hypr if c["pid"] == pid), None)
+cls = me["class"] if me else "kitty"
+rules = []
+if me:
+    rules.append(f'workspace = {lua_str(me["workspace"]["name"] + " silent")}')
+    if me["floating"]:
+        rules += ["float = true", f'size = "{me["size"][0]} {me["size"][1]}"',
+                  f'move = "{me["at"][0]} {me["at"][1]}"']
+    if me["fullscreen"] == 1:
+        rules.append("maximize = true")
+    elif me["fullscreen"] == 2:
+        rules.append("fullscreen = true")
+
+for s in nvims:  # quit cleanly; the session starts them again
+    subprocess.run(["nvim", "--server", s, "--remote-send", "<C-\\><C-N>:qa<CR>"], capture_output=True)
+
+cmd = f"kitty --class {shlex.quote(cls)} --session {shlex.quote(session)}"
+subprocess.run(["hyprctl", "dispatch", f'hl.dsp.exec_cmd({lua_str(cmd)}, {{ {", ".join(rules)} }})'],
+               capture_output=True)
+time.sleep(1.5)  # new window up before the old one goes
+os.kill(pid, 15)

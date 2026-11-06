@@ -468,4 +468,27 @@ return {
   ["Go to last insert"] = "마지막 입력 위치로",
   ["Last visual selection"] = "마지막 선택 영역 다시 선택",
   ["Open file with system app"] = "기본 앱으로 파일 열기",
+
+  -- Debugging (LazyVim extra dap.core)
+  ["+debug"] = "+디버깅",
+  ["Run with Args"] = "인자 넣고 실행",
+  ["Breakpoint Condition"] = "조건부 중단점",
+  ["Toggle Breakpoint"] = "중단점 걸기/풀기",
+  ["Run/Continue"] = "실행 / 계속",
+  ["Run to Cursor"] = "커서 줄까지 실행",
+  ["Eval"] = "식 값 보기 (Eval)",
+  ["Go to Line (No Execute)"] = "그 줄로 건너뛰기 (실행 안 함)",
+  ["Step Into"] = "함수 안으로 (Step Into)",
+  ["Run Last"] = "마지막 디버깅 다시 실행",
+  ["Step Out"] = "함수 밖으로 (Step Out)",
+  ["Step Over"] = "다음 줄로 (Step Over)",
+  ["Pause"] = "일시 정지",
+  ["Toggle REPL"] = "디버그 콘솔 열기/닫기 (REPL)",
+  ["Session"] = "디버그 세션",
+  ["Terminate"] = "디버깅 끝내기",
+  ["Dap UI"] = "디버깅 화면 열기/닫기",
+  ["Widgets"] = "변수 값 보기 (Widgets)",
+
+  -- Key history window (config/key_history.lua)
+  ["키 기록 창 켜기/끄기"] = "키 기록 창 켜기/끄기",
 }
