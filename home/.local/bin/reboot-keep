@@ -73,7 +73,16 @@ def kitty_session(pid):
     path = os.path.join(STATE, f"kitty-{pid}.session")
     r = subprocess.run(["kitty", "@", "--to", f"unix:{sock}", "action", "save_as_session",
                         "--use-foreground-process", "--save-only", path], capture_output=True)
-    return path if r.returncode == 0 and os.path.exists(path) else None
+    if r.returncode != 0 or not os.path.exists(path):
+        return None
+    # the shell that ran reboot-keep has reboot-keep itself as its foreground
+    # command; restoring that would run it again (another reboot), so drop it
+    with open(path) as f:
+        text = f.read()
+    text = re.sub(r',\s*"cmd_at_shell_startup":\s*"[^"]*reboot-keep[^"]*"', "", text)
+    with open(path, "w") as f:
+        f.write(text)
+    return path
 
 
 def command_for(c, seen_pids):
