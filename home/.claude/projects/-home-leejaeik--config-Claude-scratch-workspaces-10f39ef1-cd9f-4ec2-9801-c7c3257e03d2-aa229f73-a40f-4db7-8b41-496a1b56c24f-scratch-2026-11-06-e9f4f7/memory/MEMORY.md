@@ -1,0 +1,3 @@
+- [오류 질문엔 원인만 설명](error-questions-explain-only.md) — 오류 질문 시 코드 수정·수정 제안 금지, 사용자가 직접 고침
+- [화면 캡처 방법과 복귀](screen-capture-hyprland.md) — kitty 텍스트 직접 읽기 우선, Hyprland+grim 캡처, 끝나면 Claude 창으로 포커스 복귀
+- [물어본 것만 답하기](answer-only-what-asked.md) — 묻지 않은 버그·참고사항 덧붙이지 않기

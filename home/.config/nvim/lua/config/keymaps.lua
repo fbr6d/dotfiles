@@ -20,5 +20,8 @@ Snacks.toggle.inlay_hints():map("<F2>", { mode = { "n", "i" } })
 vim.keymap.set({ "n", "x" }, "x", '"_x', { desc = "Delete char (no copy)" })
 vim.keymap.set({ "n", "x" }, "X", '"_X', { desc = "Delete char before (no copy)" })
 
--- Recent commands with what they do, bottom right (<leader>uk toggles); see config/key_history.lua
+-- Recent commands with what they do, top right (<leader>uk toggles); see config/key_history.lua
 require("config.key_history")
+
+-- Ctrl+/: shell in a kitty split on the right instead of a terminal inside nvim; see config/project_terminal.lua
+require("config.project_terminal")

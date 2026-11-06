@@ -1,3 +1,4 @@
 {
-  "switchModelsOnFlag": true
+  "switchModelsOnFlag": true,
+  "inputNeededNotifEnabled": true
 }

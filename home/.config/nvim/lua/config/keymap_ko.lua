@@ -104,6 +104,7 @@ return {
 
   -- Terminal / git
   ["Terminal (Root Dir)"] = "터미널 (프로젝트 루트)",
+  ["Terminal (kitty split, right)"] = "터미널 (오른쪽 kitty 칸)",
   ["Terminal (cwd)"] = "터미널 (현재 폴더)",
   ["Git Browse (copy)"] = "Git 웹 주소 복사 (Browse)",
   ["Git Browse (open)"] = "Git 웹 페이지 열기 (Browse)",
