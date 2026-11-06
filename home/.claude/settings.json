@@ -1,4 +1,5 @@
 {
   "switchModelsOnFlag": true,
-  "inputNeededNotifEnabled": true
+  "inputNeededNotifEnabled": true,
+  "theme": "dark"
 }
