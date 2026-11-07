@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# convert-to FILE...: ask for a target format and convert each file next to
+# itself (image → magick, audio/video → ffmpeg). Used by yazi's "포맷 변환".
+set -uo pipefail
+echo "변환할 파일 $#개: $*"
+read -rp "바꿀 포맷 (예: png jpg webp gif mp4 mkv webm mp3 ogg wav): " ext
+ext=${ext#.}
+[ -n "$ext" ] || exit 0
+for f in "$@"; do
+  out="${f%.*}.$ext"
+  [ "$out" = "$f" ] && { echo "건너뜀 (이미 .$ext): $f"; continue; }
+  [ -e "$out" ] && { echo "건너뜀 (이미 있음): $out"; continue; }
+  case "$(file -b --mime-type -- "$f")" in
+    image/*) magick -- "$f" "$out" ;;
+    video/*|audio/*)
+      if [ "$ext" = gif ]; then
+        ffmpeg -hide_banner -loglevel error -i "$f" -vf "fps=12,scale=480:-1:flags=lanczos" "$out"
+      else
+        ffmpeg -hide_banner -loglevel error -i "$f" "$out"
+      fi ;;
+    *) echo "건너뜀 (이미지·동영상·음악 아님): $f"; continue ;;
+  esac && echo "완료: $out" || echo "실패: $f"
+done
+read -rp "엔터를 누르면 닫힙니다" _

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# open-with FILE...: pick any installed app (rofi list of .desktop apps) and
+# open the files with it. Used by yazi's "다른 앱 고르기" menu entry.
+set -euo pipefail
+[ $# -gt 0 ] || { echo "usage: open-with FILE..." >&2; exit 1; }
+
+dirs=("$HOME/.local/share/applications" /usr/share/applications)
+declare -A path_of
+list=""
+for d in "${dirs[@]}"; do
+  for f in "$d"/*.desktop; do
+    [ -f "$f" ] || continue
+    id=$(basename "$f")
+    [ -n "${path_of[$id]:-}" ] && continue        # user entries win over system ones
+    # only the [Desktop Entry] section (not the "New Window" actions below it)
+    entry=$(awk '/^\[/{s=($0=="[Desktop Entry]")} s' "$f")
+    grep -qE '^(NoDisplay|Hidden)=true' <<<"$entry" && continue
+    grep -qE '^Exec=' <<<"$entry" || continue
+    name=$(grep -m1 '^Name\[ko\]=' <<<"$entry" | cut -d= -f2- || true)
+    [ -n "$name" ] || name=$(grep -m1 '^Name=' <<<"$entry" | cut -d= -f2-)
+    path_of[$id]=$f
+    list+="$name	$id"$'\n'
+  done
+done
+
+choice=$(printf '%s' "$list" | sort -f | rofi -dmenu -i -p "열 앱" -display-columns 1 -display-column-separator $'\t') || exit 0
+id=${choice##*$'\t'}
+exec gio launch "${path_of[$id]}" "$@"
