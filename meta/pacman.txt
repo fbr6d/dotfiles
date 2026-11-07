@@ -8,6 +8,7 @@ arm-none-eabi-gdb
 awww
 base
 base-devel
+blender
 bluez
 bluez-tools
 bluez-utils
