@@ -20,6 +20,7 @@ cava
 chafa
 chromium
 cmake
+csvlens
 drawio-desktop
 efibootmgr
 eza

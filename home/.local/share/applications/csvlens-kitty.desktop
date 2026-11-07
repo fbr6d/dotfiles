@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=csvlens (TSV/CSV viewer)
+Name[ko]=표 보기 (csvlens)
+Comment=View TSV/CSV files as a table in kitty
+Comment[ko]=TSV·CSV 파일을 표로 보기
+Exec=kitty --class csvlens --title csvlens csvlens %f
+Icon=x-office-spreadsheet
+Terminal=false
+MimeType=text/tab-separated-values;
+Categories=Utility;Viewer;

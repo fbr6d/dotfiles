@@ -18,6 +18,7 @@ nautilus  = [ { run = 'nautilus --select %s1', orphan = true, desc = "Nautilus�
 folder    = [ { run = 'nautilus %s1', orphan = true, desc = "Nautilus로 폴더 열기" } ]
 localsend = [ { run = 'localsend %s', orphan = true, desc = "LocalSend로 보내기" } ]
 convert   = [ { run = '/home/leejaeik/.local/bin/convert-to %s', block = true, desc = "다른 포맷으로 변환" } ]
+csvlens   = [ { run = 'csvlens %s1', block = true, desc = "표로 보기 (csvlens)" } ]
 hex       = [ { run = 'xxd %s1 | less', block = true, desc = "16진수로 보기" } ]
 other     = [ { run = '/home/leejaeik/.local/bin/open-with %s', orphan = true, desc = "다른 앱 고르기…" } ]
 extract   = [ { run = 'ya pub extract --list %s', desc = "여기에 압축 풀기" } ]
@@ -28,6 +29,7 @@ prepend_rules = [
 	{ url = "*.drawio", use = [ "drawio", "edit", "localsend", "other" ] },
 	{ url = "*.svg", use = [ "zen", "chromium", "drawio", "edit", "convert", "localsend", "other" ] },
 	{ url = "*.{html,htm}", use = [ "zen", "chromium", "edit", "kate", "localsend", "other" ] },
+	{ url = "*.tsv", use = [ "csvlens", "edit", "kate", "localsend", "other" ] },
 	{ url = "*.md", use = [ "edit", "kate", "zen", "localsend", "other" ] },
 	{ mime = "text/*", use = [ "edit", "kate", "kwrite", "localsend", "hex", "other", "nautilus" ] },
 	{ mime = "application/{json,ndjson,javascript,toml,x-yaml,xml}", use = [ "edit", "kate", "kwrite", "localsend", "other" ] },
