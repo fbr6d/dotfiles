@@ -1,3 +1,3 @@
-IBUS_ADDRESS=unix:path=/run/user/1000/bus,fcitx_random_string=b42f9fc1583440f9b29a2eca51df630c
-IBUS_DAEMON_PID=1670
+IBUS_ADDRESS=unix:path=/run/user/1000/bus,fcitx_random_string=2e5ddf180e714913938f3d838995357b
+IBUS_DAEMON_PID=1673
 
