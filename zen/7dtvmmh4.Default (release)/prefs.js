@@ -14,7 +14,7 @@ user_pref("app.normandy.first_run", false);
 user_pref("app.normandy.migrationsApplied", 12);
 user_pref("app.update.lastUpdateTime.addon-background-update-timer", 1794141438);
 user_pref("app.update.lastUpdateTime.background-update-timer", 1794142877);
-user_pref("app.update.lastUpdateTime.browser-cleanup-thumbnails", 1794153805);
+user_pref("app.update.lastUpdateTime.browser-cleanup-thumbnails", 1794157405);
 user_pref("app.update.lastUpdateTime.glean-addons-daily", 1794141438);
 user_pref("app.update.lastUpdateTime.region-update-timer", 1793598048);
 user_pref("app.update.lastUpdateTime.rs-experiment-loader-timer", 1794142877);
@@ -101,7 +101,7 @@ user_pref("extensions.webextensions.uuids", "{\"formautofill@mozilla.org\":\"95b
 user_pref("font.name.serif.x-western", "sans-serif");
 user_pref("gecko.handlerService.defaultHandlersVersion", 1);
 user_pref("identity.fxaccounts.account.device.name", "leejaeik- Zen (arch-macbook)");
-user_pref("idle.lastDailyNotification", 1794069415);
+user_pref("idle.lastDailyNotification", 1794155815);
 user_pref("intl.locale.requested", "ko,en-US");
 user_pref("media.gmp-gmpopenh264.abi", "x86_64-gcc3");
 user_pref("media.gmp-gmpopenh264.hashValue", "f5246bf14d038adf4ce0c4360262ab722bc3de4220f047c3d542b4c564074b4877dc8659e3125c5171c749e7ce93f20cc63777eb5e1539e960670cbc5f30ac85");
@@ -142,7 +142,7 @@ user_pref("privacy.bounceTrackingProtection.hasMigratedUserActivationData", true
 user_pref("privacy.clearOnShutdown_v2.formdata", true);
 user_pref("privacy.globalprivacycontrol.was_ever_enabled", true);
 user_pref("privacy.purge_trackers.date_in_cookie_database", "0");
-user_pref("privacy.purge_trackers.last_purge", "1794069416242");
+user_pref("privacy.purge_trackers.last_purge", "1794155817050");
 user_pref("privacy.sanitize.clearOnShutdown.hasMigratedToNewPrefs3", true);
 user_pref("privacy.sanitize.pending", "[{\"id\":\"newtab-container\",\"itemsToClear\":[],\"options\":{}}]");
 user_pref("privacy.trackingprotection.allow_list.hasMigratedCategoryPrefs", true);
@@ -150,9 +150,9 @@ user_pref("privacy.trackingprotection.allow_list.hasUserInteractedWithETPSetting
 user_pref("services.settings.base_attachments_url", "https://firefox.settings.services.mozilla.com/v2|https://firefox-settings-attachments.cdn.mozilla.net/");
 user_pref("services.settings.blocklists.addons-bloomfilters.last_check", 1794147961);
 user_pref("services.settings.blocklists.gfx.last_check", 1794147961);
-user_pref("services.settings.clock_skew_seconds", -291);
-user_pref("services.settings.last_etag", "1794141419545");
-user_pref("services.settings.last_update_seconds", 1794154035);
+user_pref("services.settings.clock_skew_seconds", -416);
+user_pref("services.settings.last_etag", "1794157022378");
+user_pref("services.settings.last_update_seconds", 1794158981);
 user_pref("services.settings.main.addons-manager-settings.last_check", 1794147961);
 user_pref("services.settings.main.ai-window-prompts.last_check", 1794147961);
 user_pref("services.settings.main.anti-tracking-url-decoration.last_check", 1794147961);
@@ -204,7 +204,7 @@ user_pref("services.settings.main.url-parser-default-unknown-schemes-interventio
 user_pref("services.settings.main.urlbar-persisted-search-terms.last_check", 1794147961);
 user_pref("services.settings.main.webcompat-interventions.last_check", 1794147961);
 user_pref("services.settings.main.websites-with-shared-credential-backends.last_check", 1794147961);
-user_pref("services.settings.security-state.cert-revocations.last_check", 1794147961);
+user_pref("services.settings.security-state.cert-revocations.last_check", 1794158371);
 user_pref("services.settings.security-state.intermediates.last_check", 1794147961);
 user_pref("services.settings.security-state.onecrl.last_check", 1794147961);
 user_pref("services.sync.clients.lastSync", "0");
