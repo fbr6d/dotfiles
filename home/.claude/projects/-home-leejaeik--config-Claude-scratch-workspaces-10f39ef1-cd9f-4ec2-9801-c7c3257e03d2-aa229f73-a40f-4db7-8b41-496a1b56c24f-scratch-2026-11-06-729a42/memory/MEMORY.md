@@ -1,2 +1,3 @@
 - [수능 학습 범위](suneung-subject-scope.md) — 2028 수능(2022 개정, 선택 없음): 대수·미적분Ⅰ·확통 / 화법과 언어·독서와 작문·문학(중세국어 포함) / 영어
-- [자료 형식 선호](note-format-preference.md) — PDF는 A4 고정·흑백 필사형, 국어 안키는 법 용어 위주, 아이폰 글꼴 대응, 한국어로만 소통
+- [자료 형식 선호](note-format-preference.md) — 한국어로만 말하기(진행 메모 포함, 절대 영어 금지), PDF는 A4 고정·흑백 필사형, 국어 안키는 법 용어 위주, 아이폰 글꼴 대응
+- [자료 저장 폴더](deliverables-folder.md) — 완성본은 ~/Documents/하조꾸/ (비공개 GitHub fbr6d/hajokku와 동기화, 판매용 폴더 구조)
