@@ -33,6 +33,7 @@ fd
 ffmpeg
 ffmpegthumbnailer
 fish
+flameshot
 fzf
 ghidra
 ghostty
