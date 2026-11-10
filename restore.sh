@@ -29,7 +29,7 @@ hw_pkgs() {
     grep -q AuthenticAMD /proc/cpuinfo && echo amd-ucode
     grep -q GenuineIntel /proc/cpuinfo && echo intel-ucode
     local gpu; gpu=$(lspci -nn 2>/dev/null | grep -Ei 'vga|3d|display' || true)
-    grep -qi 'amd\|ati' <<<"$gpu" && echo mesa vulkan-radeon
+    grep -qE 'AMD|ATI' <<<"$gpu" && echo mesa vulkan-radeon
     grep -qi intel <<<"$gpu" && echo mesa vulkan-intel intel-media-driver
     grep -qi nvidia <<<"$gpu" && echo nvidia-open nvidia-utils
     true
