@@ -15,6 +15,26 @@ STEP="${1:-all}"
 say() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 want() { [[ "$STEP" == all || "$STEP" == "$1" ]]; }
 
+# The backup comes from a T2 MacBook. On other hardware, leave out the Mac-only
+# kernel, repo, firmware, fan/brightness services and Apple keyboard tweaks.
+T2=0
+[[ "$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null)" == "Apple Inc." ]] && T2=1
+T2_PKGS='^(linux-t2.*|apple-.*|arch-mact2-.*|t2fanrd|tiny-dfr)$'
+T2_UNITS='^(t2fanrd|max-brightness)\.service$'
+T2_ETC=(systemd/system/max-brightness.service modprobe.d/hid_apple.conf pacman.d/arch-mact2-mirrorlist)
+
+# Kernel, microcode and GPU drivers for the machine being restored.
+hw_pkgs() {
+    if (( ! T2 )); then echo linux linux-headers; fi
+    grep -q AuthenticAMD /proc/cpuinfo && echo amd-ucode
+    grep -q GenuineIntel /proc/cpuinfo && echo intel-ucode
+    local gpu; gpu=$(lspci -nn 2>/dev/null | grep -Ei 'vga|3d|display' || true)
+    grep -qi 'amd\|ati' <<<"$gpu" && echo mesa vulkan-radeon
+    grep -qi intel <<<"$gpu" && echo mesa vulkan-intel intel-media-driver
+    grep -qi nvidia <<<"$gpu" && echo nvidia-open nvidia-utils
+    true
+}
+
 # Copy every file under $1 into $2, backing up anything it replaces.
 place() {
     local src="$1" dst="$2" sudo="${3:-}"
@@ -36,12 +56,21 @@ if want packages; then
         tmp=$(mktemp -d) && mkdir -p "$tmp/etc"
         cp -a "$REPO/etc/pacman.conf" "$tmp/etc/"
         [[ -d "$REPO/etc/pacman.d" ]] && cp -a "$REPO/etc/pacman.d" "$tmp/etc/"
+        if (( ! T2 )); then
+            # Drop the [arch-mact2] repo section (header through the line before the next section).
+            sed -i '/^\[arch-mact2\]/,/^\[/{/^\[arch-mact2\]/d;/^\[/!d}' "$tmp/etc/pacman.conf"
+            rm -f "$tmp/etc/pacman.d/arch-mact2-mirrorlist"
+        fi
         place "$tmp/etc" /etc sudo
         # A repo whose mirrorlist package isn't installed yet still needs that file: placed above.
         sudo pacman -Sy
     fi
     # Skip names no longer in the repos instead of failing the whole install.
-    mapfile -t pkgs < <(comm -12 <(sort "$REPO/meta/pacman.txt") <(pacman -Slq | sort -u))
+    want_pkgs() {
+        if (( T2 )); then cat "$REPO/meta/pacman.txt"; else grep -vE "$T2_PKGS" "$REPO/meta/pacman.txt"; fi
+        hw_pkgs | tr ' ' '\n'
+    }
+    mapfile -t pkgs < <(comm -12 <(want_pkgs | sort -u) <(pacman -Slq | sort -u))
     sudo pacman -Syu --needed "${pkgs[@]}"
     if [[ -s "$REPO/meta/aur.txt" ]]; then
         if ! command -v yay >/dev/null; then
@@ -91,6 +120,7 @@ if want etc && [[ -d "$REPO/etc" ]]; then
     # Boot files depend on the hardware; show them instead of overwriting.
     tmp=$(mktemp -d) && cp -a "$REPO/etc/." "$tmp/"
     rm -f "$tmp/default/grub" "$tmp/mkinitcpio.conf"
+    if (( ! T2 )); then for f in "${T2_ETC[@]}"; do rm -f "$tmp/$f"; done; fi
     place "$tmp" /etc sudo
     sudo systemctl daemon-reload
     [[ -f "$REPO/etc/locale.gen" ]] && sudo locale-gen
@@ -99,6 +129,7 @@ if want etc && [[ -d "$REPO/etc" ]]; then
             echo "Not applied (boot-critical): /etc/$f differs from the backup. Compare with:"
             echo "  diff /etc/$f $REPO/etc/$f"
             echo "  then: sudo cp $REPO/etc/$f /etc/$f && sudo mkinitcpio -P / sudo grub-mkconfig -o /boot/grub/grub.cfg"
+            (( T2 )) || echo "  (Not a T2 Mac: copy only the quiet/splash options; drop intel_iommu, pcie_ports, pm_async, mem_sleep_default.)"
         fi
     done
 fi
@@ -106,6 +137,7 @@ fi
 if want services; then
     say "Enabling services"
     while read -r u; do
+        (( ! T2 )) && [[ "$u" =~ $T2_UNITS ]] && continue
         [[ -n "$u" && "$u" != *@* ]] && sudo systemctl enable "$u" 2>/dev/null || true
     done < "$REPO/meta/services-system.txt"
     while read -r u; do
