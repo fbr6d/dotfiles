@@ -54,6 +54,7 @@ hyprlock
 hyprpm
 hyprpolkitagent
 imagemagick
+imv
 inotify-tools
 jdk21-openjdk
 jq
@@ -72,6 +73,7 @@ lvm2
 man-db
 man-pages
 meson
+mpv
 nano
 nautilus
 ncdu
