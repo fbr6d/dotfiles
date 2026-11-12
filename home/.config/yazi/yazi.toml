@@ -9,6 +9,9 @@ edit      = [ { run = 'nvim %s', block = true, desc = "nvim으로 편집", for =
 kate      = [ { run = 'kate %s', orphan = true, desc = "Kate (창 편집기)" } ]
 kwrite    = [ { run = 'kwrite %s', orphan = true, desc = "KWrite (간단 편집기)" } ]
 open      = [ { run = 'xdg-open %s1', orphan = true, desc = "기본 앱으로 열기" } ]
+cdinto    = [ { run = 'ya emit cd %s1', desc = "들어가기" } ]
+umount    = [ { run = 'udiskie-umount %s1', desc = "마운트 해제" } ]
+detach    = [ { run = 'udiskie-umount --detach %s1', desc = "안전하게 꺼내기 (해제 + 전원 끄기)" } ]
 f3d       = [ { run = 'f3d %s1', orphan = true, desc = "f3d (3D 보기)" } ]
 htmlview  = [ { run = '/home/leejaeik/.local/bin/html-view %s', orphan = true, desc = "HTML 보기" } ]
 papers    = [ { run = 'papers %s', orphan = true, desc = "Papers (PDF 보기)" } ]
@@ -27,6 +30,7 @@ extract   = [ { run = 'ya pub extract --list %s', desc = "여기에 압축 풀�
 
 [open]
 prepend_rules = [
+	{ url = "/run/media/*/*/", use = [ "cdinto", "umount", "detach", "folder", "other" ] },
 	{ mime = "folder/*", use = [ "edit", "folder", "localsend", "other" ] },
 	{ url = "*.{stl,step,stp,iges,igs,obj,3mf,glb,gltf,ply,fbx,dae,off,brep}", use = [ "f3d", "localsend", "other", "nautilus" ] },
 	{ url = "*.drawio", use = [ "drawio", "edit", "localsend", "other" ] },

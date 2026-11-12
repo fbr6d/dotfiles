@@ -76,6 +76,7 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd("~/.local/bin/miku-boot")         -- Miku greeting terminal, first login after boot only
   hl.exec_cmd("/opt/localsend/localsend --hidden")   -- LocalSend in the tray (Hyprland does not run ~/.config/autostart)
   hl.exec_cmd("clipse -listen")   -- clipboard history (SUPER+SHIFT+V opens it)
+  hl.exec_cmd("udiskie")          -- USB drives mount automatically under /run/media/$USER (~/.config/udiskie/config.yml)
   hl.exec_cmd("sleep 2; ~/.local/bin/reboot-keep restore")   -- windows saved by a reboot-keep reboot, back in place
 
 end)

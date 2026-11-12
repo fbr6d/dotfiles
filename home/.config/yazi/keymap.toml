@@ -102,6 +102,8 @@ keymap = [
 	{ on = [ "g", "h" ], run = "cd ~", desc = "홈 폴더로 · Go home" },
 	{ on = [ "g", "c" ], run = "cd ~/.config", desc = "~/.config로 · Go to ~/.config" },
 	{ on = [ "g", "d" ], run = "cd ~/Downloads", desc = "~/Downloads로 · Go to ~/Downloads" },
+	{ on = [ "g", "u" ], run = "cd /run/media/leejaeik", desc = "USB 저장장치 목록으로 · Go to mounted USB drives" },
+	{ on = "M", run = "plugin mount", desc = "디스크·USB 목록 (m 마운트 · u 해제 · e 꺼내기 · Enter 이동) · Mount manager" },
 	{ on = [ "g", "t" ], run = "plugin trash", desc = "휴지통으로 이동 · Go to trash bin" },
 	{ on = [ "g", "<Space>" ], run = "cd --interactive", desc = "경로 입력해서 이동 · Jump interactively" },
 	{ on = [ "g", "f" ], run = "follow", desc = "링크가 가리키는 곳으로 · Follow hovered symlink" },

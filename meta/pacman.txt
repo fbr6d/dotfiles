@@ -22,8 +22,10 @@ chafa
 chromium
 cmake
 csvlens
+dosfstools
 drawio-desktop
 efibootmgr
+exfatprogs
 eza
 f3d
 fastfetch
@@ -84,6 +86,7 @@ neovim
 networkmanager
 noto-fonts-cjk
 noto-fonts-emoji
+ntfs-3g
 obsidian
 openocd
 papers
@@ -118,6 +121,7 @@ ttf-carlito
 ttf-material-symbols-variable
 ttf-nerd-fonts-symbols
 ttf-nerd-fonts-symbols-mono
+udiskie
 unzip
 vim
 waybar

@@ -1,0 +1,15 @@
+# udiskie: USB 저장장치를 꽂으면 자동으로 /run/media/<사용자>/<이름> 에 마운트
+# (Hyprland 로그인 때 hyprland.lua 에서 실행)
+program_options:
+  automount: true       # 꽂으면 바로 마운트
+  notify: true          # 연결·해제 알림 (swaync)
+  tray: auto            # 트레이가 있을 때만 아이콘 (마운트된 장치 꺼내기 메뉴)
+  menu: flat
+  file_manager: ''      # 마운트될 때 파일 관리자를 자동으로 열지 않음
+
+notifications:
+  timeout: 4            # 알림 표시 시간(초)
+  device_mounted: 4
+  device_unmounted: 3
+  device_added: false   # "장치 추가됨" 알림은 생략 (마운트 알림만)
+  device_removed: false
