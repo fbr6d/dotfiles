@@ -38,7 +38,8 @@ TOP_DENY = {"yay", "paru", "dotfiles", "home-backup", "go", "snap", "Steam"}
 DIR_DENY = {".git", "node_modules", ".venv", "venv", "__pycache__", "target",
             "build", "dist", ".next", ".cache", ".gradle", ".tox"}
 # GLOB_DENY from backup.py also skips history/cookie/key/token-named files.
-SKIP_GLOBS = [g for g in GLOB_DENY if g not in ("cache", "Cache", "build")]
+# In personal projects, lock/bak/log files are real data (Cargo.lock, Ghidra ~index.bak, tool logs).
+SKIP_GLOBS = [g for g in GLOB_DENY if g not in ("cache", "Cache", "build", "*.lock", "*.bak", "*.log")]
 
 skipped = []
 
