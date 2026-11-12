@@ -7,7 +7,9 @@ Usage: ~/dotfiles/home_backup.py [--no-push]
 Every non-hidden top-level folder/file in $HOME is included, so new folders
 are picked up automatically. Settings (dotfiles) are not; backup.py owns those.
 """
+import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -24,6 +26,10 @@ HOME = Path.home()
 REPO = HOME / "home-backup"
 REMOTE = "home-backup"     # repo name under the logged-in GitHub account
 OUT = REPO / "files"
+# Files Claude made in "No folder" sessions; the app deletes them with the session.
+SCRATCH = HOME / ".config/Claude/scratch-workspaces"
+SESSIONS_META = HOME / ".config/Claude/claude-code-sessions"
+SESSIONS_OUT = REPO / "claude-sessions"  # kept even after the session is deleted
 MAX_FILE = 95 * 1024**2    # GitHub rejects files over 100MB
 
 # Top-level entries of $HOME never copied: build caches and the backup repos themselves.
@@ -65,6 +71,8 @@ def ensure_repo():
 def copy(src: Path, dst: Path):
     if src.is_symlink():
         dst.parent.mkdir(parents=True, exist_ok=True)
+        if dst.is_symlink() or dst.exists():
+            dst.unlink()
         os.symlink(os.readlink(src), dst)
     elif src.is_dir():
         if src.name in DIR_DENY:
@@ -84,6 +92,42 @@ def copy(src: Path, dst: Path):
                 skipped.append(f"{src} (no read permission)")
 
 
+def session_titles() -> dict[str, str]:
+    """Map scratch folder path -> session title, from the desktop app's session files."""
+    titles = {}
+    for f in SESSIONS_META.glob("*/*/*.json"):
+        try:
+            meta = json.loads(f.read_text())
+        except (OSError, ValueError):
+            continue
+        if meta.get("cwd") and meta.get("title"):
+            titles[meta["cwd"]] = meta["title"]
+    return titles
+
+
+def backup_sessions():
+    """Copy each session's files into claude-sessions/<date> <title> [<id>]/.
+
+    Additive: a deleted session keeps its last copy. A renamed session's folder
+    is renamed in place (matched by the [<id>] suffix).
+    """
+    titles = session_titles()
+    for ws in sorted(SCRATCH.glob("*/*/scratch-*")):
+        if not any(p.is_file() for p in ws.rglob("*")):
+            continue
+        _, y, m, d, sid = ws.name.split("-", 4)
+        title = re.sub(r'[/\\:*?"<>|]+', "·", titles.get(str(ws), "")).strip() or "제목 없음"
+        name = f"{y}-{m}-{d} {title} [{sid}]"
+        dst = SESSIONS_OUT / name
+        for old in SESSIONS_OUT.glob(f"* [[]{sid}[]]"):
+            if old != dst:
+                old.rename(dst)
+        for child in sorted(ws.iterdir()):
+            if child.name == ".claude":
+                continue  # per-session Claude settings, not work
+            copy(child, dst / child.name)
+
+
 def main():
     ensure_repo()
     shutil.rmtree(OUT, ignore_errors=True)
@@ -91,6 +135,7 @@ def main():
         if child.name.startswith(".") or child.name in TOP_DENY:
             continue
         copy(child, OUT / child.name)
+    backup_sessions()
     if not (REPO / "README.md").exists():
         (REPO / "README.md").write_text(
             "# home-backup\n\n`~` 의 개인 파일(문서, 사진, 다운로드 등). 설정은 dotfiles 저장소에 따로 있음.\n\n"
@@ -102,7 +147,7 @@ def main():
             print("  -", s)
 
     hits = []
-    for root, _, files in os.walk(OUT):
+    for root, _, files in (*os.walk(OUT), *os.walk(SESSIONS_OUT)):
         for f in files:
             p = Path(root) / f
             if p.is_symlink():

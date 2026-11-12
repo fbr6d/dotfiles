@@ -108,6 +108,8 @@ if want home; then
         gh repo clone home-backup "$HOME/home-backup" || git clone "https://github.com/$(gh api user --jq .login)/home-backup.git" "$HOME/home-backup"
     fi
     place "$HOME/home-backup/files" "$HOME"
+    # Files from Claude "No folder" sessions, one folder per session.
+    [[ -d "$HOME/home-backup/claude-sessions" ]] && place "$HOME/home-backup/claude-sessions" "$HOME/Claude-sessions"
 fi
 
 if want dconf && [[ -s "$REPO/meta/dconf.ini" ]]; then

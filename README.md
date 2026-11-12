@@ -31,6 +31,9 @@ git clone https://github.com/<계정>/dotfiles ~/dotfiles
 `~`의 숨김이 아닌 폴더(문서, 사진, 다운로드, Projects 등)를 비공개 저장소 `home-backup`에 따로 올립니다.
 `yay` 빌드 폴더, `node_modules`·`.git` 같은 빌드/의존성 폴더, 95MB 넘는 파일(GitHub 한도)은 건너뜁니다.
 
+Claude 앱에서 폴더 없이 시작한 세션의 작업 파일도 `claude-sessions/<날짜> <세션 제목> [<id>]/`에 함께 올립니다.
+세션을 지워도 마지막 백업본은 남습니다. 복원하면 `~/Claude-sessions/`에 풀립니다(`.venv`, `build` 등은 제외).
+
 ## 무엇이 들어가나
 
 | 폴더 | 내용 |
