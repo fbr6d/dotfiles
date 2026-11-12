@@ -64,6 +64,8 @@ lazygit
 less
 libgirepository
 libicns
+libreoffice-fresh
+libreoffice-fresh-ko
 librsvg
 linux-firmware
 linux-t2
@@ -110,6 +112,8 @@ tesseract
 tesseract-data-eng
 tex-gyre-fonts
 tree-sitter-cli
+ttf-caladea
+ttf-carlito
 ttf-material-symbols-variable
 ttf-nerd-fonts-symbols
 ttf-nerd-fonts-symbols-mono
