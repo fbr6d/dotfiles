@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=HTML viewer
+Name[ko]=HTML 보기
+Comment=Open local HTML files in a clean window
+Comment[ko]=HTML 파일을 탭·주소창 없는 창으로 보기
+Exec=/home/leejaeik/.local/bin/html-view %F
+Icon=text-html
+Terminal=false
+NoDisplay=true
+MimeType=text/html;application/xhtml+xml;
+Categories=Viewer;

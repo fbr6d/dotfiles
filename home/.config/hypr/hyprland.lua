@@ -80,8 +80,8 @@ hl.on("hyprland.start", function ()
 
 end)
 
--- Switch fcitx5 to English whenever a terminal gets focus
-local terminalClasses = { kitty = true }
+-- Switch fcitx5 to English whenever a terminal (or yazi, which runs in its own kitty window) gets focus
+local terminalClasses = { kitty = true, yazi = true }
 hl.on("window.active", function (window)
   if window and terminalClasses[window.class] then
     hl.dispatch(hl.dsp.exec_cmd("sleep 0.05; fcitx5-remote -c"))

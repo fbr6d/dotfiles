@@ -25,6 +25,7 @@ csvlens
 drawio-desktop
 efibootmgr
 eza
+f3d
 fastfetch
 fcitx5
 fcitx5-configtool

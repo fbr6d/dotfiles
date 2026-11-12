@@ -9,8 +9,8 @@ edit      = [ { run = 'nvim %s', block = true, desc = "nvim으로 편집", for =
 kate      = [ { run = 'kate %s', orphan = true, desc = "Kate (창 편집기)" } ]
 kwrite    = [ { run = 'kwrite %s', orphan = true, desc = "KWrite (간단 편집기)" } ]
 open      = [ { run = 'xdg-open %s1', orphan = true, desc = "기본 앱으로 열기" } ]
-zen       = [ { run = 'zen-browser %s', orphan = true, desc = "Zen 브라우저" } ]
-chromium  = [ { run = 'chromium --ozone-platform=wayland %s', orphan = true, desc = "Chromium" } ]
+f3d       = [ { run = 'f3d %s1', orphan = true, desc = "f3d (3D 보기)" } ]
+htmlview  = [ { run = '/home/leejaeik/.local/bin/html-view %s', orphan = true, desc = "HTML 보기" } ]
 papers    = [ { run = 'papers %s', orphan = true, desc = "Papers (PDF 보기)" } ]
 drawio    = [ { run = 'drawio %s1', orphan = true, desc = "draw.io" } ]
 imv       = [ { run = 'imv %s', orphan = true, desc = "imv (이미지 보기)" } ]
@@ -28,16 +28,17 @@ extract   = [ { run = 'ya pub extract --list %s', desc = "여기에 압축 풀�
 [open]
 prepend_rules = [
 	{ mime = "folder/*", use = [ "edit", "folder", "localsend", "other" ] },
+	{ url = "*.{stl,step,stp,iges,igs,obj,3mf,glb,gltf,ply,fbx,dae,off,brep}", use = [ "f3d", "localsend", "other", "nautilus" ] },
 	{ url = "*.drawio", use = [ "drawio", "edit", "localsend", "other" ] },
-	{ url = "*.svg", use = [ "zen", "chromium", "drawio", "edit", "convert", "localsend", "other" ] },
-	{ url = "*.{html,htm}", use = [ "zen", "chromium", "edit", "kate", "localsend", "other" ] },
+	{ url = "*.svg", use = [ "imv", "htmlview", "drawio", "edit", "convert", "localsend", "other" ] },
+	{ url = "*.{html,htm}", use = [ "htmlview", "edit", "kate", "localsend", "other" ] },
 	{ url = "*.tsv", use = [ "csvlens", "edit", "kate", "localsend", "other" ] },
-	{ url = "*.md", use = [ "edit", "kate", "zen", "localsend", "other" ] },
+	{ url = "*.md", use = [ "edit", "kate", "localsend", "other" ] },
 	{ mime = "text/*", use = [ "edit", "kate", "kwrite", "localsend", "hex", "other", "nautilus" ] },
 	{ mime = "application/{json,ndjson,javascript,toml,x-yaml,xml}", use = [ "edit", "kate", "kwrite", "localsend", "other" ] },
-	{ mime = "application/pdf", use = [ "papers", "zen", "chromium", "localsend", "other", "nautilus" ] },
-	{ mime = "image/*", use = [ "imv", "zen", "chromium", "convert", "localsend", "other", "nautilus" ] },
-	{ mime = "{audio,video}/*", use = [ "mpv", "ffplay", "zen", "chromium", "convert", "localsend", "other", "nautilus" ] },
+	{ mime = "application/pdf", use = [ "papers", "localsend", "other", "nautilus" ] },
+	{ mime = "image/*", use = [ "imv", "convert", "localsend", "other", "nautilus" ] },
+	{ mime = "{audio,video}/*", use = [ "mpv", "ffplay", "convert", "localsend", "other", "nautilus" ] },
 	{ mime = "application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", use = [ "extract", "nautilus", "localsend", "other" ] },
 	{ mime = "inode/empty", use = [ "edit", "kate", "other" ] },
 	{ url = "*", use = [ "hex", "open", "edit", "kate", "localsend", "other", "nautilus" ] },
