@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>세모이 타자 연습</title>
+<style>
+/* 레이아웃: 왼쪽 단계 목록 + 오른쪽 연습판(글줄 → 안내 → 화면 자판) */
+:root {
+  --bg: #eef1ee; --surface: #fbfcfa; --sunk: #e4e8e4; --ink: #1d2421; --muted: #66706b; --line: #d3d9d4;
+  --cho: #1d7a4b; --jung: #9b2c45; --jong: #cc5a16; --accent: #2b5fb8; --bad: #c62f2f;
+  --cho-soft: #d6efe0; --jung-soft: #f3dbe1; --jong-soft: #fbe3d2; --accent-soft: #dce6f7;
+  --ui: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: ui-monospace, "JetBrains Mono", "D2Coding", "Consolas", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141815; --surface: #1c211e; --sunk: #232925; --ink: #e6ebe7; --muted: #98a29c; --line: #313a34;
+  --cho: #5cc48b; --jung: #e57d96; --jong: #f0924f; --accent: #7ea8f2; --bad: #ff6b6b;
+  --cho-soft: #1d3a2a; --jung-soft: #3d2129; --jong-soft: #40281a; --accent-soft: #22324d;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #141815; --surface: #1c211e; --sunk: #232925; --ink: #e6ebe7; --muted: #98a29c; --line: #313a34;
+  --cho: #5cc48b; --jung: #e57d96; --jong: #f0924f; --accent: #7ea8f2; --bad: #ff6b6b;
+  --cho-soft: #1d3a2a; --jung-soft: #3d2129; --jong-soft: #40281a; --accent-soft: #22324d;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--ui); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding-block: 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); border-bottom: 1px solid var(--line); background: var(--surface); }
+header h1 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+header h1 small { font-weight: 500; color: var(--muted); font-size: 13px; margin-left: 6px; }
+.settings { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-left: auto; font-size: 13px; color: var(--muted); }
+.settings label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.settings input[type=range] { width: 110px; accent-color: var(--accent); }
+.settings output { font-family: var(--mono); color: var(--ink); min-width: 4.5em; }
+
+.app { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 20px; max-width: 1180px; margin: 0 auto; padding-block: 20px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+aside nav { display: flex; flex-direction: column; gap: 14px; }
+.group-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 4px 4px; }
+.stage-list { display: flex; flex-direction: column; gap: 2px; }
+.stage-btn { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 7px 8px; border: 0; border-radius: 8px; background: transparent; cursor: pointer; }
+.stage-btn:hover { background: var(--sunk); }
+.stage-btn[aria-current="true"] { background: var(--accent-soft); }
+.stage-btn .no { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; }
+.stage-btn .nm { font-size: 14px; }
+.stage-btn .best { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.stage-btn .best.pass { color: var(--cho); font-weight: 700; }
+
+main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.stage-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.stage-head h2 { margin: 0; font-size: 22px; letter-spacing: -0.01em; text-wrap: balance; }
+.stage-head p { margin: 0; color: var(--muted); font-size: 14px; flex-basis: 100%; }
+
+.stats { display: flex; flex-wrap: wrap; gap: 8px; }
+.stat { display: flex; align-items: baseline; gap: 8px; padding: 6px 12px; border-radius: 8px; background: var(--surface); border: 1px solid var(--line); }
+.stat span { font-size: 12px; color: var(--muted); }
+.stat b { font-family: var(--mono); font-size: 16px; font-variant-numeric: tabular-nums; }
+.progress { flex: 1 1 160px; align-self: center; height: 6px; border-radius: 3px; background: var(--sunk); overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .15s; }
+
+.board { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 14px; min-height: 220px; }
+.lines { display: flex; flex-direction: column; gap: 14px; }
+.line { display: flex; flex-wrap: wrap; gap: 4px 2px; padding: 6px 8px; border-radius: 10px; opacity: .45; }
+.line.active { opacity: 1; background: var(--bg); }
+.line.done { opacity: .7; }
+.u { display: flex; flex-direction: column; align-items: center; min-width: 1.15em; }
+.u .t { font-size: 30px; line-height: 1.25; font-weight: 600; padding: 0 2px; border-radius: 6px; }
+.u .y { font-size: 22px; line-height: 1.3; min-height: 1.3em; font-weight: 500; }
+.u.sp { min-width: .7em; }
+.u.sp .t { color: var(--muted); opacity: .4; }
+.u.cur .t { background: var(--accent-soft); box-shadow: inset 0 -3px 0 var(--accent); }
+.u.ok .y { color: var(--ink); }
+.u.bad .y { color: var(--bad); text-decoration: underline wavy; text-underline-offset: 4px; }
+.u.bad .t { color: var(--bad); }
+.u .y.composing { color: var(--muted); }
+.u .tag { font-size: 10px; font-weight: 700; letter-spacing: .04em; margin-top: -2px; }
+.r-cho { color: var(--cho); } .r-jung { color: var(--jung); } .r-jong { color: var(--jong); }
+.keys-mode .u { min-width: 2.1em; }
+.lines.text-mode .u .t { font-weight: 500; }
+
+.result { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 20px; text-align: center; background: color-mix(in srgb, var(--surface) 94%, transparent); border-radius: 14px; }
+.result h3 { margin: 0; font-size: 22px; }
+.result .big { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 28px; }
+.result .big div { display: flex; flex-direction: column; }
+.result .big b { font-family: var(--mono); font-size: 28px; font-variant-numeric: tabular-nums; }
+.result .big span { font-size: 12px; color: var(--muted); }
+.result .miss { font-size: 14px; color: var(--muted); max-width: 46ch; }
+.result .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 700; }
+.btn:hover { filter: brightness(1.05); }
+
+.guide { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 14px; color: var(--muted); min-height: 26px; }
+.guide .need { color: var(--ink); font-weight: 600; }
+.guide kbd, .tip kbd { font-family: var(--mono); font-size: 12px; padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: var(--surface); color: var(--ink); }
+.tip { font-size: 14px; color: var(--muted); margin: 0; max-width: 75ch; }
+
+.kbd-wrap { overflow-x: auto; }
+.kbd { --gap: 5px; display: flex; flex-direction: column; gap: var(--gap); max-width: 780px; min-width: 520px; margin: 0 auto; user-select: none; }
+.row { display: flex; gap: var(--gap); }
+.row .pad { flex: 0 0 auto; }
+.key { position: relative; flex: 1 1 0; aspect-ratio: 1 / 0.92; min-width: 0; border-radius: 9px; background: var(--surface); border: 1px solid var(--line); border-bottom-width: 3px; display: flex; align-items: center; justify-content: center; transition: transform .05s, background .1s; }
+.key .lt { position: absolute; top: 4px; left: 7px; font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; }
+.key .jm { font-size: clamp(16px, 2.6vw, 26px); font-weight: 700; }
+.key .sub { position: absolute; bottom: 2px; right: 6px; font-size: clamp(13px, 1.7vw, 18px); font-weight: 700; color: var(--muted); }
+.key .sub.shift { font-size: 11px; }
+.key.has-sub .jm { transform: translate(-22%, -12%); }
+/* 기본 자리 F·J: 돌기로 검지 위치를 표시 */
+.key.home::after { content: ""; position: absolute; bottom: 6px; left: 50%; width: 18px; height: 4px; margin-left: -9px; border-radius: 2px; background: var(--accent); }
+.key.dim .jm { color: var(--muted); font-weight: 400; font-size: 16px; }
+.key.cho .jm { color: var(--cho); } .key.jung .jm { color: var(--jung); } .key.jong .jm { color: var(--jong); }
+.key.down { transform: translateY(2px); border-bottom-width: 1px; background: var(--accent-soft); }
+.key.wrong { background: var(--bad) !important; border-color: var(--bad) !important; }
+.key.wrong .jm, .key.wrong .lt, .key.wrong .sub { color: var(--surface) !important; }
+.key.space { flex: 0 0 auto; aspect-ratio: auto; height: 42px; }
+.hands { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 56px; margin-top: 30px; }
+.hand { display: flex; flex-direction: column; align-items: center; }
+.fingers { display: flex; align-items: flex-end; gap: 6px; }
+.finger { position: relative; width: 30px; border-radius: 15px 15px 6px 6px; background: var(--sunk); border: 1px solid var(--line); border-bottom: 0; display: flex; justify-content: center; transition: background .1s, border-color .1s; }
+.finger .nm { writing-mode: vertical-rl; font-size: 10px; color: var(--muted); margin-top: 8px; letter-spacing: .05em; }
+.finger .lbl { position: absolute; bottom: calc(100% + 4px); white-space: nowrap; font-size: 13px; font-weight: 800; }
+.finger.f5 { height: 58px; } .finger.f4 { height: 78px; } .finger.f3 { height: 88px; } .finger.f2 { height: 80px; }
+.finger.f1 { height: 46px; width: 34px; }
+.hand.left .finger.f1 { transform: rotate(28deg); transform-origin: bottom left; margin-left: 4px; }
+.hand.right .finger.f1 { transform: rotate(-28deg); transform-origin: bottom right; margin-right: 4px; }
+.finger.on { border-width: 2px; border-bottom: 0; }
+.finger.on.cho { background: var(--cho-soft); border-color: var(--cho); } .finger.on.cho .lbl { color: var(--cho); }
+.finger.on.jung { background: var(--jung-soft); border-color: var(--jung); } .finger.on.jung .lbl { color: var(--jung); }
+.finger.on.jong { background: var(--jong-soft); border-color: var(--jong); } .finger.on.jong .lbl { color: var(--jong); }
+.finger.on.space { background: var(--accent-soft); border-color: var(--accent); } .finger.on.space .lbl { color: var(--accent); }
+.finger.on .nm { color: var(--ink); font-weight: 700; }
+.palm { width: 196px; height: 36px; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 28px 28px; background: var(--sunk); font-size: 12px; color: var(--muted); display: flex; align-items: center; justify-content: center; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center; font-size: 12px; color: var(--muted); margin-top: 10px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+footer { max-width: 1180px; margin: 0 auto; padding-block: 0 28px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); font-size: 12px; color: var(--muted); }
+footer a { color: inherit; }
+
+@media (max-width: 820px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  aside nav { flex-direction: row; overflow-x: auto; gap: 16px; padding-bottom: 4px; }
+  .stage-list { flex-direction: row; }
+  .stage-btn { grid-template-columns: auto auto; white-space: nowrap; }
+  .stage-btn .best { display: none; }
+  .u .t { font-size: 24px; } .u .y { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>세모이 타자 연습 <small>세벌식 모아치기 e</small></h1>
+  <div class="settings">
+    <label for="timer" title="키를 누른 뒤 이 시간이 지나 새 키를 누르면 앞 글자를 끝냅니다. 0이면 모든 키를 뗄 때만 끝냅니다.">조합 타이머
+      <input id="timer" type="range" min="0" max="150" step="5" value="60">
+      <output id="timerOut">60ms</output></label>
+    <label for="optHint"><input id="optHint" type="checkbox" checked> 칠 키 표시</label>
+    <label for="optFinger"><input id="optFinger" type="checkbox" checked> 손가락 안내</label>
+  </div>
+</header>
+
+<div class="app">
+  <aside><nav id="nav" aria-label="연습 단계"></nav></aside>
+  <main>
+    <div class="stage-head">
+      <h2 id="stageName"></h2>
+      <p id="stageDesc"></p>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>정확도</span><b id="sAcc">–</b></div>
+      <div class="stat"><span id="sSpeedLabel">분당 글자</span><b id="sSpeed">–</b></div>
+      <div class="stat"><span>분당 타건</span><b id="sKeys">–</b></div>
+      <div class="stat"><span>시간</span><b id="sTime">0:00</b></div>
+      <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+    </div>
+    <div class="board" id="board">
+      <div class="lines" id="lines"></div>
+      <div class="result" id="result" hidden></div>
+    </div>
+    <div class="guide" id="guide"></div>
+    <p class="tip" id="tip"></p>
+    <div class="kbd-wrap"><div class="kbd" id="kbd"></div></div>
+    <div class="hands" id="hands" aria-label="손가락 안내"></div>
+    <div class="legend">
+      <span><i style="background:var(--cho)"></i>초성 (오른손)</span>
+      <span><i style="background:var(--jung)"></i>중성</span>
+      <span><i style="background:var(--jong)"></i>종성 (왼손)</span>
+      <span><kbd>Backspace</kbd> 지우기 · <kbd>Esc</kbd> 처음부터</span>
+    </div>
+  </main>
+</div>
+<footer>
+  자판 배열과 결합 규칙: 세모이(세벌식 모아치기 e) 자판, 만든이 신세기 · <a href="https://github.com/Sinseiki/Semo-e_keyboard" target="_blank" rel="noopener">github.com/Sinseiki/Semo-e_keyboard</a> · CC BY-SA 4.0 · ssgi.kr<br>
+  키 입력은 물리 키 위치로 받습니다. 운영체제 입력기를 영문 상태로 두면 가장 정확합니다. 셋 이상 동시 입력이 안 되는 키보드에서는 일부 글자가 안 쳐질 수 있습니다.
+</footer>
+
+<script>
+"use strict";
+/* ───────── 자판 데이터 ───────── */
+// 물리 키 → [역할, 날개셋 낱자 코드]. 코드 이름은 세모이 XML(UnitMixTable)과 같다.
+const KEYMAP = {
+  KeyY: ['cho', 'M_'], KeyU: ['cho', 'N_'], KeyI: ['cho', 'D_'], KeyO: ['cho', 'B_'],
+  KeyH: ['cho', 'H_'], KeyJ: ['cho', 'Q_'], KeyK: ['cho', 'G_'], KeyL: ['cho', 'J_'],
+  KeyN: ['cho', 'S_'], KeyM: ['cho', 'R_'],
+  KeyF: ['jung', 'A_'], KeyG: ['jung', 'EU'], KeyD: ['jung', 'I_'], KeyR: ['jung', 'EO'],
+  KeyT: ['jung', 'YEO'], KeyC: ['jung', 'E_'], KeyV: ['jung', 'O_'], KeyB: ['jung', 'U_'],
+  Period: ['jung', '500'],              // 모음 시프트 (혼자 치면 ㅗ)
+  KeyQ: ['jong', 'S_'], KeyW: ['jong', 'B_'], KeyE: ['jong', 'R_'], KeyA: ['jong', 'Q_'],
+  KeyS: ['jong', 'N_'], KeyZ: ['jong', 'M_'], KeyX: ['jong', 'G_'],
+  Semicolon: ['jong', 'SS'],            // 종성 시프트 (혼자 치면 ㅆ)
+};
+const CHO_CODES = 'G_ GG N_ D_ DD R_ M_ B_ BB S_ SS Q_ J_ JJ C_ K_ T_ P_ H_'.split(' ');
+const JUNG_CODES = 'A_ AE YA YAE EO E_ YEO YE O_ WA WAE OI YO U_ UEO WE WI YU EU EUI I_'.split(' ');
+const JONG_CODES = 'G_ GG GS N_ NJ NH D_ R_ RG RM RB RS RT RP RH M_ B_ BS S_ SS Q_ J_ C_ K_ T_ P_ H_'.split(' ');
+const CHO_CH = [...'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'];
+const JUNG_CH = [...'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ'];
+const JONG_CH = [...'ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ'];
+
+// 세모이 (한 번에 모아치기).xml UnitMixTable 중 현대 한글 결합만 옮김
+const MIX_SRC = {
+  cho: "G_+G_=GG G_+Q_=GG G_+H_=K_ GG+G_=K_ D_+D_=DD D_+Q_=DD D_+H_=T_ DD+D_=T_ B_+B_=BB B_+Q_=BB B_+H_=P_ BB+B_=P_ S_+S_=SS S_+Q_=SS Q_+G_=GG Q_+D_=DD Q_+B_=BB Q_+S_=SS Q_+J_=JJ J_+Q_=JJ J_+J_=JJ J_+H_=C_ JJ+J_=C_ H_+G_=K_ H_+D_=T_ H_+B_=P_ H_+J_=C_",
+  jung: "A_+A_=YA A_+EO=YO A_+O_=WA A_+OI=WAE A_+I_=AE A_+500=WA AE+O_=WAE AE+500=WAE EO+A_=YO EO+EO=UEO EO+O_=UEO EO+U_=UEO EO+WI=WE EO+500=UEO E_+E_=YE E_+O_=YE E_+U_=WE E_+I_=WI E_+500=YE YEO+YEO=YAE YEO+O_=YAE YEO+500=YAE O_+A_=WA O_+AE=WAE O_+EO=UEO O_+E_=YE O_+YEO=YAE O_+O_=YO O_+U_=YU O_+I_=OI O_+500=YO WA+I_=WAE OI+A_=WAE U_+EO=UEO U_+E_=WE U_+O_=YU U_+U_=YU U_+I_=WI U_+500=YU UEO+I_=WE WI+EO=WE EU+EU=YA EU+I_=EUI EU+500=YA I_+A_=AE I_+E_=WI I_+O_=OI I_+WA=WAE I_+U_=WI I_+UEO=WE I_+EU=EUI I_+500=OI 500+A_=WA 500+AE=WAE 500+EO=UEO 500+E_=YE 500+YEO=YAE 500+O_=YO 500+U_=YU 500+EU=YA 500+I_=OI 500+500=YO",
+  jong: "G_+G_=GG G_+D_=GS G_+R_=RG G_+M_=RG G_+S_=GS G_+SS=K_ G_+Q_=GG G_+H_=K_ GG+G_=K_ N_+N_=H_ N_+R_=NJ N_+M_=T_ N_+B_=P_ N_+SS=H_ N_+Q_=NH N_+J_=NJ N_+H_=NH NJ+N_=RH D_+G_=GS D_+RH=RT D_+M_=T_ D_+Q_=RT D_+H_=T_ R_+G_=RG R_+N_=NJ R_+R_=J_ R_+M_=RM R_+B_=RB R_+S_=RS R_+SS=J_ R_+Q_=G_ R_+C_=GG R_+T_=RT R_+P_=RP R_+H_=RH RG+SS=GS RM+M_=RT RB+B_=RP RB+SS=T_ RS+S_=J_ RS+SS=GG RH+D_=RT RH+R_=K_ RH+B_=RP M_+G_=RG M_+N_=T_ M_+R_=RM M_+M_=D_ M_+SS=D_ M_+Q_=RT M_+K_=GS B_+N_=P_ B_+R_=RB B_+RH=RP B_+B_=P_ B_+S_=BS B_+SS=P_ B_+Q_=RP B_+J_=T_ B_+C_=RM B_+H_=P_ BS+SS=RM S_+G_=GS S_+R_=RS S_+B_=BS S_+S_=SS S_+SS=C_ S_+Q_=SS S_+J_=GG S_+P_=RM SS+G_=K_ SS+N_=H_ SS+D_=T_ SS+R_=J_ SS+RG=GS SS+RB=T_ SS+RS=GG SS+M_=D_ SS+B_=P_ SS+BS=RM SS+S_=C_ SS+Q_=RH Q_+G_=GG Q_+N_=NH Q_+R_=G_ Q_+M_=RT Q_+B_=RP Q_+S_=SS Q_+SS=RH Q_+Q_=T_ J_+B_=T_ J_+S_=GG J_+Q_=K_ C_+R_=GG C_+B_=RM K_+M_=GS T_+Q_=RH P_+R_=T_ P_+S_=RM H_+G_=K_ H_+N_=NH H_+D_=T_ H_+B_=P_",
+};
+const MIX = {};
+for (const g in MIX_SRC) {
+  MIX[g] = new Map();
+  for (const r of MIX_SRC[g].split(' ')) { const [ab, to] = r.split('='); MIX[g].set(ab, to); }
+}
+
+// 안내용 권장 타법 (키 글자). 개발 규격 문서의 결합 방식 안내를 따름.
+const L2C = c => c === ';' ? 'Semicolon' : c === '.' ? 'Period' : 'Key' + c.toUpperCase();
+const RC_CHO = { ㄱ:'k', ㄲ:'kj', ㄴ:'u', ㄷ:'i', ㄸ:'ij', ㄹ:'m', ㅁ:'y', ㅂ:'o', ㅃ:'oj', ㅅ:'n', ㅆ:'nj', ㅇ:'j', ㅈ:'l', ㅉ:'lj', ㅊ:'lh', ㅋ:'kh', ㅌ:'ih', ㅍ:'oh', ㅎ:'h' };
+const RC_JUNG = { ㅏ:'f', ㅐ:'fd', ㅑ:'.g', ㅒ:'.t', ㅓ:'r', ㅔ:'c', ㅕ:'t', ㅖ:'.c', ㅗ:'v', ㅘ:'.f', ㅙ:'.fd', ㅚ:'vd', ㅛ:'v.', ㅜ:'b', ㅝ:'br', ㅞ:'bc', ㅟ:'bd', ㅠ:'b.', ㅡ:'g', ㅢ:'gd', ㅣ:'d' };
+const RC_JONG = { ㄱ:'x', ㄲ:'xa', ㄳ:'xq', ㄴ:'s', ㄵ:'se', ㄶ:'sa', ㄷ:'z;', ㄹ:'e', ㄺ:'ex', ㄻ:'ez', ㄼ:'ew', ㄽ:'eq', ㄾ:'az', ㄿ:'aw', ㅀ:'a;', ㅁ:'z', ㅂ:'w', ㅄ:'wq', ㅅ:'q', ㅆ:';', ㅇ:'a', ㅈ:'e;', ㅊ:'q;', ㅋ:'x;', ㅌ:'sz', ㅍ:'w;', ㅎ:'s;' };
+
+const FINGER = {};
+[['QAZ', '왼손 새끼'], ['WSX', '왼손 약지'], ['EDC', '왼손 중지'], ['RFVTGB', '왼손 검지'],
+ ['YHNUJM', '오른손 검지'], ['IK', '오른손 중지'], ['OL', '오른손 약지'], ['P', '오른손 새끼']]
+  .forEach(([ks, f]) => [...ks].forEach(k => FINGER['Key' + k] = f));
+Object.assign(FINGER, { Comma: '오른손 중지', Period: '오른손 약지', Semicolon: '오른손 새끼', Slash: '오른손 새끼', Space: '오른손 엄지' });
+// 손가락 이름 → 손 그림의 손가락 id (L/R + 1 엄지 … 5 새끼)
+const FINGER_ID = name => (name.startsWith('왼') ? 'L' : 'R') + { 엄지: 1, 검지: 2, 중지: 3, 약지: 4, 새끼: 5 }[name.split(' ')[1]];
+
+/* ───────── 모아치기 해석 ───────── */
+function permutations(a) {
+  if (a.length <= 1) return [a];
+  const out = [];
+  a.forEach((x, i) => permutations([...a.slice(0, i), ...a.slice(i + 1)]).forEach(p => out.push([x, ...p])));
+  return out;
+}
+// 순서와 상관없이 낱자 코드들을 하나로 합친다. 실패하면 null.
+function reduceGroup(g, codes) {
+  if (codes.length === 0) return null;
+  if (codes.length === 1) return codes[0] === '500' ? 'O_' : codes[0];
+  for (const p of permutations(codes)) {
+    let acc = p[0], ok = true;
+    for (let i = 1; i < p.length && ok; i++) {
+      const to = MIX[g].get(acc + '+' + p[i]);
+      if (to) acc = to; else ok = false;
+    }
+    if (ok) return acc === '500' ? 'O_' : acc;
+  }
+  return null;
+}
+function resolveChord(keys) {
+  const grp = { cho: [], jung: [], jong: [] };
+  let space = false;
+  for (const k of keys) {
+    if (k === 'Space') space = true;
+    else if (KEYMAP[k]) grp[KEYMAP[k][0]].push(KEYMAP[k][1]);
+  }
+  const c = reduceGroup('cho', grp.cho), j = reduceGroup('jung', grp.jung), t = reduceGroup('jong', grp.jong);
+  const bad = (grp.cho.length && !c) || (grp.jung.length && !j) || (grp.jong.length && !t);
+  let text = '';
+  if (bad) text = '?';
+  else if (c && j) {
+    const ti = t ? JONG_CODES.indexOf(t) + 1 : 0;
+    text = String.fromCharCode(0xAC00 + (CHO_CODES.indexOf(c) * 21 + JUNG_CODES.indexOf(j)) * 28 + ti);
+  } else {
+    if (c) text += CHO_CH[CHO_CODES.indexOf(c)];
+    if (j) text += JUNG_CH[JUNG_CODES.indexOf(j)];
+    if (t) text += JONG_CH[JONG_CODES.indexOf(t)];
+  }
+  return { text, space };
+}
+function decompose(ch) {
+  const n = ch.charCodeAt(0) - 0xAC00;
+  if (n < 0 || n > 11171) return null;
+  return { c: CHO_CH[Math.floor(n / 588)], j: JUNG_CH[Math.floor(n % 588 / 28)], t: n % 28 ? JONG_CH[n % 28 - 1] : '' };
+}
+// 글자 하나를 치는 데 필요한 키 목록 (안내용)
+function keysFor(ch) {
+  const d = decompose(ch);
+  if (!d) return [];
+  const s = RC_CHO[d.c] + RC_JUNG[d.j] + (d.t ? RC_JONG[d.t] : '');
+  return [...s].map(L2C);
+}
+
+/* ───────── 연습 글감 ───────── */
+const WORDS = `사람 시간 생각 문제 사회 세계 경제 정치 문화 역사 자연 과학 기술 교육 학교 학생 선생님 친구 가족 부모 어머니 아버지 아이 우리 나라 국가 정부 회사 가격 사업 경우 정도 이유 결과 방법 내용 의미 관계 상황 과정 부분 전체 환경 건강 마음 사랑 행복 기억 이야기 말씀 대화 질문 대답 생활 오늘 내일 어제 아침 저녁 점심 지금 나중 처음 마지막 하루 일주일 한국 서울 도시 시골 마을 거리 집 방 창문 의자 책상 컴퓨터 전화 사진 그림 음악 노래 영화 신문 책 글자 한글 자판 연습 속도 손가락 키보드 모아치기 세벌식 받침 모음 자음 바다 하늘 구름 바람 나무 꽃 산 강 별 달 햇빛 봄 여름 가을 겨울 날씨 음식 김치 밥 국 물 커피 우유 과일 사과 포도 고기 생선 계란 빵 라면 떡볶이 운동 축구 야구 농구 수영 여행 비행기 기차 버스 자동차 자전거 지하철 병원 의사 간호사 약국 은행 우체국 도서관 공원 식당 시장 가게 백화점 회의 계획 준비 시작 노력 성공 실패 희망 꿈 미래 과거 현재 하다 되다 있다 없다 같다 보다 알다 모르다 오다 가다 먹다 마시다 읽다 쓰다 듣다 말하다 배우다 가르치다 만들다 일하다 놀다 쉬다 자다 웃다 울다 좋다 싫다 크다 작다 많다 적다 높다 낮다 빠르다 느리다 쉽다 어렵다 아름답다 따뜻하다 시원하다 깨끗하다 조용하다 괜찮다 감사합니다 안녕하세요 미안합니다 반갑습니다 읽었다 했습니다 그렇지만 그래서 그리고 왜냐하면 무엇 어디 언제 누구 어떻게 얼마나 정말 아주 조금 많이 함께 혼자 다시 벌써 아직 항상 가끔 흙 닭 삶 값 넋 앉다 많은 읽기 밟다 핥다 읊다 옳다 싫어 꿇다 짧다 넓다 외국 회사원 화요일 원숭이 과자 의자 귀 위 쥐 왜 돼지 얘기 예절 계절 시계 교과서 우유 휴가 유리 효과 표현 줘 뭐`.split(/\s+/);
+const SENTENCES = [
+  '가는 말이 고와야 오는 말이 곱다', '낮말은 새가 듣고 밤말은 쥐가 듣는다', '돌다리도 두들겨 보고 건너라',
+  '백지장도 맞들면 낫다', '세 살 버릇 여든까지 간다', '천 리 길도 한 걸음부터', '티끌 모아 태산',
+  '원숭이도 나무에서 떨어진다', '등잔 밑이 어둡다', '소 잃고 외양간 고친다', '고생 끝에 낙이 온다',
+  '아니 땐 굴뚝에 연기 날까', '윗물이 맑아야 아랫물이 맑다', '꿩 먹고 알 먹는다', '누워서 떡 먹기',
+  '빈 수레가 요란하다', '호랑이도 제 말 하면 온다', '하늘이 무너져도 솟아날 구멍이 있다',
+  '열 번 찍어 안 넘어가는 나무 없다', '발 없는 말이 천 리 간다', '배보다 배꼽이 더 크다',
+  '금강산도 식후경', '작은 고추가 더 맵다', '구슬이 서 말이라도 꿰어야 보배', '우물 안 개구리',
+  '같은 값이면 다홍치마', '뛰는 놈 위에 나는 놈 있다', '말 한마디로 천 냥 빚을 갚는다',
+  '시작이 반이다', '쇠뿔도 단김에 빼라', '오늘 할 일을 내일로 미루지 말자', '모아치기는 한 글자를 한 번에 칩니다',
+];
+// 글감에서 음절 빈도를 센다
+const FREQ = new Map();
+for (const s of [...WORDS, ...SENTENCES]) for (const ch of s) if (decompose(ch)) FREQ.set(ch, (FREQ.get(ch) || 0) + 1);
+
+/* ───────── 단계 ───────── */
+const BASIC_CHO = 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅎ', BASIC_JUNG = 'ㅏㅓㅗㅜㅡㅣㅔㅕ', BASIC_JONG = 'ㄱㄴㄹㅁㅂㅅㅇㅆ';
+const SHIFT_JUNG = 'ㅑㅒㅖㅛㅠㅘㅙ', SHIFT_JONG = 'ㄷㅈㅊㅋㅍㅎㅀ';
+const has = (set, ch) => set.includes(ch);
+const STAGES = [
+  { id: 'k1', group: '자리 연습', kind: 'keys', name: '기본 자리 · 초성', keys: 'hjkl', review: '',
+    desc: '오른손이 초성을 맡습니다. 검지를 J(ㅇ)에 두고, ㅎ은 검지를 왼쪽으로 뻗어 H를 칩니다.' },
+  { id: 'k2', kind: 'keys', name: '기본 자리 · 중성', keys: 'fdg', review: 'hjkl',
+    desc: '왼손 검지 F(ㅏ), 중지 D(ㅣ). ㅡ는 왼손 검지를 오른쪽으로 뻗어 G를 칩니다.' },
+  { id: 'k3', kind: 'keys', name: '기본 자리 · 종성', keys: 'as;', review: 'hjklfdg',
+    desc: '종성 ㅇ은 왼손 새끼(A), ㄴ은 약지(S). 오른손 새끼의 ;는 종성 시프트이고 혼자 치면 ㅆ입니다.' },
+  { id: 'k4', kind: 'keys', name: '윗줄', keys: 'yuiortqwe', review: 'hjklfdgas;',
+    desc: '초성 ㅁㄴㄷㅂ (YUIO), 중성 ㅓㅕ (RT), 종성 ㅅㅂㄹ (QWE).' },
+  { id: 'k5', kind: 'keys', name: '아랫줄', keys: 'nmcvbzx.', review: 'hjklfdgas;yuiortqwe',
+    desc: '초성 ㅅㄹ (NM), 중성 ㅔㅗㅜ (CVB), 종성 ㅁㄱ (ZX). 오른손 약지의 . 은 모음 시프트이고 혼자 치면 ㅗ입니다.' },
+  { id: 'k6', kind: 'keys', name: '낱자 전체 복습', keys: 'hjklfdgas;yuiortqwenmcvbzx.', review: '',
+    desc: '지금까지 익힌 키 28개를 섞어서 칩니다.' },
+  { id: 'c1', group: '모아치기', kind: 'syl', name: '초성 + 중성',
+    filter: d => has(BASIC_CHO, d.c) && has(BASIC_JUNG, d.j) && !d.t,
+    desc: '초성 키와 중성 키를 동시에 눌렀다 뗍니다. 모든 키를 떼는 순간 글자가 완성됩니다. 누르는 순서는 상관없습니다.' },
+  { id: 'c2', kind: 'syl', name: '홑받침',
+    filter: d => has(BASIC_CHO, d.c) && has(BASIC_JUNG, d.j) && d.t && has(BASIC_JONG, d.t),
+    desc: '초성 + 중성 + 종성 세 키를 한 번에 칩니다. 오른손 초성, 왼손 중성과 종성이 동시에 움직입니다.' },
+  { id: 'c3', kind: 'syl', name: '된소리 · 거센소리',
+    filter: d => !has(BASIC_CHO, d.c) && has(BASIC_JUNG, d.j) && (!d.t || has(BASIC_JONG, d.t)),
+    desc: '된소리 ㄲㄸㅃㅆㅉ는 초성에 ㅇ(J)을 더하고, 거센소리 ㅊㅋㅌㅍ는 ㅈㄱㄷㅂ에 ㅎ(H)을 더해 함께 칩니다.' },
+  { id: 'v1', kind: 'syl', name: '모음 시프트',
+    filter: d => has(BASIC_CHO, d.c) && has(SHIFT_JUNG, d.j) && !d.t,
+    desc: '모음 시프트(.)를 모음 키와 함께 칩니다. ㅑ=.+ㅡ(G), ㅒ=.+ㅕ(T), ㅖ=.+ㅔ(C), ㅛ=.+ㅗ(V), ㅠ=.+ㅜ(B), ㅘ=.+ㅏ(F), ㅙ=.+ㅏ+ㅣ(F D).' },
+  { id: 'v2', kind: 'syl', name: '종성 시프트',
+    filter: d => has(BASIC_CHO, d.c) && has(BASIC_JUNG, d.j) && d.t && has(SHIFT_JONG, d.t),
+    desc: '종성 시프트(;)를 받침 키와 함께 칩니다. ㄷ=;+ㅁ(Z), ㅈ=;+ㄹ(E), ㅊ=;+ㅅ(Q), ㅋ=;+ㄱ(X), ㅍ=;+ㅂ(W), ㅎ=;+ㄴ(S), ㅀ=;+ㅇ(A).' },
+  { id: 'c4', kind: 'syl', name: '겹모음 · 모음 시프트',
+    filter: d => !has(BASIC_JUNG, d.j) && (!d.t || has(BASIC_JONG, d.t)),
+    desc: 'ㅑㅒㅖㅛㅠㅘㅙ는 모음 시프트(.)와 함께 칩니다. ㅐ=ㅏ+ㅣ, ㅢ=ㅡ+ㅣ, ㅚ=ㅗ+ㅣ, ㅝ=ㅜ+ㅓ, ㅞ=ㅜ+ㅔ, ㅟ=ㅜ+ㅣ.' },
+  { id: 'c5', kind: 'syl', name: '종성 시프트 · 겹받침',
+    filter: d => d.t && !has(BASIC_JONG, d.t),
+    desc: '종성 ㄷㅈㅊㅋㅍㅎㅀ은 종성 시프트(;)와 함께 칩니다. ㄲ=ㄱ+ㅇ, ㅌ=ㄴ+ㅁ, ㄶ=ㄴ+ㅇ, ㄾ=ㅇ+ㅁ, ㄿ=ㅇ+ㅂ, 나머지 겹받침은 구성하는 받침끼리.' },
+  { id: 'w1', group: '글 연습', kind: 'words', name: '낱말 연습',
+    desc: '낱말 사이 띄어쓰기는 스페이스를 따로 쳐도 되고, 마지막 글자와 함께 모아쳐도 됩니다.' },
+  { id: 's1', kind: 'sentences', name: '짧은 글 연습',
+    desc: '속담과 짧은 문장을 칩니다. 끝 글자와 스페이스를 함께 누르면 띄어쓰기까지 한 번에 들어갑니다.' },
+];
+STAGES.forEach((s, i) => s.no = i + 1);
+
+/* ───────── 저장 ───────── */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('semoe:' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('semoe:' + k, JSON.stringify(v)); } catch {} },
+};
+const settings = Object.assign({ timer: 60, hint: true, finger: true }, store.get('settings', {}));
+let records = store.get('records', {});
+
+/* ───────── 문제 만들기 ───────── */
+const rand = n => Math.floor(Math.random() * n);
+function weightedPick(items, weights) {
+  let sum = 0; for (const w of weights) sum += w;
+  let r = Math.random() * sum;
+  for (let i = 0; i < items.length; i++) { r -= weights[i]; if (r <= 0) return items[i]; }
+  return items[items.length - 1];
+}
+function sylPool(filter) {
+  const pool = [], w = [];
+  for (const [ch, f] of FREQ) if (filter(decompose(ch))) { pool.push(ch); w.push(Math.sqrt(f) + 1); }
+  // 글감에 없는 조합으로 채워 다양성을 보탠다
+  let guard = 0;
+  while (pool.length < 40 && guard++ < 20000) {
+    const ch = String.fromCharCode(0xAC00 + rand(11172));
+    if (!pool.includes(ch) && filter(decompose(ch))) { pool.push(ch); w.push(1); }
+  }
+  return [pool, w];
+}
+function keyUnit(letter) {
+  const code = L2C(letter), [role] = KEYMAP[code];
+  const label = jamoOfKey(code);
+  return { text: label, role, key: code, keys: [code] };
+}
+function jamoOfKey(code) {
+  const [role, c] = KEYMAP[code];
+  if (role === 'cho') return CHO_CH[CHO_CODES.indexOf(c)];
+  // 모음 시프트는 왼쪽 ㅗ(V)와 헷갈리지 않게 ⇧로 표시한다 (혼자 치면 ㅗ가 나오는 것은 그대로)
+  if (role === 'jung') return c === '500' ? '⇧' : JUNG_CH[JUNG_CODES.indexOf(c)];
+  return JONG_CH[JONG_CODES.indexOf(c)];
+}
+function textUnits(str) {
+  return [...str].map(ch => ch === ' ' ? { text: ' ', space: true, keys: ['Space'] } : { text: ch, keys: keysFor(ch) });
+}
+function buildRound(stage) {
+  const lines = [];
+  if (stage.kind === 'keys') {
+    const fresh = [...stage.keys], old = [...stage.review];
+    let prev = '';
+    for (let l = 0; l < 3; l++) {
+      const line = [];
+      for (let i = 0; i < 10; i++) {
+        let k;
+        do { k = (old.length && Math.random() < 0.3) ? old[rand(old.length)] : fresh[rand(fresh.length)]; } while (k === prev && fresh.length + old.length > 1);
+        prev = k; line.push(keyUnit(k));
+      }
+      lines.push(line);
+    }
+  } else if (stage.kind === 'syl') {
+    const [pool, w] = sylPool(stage.filter);
+    let prev = '';
+    for (let l = 0; l < 3; l++) {
+      let s = '';
+      for (let i = 0; i < 10; i++) { let ch; do ch = weightedPick(pool, w); while (ch === prev); prev = ch; s += ch; }
+      lines.push(textUnits(s));
+    }
+  } else if (stage.kind === 'words') {
+    for (let l = 0; l < 4; l++) {
+      let s = '';
+      while (s.length < 16) { const wd = WORDS[rand(WORDS.length)]; s += (s ? ' ' : '') + wd; }
+      lines.push(textUnits(s));
+    }
+  } else {
+    const picked = new Set();
+    while (picked.size < 4) picked.add(SENTENCES[rand(SENTENCES.length)]);
+    for (const s of picked) lines.push(textUnits(s));
+  }
+  return lines;
+}
+
+/* ───────── 상태 ───────── */
+let stage = STAGES.find(s => s.id === store.get('stage', 'k1')) || STAGES[0];
+let lines = [], units = [], cur = 0, typed = [], startAt = 0, endAt = 0, keyCount = 0, misses = {}, finished = false;
+const held = new Set(); let chord = new Set(); let lastDown = 0;
+
+const $ = id => document.getElementById(id);
+function startRound() {
+  lines = buildRound(stage);
+  units = []; lines.forEach((ln, li) => ln.forEach(u => { u.line = li; units.push(u); }));
+  cur = 0; typed = new Array(units.length).fill(null);
+  startAt = endAt = 0; keyCount = 0; misses = {}; finished = false;
+  chord.clear();
+  $('result').hidden = true;
+  renderLines(); renderStats(); renderGuide(); renderKeys();
+}
+function selectStage(s) {
+  stage = s; store.set('stage', s.id);
+  $('stageName').textContent = `${s.no}. ${s.name}`;
+  $('stageDesc').textContent = s.desc;
+  $('sSpeedLabel').textContent = s.kind === 'keys' ? '분당 낱자' : '분당 글자';
+  $('lines').className = 'lines' + (s.kind === 'keys' ? ' keys-mode' : '') + (s.kind === 'words' || s.kind === 'sentences' ? ' text-mode' : '');
+  renderNav(); startRound();
+}
+
+/* ───────── 그리기 ───────── */
+function renderNav() {
+  const nav = $('nav'); nav.innerHTML = '';
+  let list;
+  for (const s of STAGES) {
+    if (s.group) {
+      const box = document.createElement('div');
+      box.innerHTML = `<p class="group-title">${s.group}</p>`;
+      list = document.createElement('div'); list.className = 'stage-list';
+      box.appendChild(list); nav.appendChild(box);
+    }
+    const b = document.createElement('button');
+    b.className = 'stage-btn'; b.id = 'stage-' + s.id;
+    b.setAttribute('aria-current', s === stage ? 'true' : 'false');
+    const r = records[s.id];
+    b.innerHTML = `<span class="no">${s.no}</span><span class="nm">${s.name}</span><span class="best${r && r.acc >= 90 ? ' pass' : ''}">${r ? r.acc + '%' : ''}</span>`;
+    b.onclick = () => { b.blur(); selectStage(s); };
+    list.appendChild(b);
+  }
+}
+function renderLines() {
+  const box = $('lines'); box.innerHTML = '';
+  const curLine = units[cur] ? units[cur].line : lines.length;
+  lines.forEach((ln, li) => {
+    const row = document.createElement('div');
+    row.className = 'line' + (li === curLine ? ' active' : li < curLine ? ' done' : '');
+    for (const u of ln) {
+      const i = units.indexOf(u), t = typed[i];
+      const el = document.createElement('div');
+      el.className = 'u' + (u.space ? ' sp' : '') + (i === cur && !finished ? ' cur' : '') + (t ? (t.ok ? ' ok' : ' bad') : '');
+      el.dataset.i = i;
+      const tt = document.createElement('span'); tt.className = 't' + (u.role ? ' r-' + u.role : ''); tt.textContent = u.space ? '·' : u.text;
+      el.appendChild(tt);
+      if (u.role) { const tag = document.createElement('span'); tag.className = 'tag r-' + u.role; tag.textContent = { cho: '초', jung: '중', jong: '종' }[u.role]; el.appendChild(tag); }
+      const yy = document.createElement('span'); yy.className = 'y'; yy.textContent = t ? (t.text === ' ' ? (t.ok ? '' : '␣') : t.text) : '';
+      el.appendChild(yy);
+      row.appendChild(el);
+    }
+    box.appendChild(row);
+  });
+  $('prog').style.width = (cur / units.length * 100) + '%';
+}
+function renderComposing() {
+  const el = document.querySelector(`.u[data-i="${cur}"] .y`);
+  if (!el) return;
+  if (chord.size && stage.kind !== 'keys') { el.textContent = resolveChord([...chord]).text; el.classList.add('composing'); }
+  else { el.textContent = ''; el.classList.remove('composing'); }
+}
+function renderGuide() {
+  const g = $('guide'), u = units[cur];
+  if (!u || finished) { g.innerHTML = ''; return; }
+  const parts = [];
+  if (settings.hint) {
+    const names = u.keys.map(k => k === 'Space' ? 'Space' : k === 'Semicolon' ? ';' : k === 'Period' ? '.' : k.slice(3));
+    parts.push(`<span class="need">${u.space ? '띄어쓰기' : u.text}</span> ${names.map(n => `<kbd>${n}</kbd>`).join(' + ')}`);
+  }
+  if (settings.finger) {
+    const fs = [...new Set(u.keys.map(k => FINGER[k]))];
+    parts.push(fs.join(' · '));
+  }
+  g.innerHTML = parts.join('<span aria-hidden="true">—</span>');
+}
+const KB_ROWS = [
+  ['KeyQ', 'KeyW', 'KeyE', 'KeyR', 'KeyT', 'KeyY', 'KeyU', 'KeyI', 'KeyO', 'KeyP'],
+  ['KeyA', 'KeyS', 'KeyD', 'KeyF', 'KeyG', 'KeyH', 'KeyJ', 'KeyK', 'KeyL', 'Semicolon'],
+  ['KeyZ', 'KeyX', 'KeyC', 'KeyV', 'KeyB', 'KeyN', 'KeyM', 'Comma', 'Period', 'Slash'],
+];
+const LETTER = { Semicolon: ';', Comma: ',', Period: '.', Slash: '/' };
+const SHIFT_SUB = { KeyQ: 'ㅊ', KeyW: 'ㅍ', KeyE: 'ㅈ', KeyA: 'ㅀ', KeyS: 'ㅎ', KeyZ: 'ㄷ', KeyX: 'ㅋ', KeyG: 'ㅑ', KeyT: 'ㅒ', KeyC: 'ㅖ', KeyV: 'ㅛ', KeyB: 'ㅠ', KeyF: 'ㅘ' };
+const keyEls = {};
+function buildKeyboard() {
+  const kb = $('kbd');
+  const offsets = [0, 0.28, 0.78];
+  KB_ROWS.forEach((row, ri) => {
+    const r = document.createElement('div'); r.className = 'row';
+    if (offsets[ri]) { const p = document.createElement('div'); p.className = 'pad'; p.style.width = `calc((100% - 10 * var(--gap)) / 11 * ${offsets[ri]})`; r.appendChild(p); }
+    for (const code of row) {
+      const k = document.createElement('div'); k.className = 'key';
+      const m = KEYMAP[code];
+      const lt = LETTER[code] || code.slice(3);
+      if (m) {
+        k.classList.add(m[0]);
+        let sub = SHIFT_SUB[code] || '';
+        if (code === 'Period') sub = '<span class="sub shift">모음</span>';
+        else if (code === 'Semicolon') sub = '<span class="sub shift">종성⇧</span>';
+        else if (sub) sub = `<span class="sub">${sub}</span>`;
+        if (SHIFT_SUB[code]) k.classList.add('has-sub');
+        k.innerHTML = `<span class="lt">${lt}</span><span class="jm">${jamoOfKey(code)}</span>${sub}`;
+      } else {
+        k.classList.add('dim');
+        k.innerHTML = `<span class="lt"></span><span class="jm">${lt === 'P' ? '.' : lt}</span>`;
+      }
+      if (code === 'KeyF' || code === 'KeyJ') k.classList.add('home');
+      keyEls[code] = k; r.appendChild(k);
+    }
+    const tail = document.createElement('div'); tail.className = 'pad'; tail.style.width = `calc((100% - 10 * var(--gap)) / 11 * ${1 - offsets[ri]})`; r.appendChild(tail);
+    kb.appendChild(r);
+  });
+  const r = document.createElement('div'); r.className = 'row';
+  const p = document.createElement('div'); p.className = 'pad'; p.style.width = 'calc((100% - 10 * var(--gap)) / 11 * 3)'; r.appendChild(p);
+  const sp = document.createElement('div'); sp.className = 'key space'; sp.style.width = 'calc((100% - 10 * var(--gap)) / 11 * 5.4)';
+  sp.innerHTML = '<span class="jm" style="font-size:12px;color:var(--muted);font-weight:500">Space</span>';
+  keyEls.Space = sp; r.appendChild(sp); kb.appendChild(r);
+}
+const fingerEls = {};
+function buildHands() {
+  const box = $('hands');
+  for (const side of ['L', 'R']) {
+    const hand = document.createElement('div'); hand.className = 'hand ' + (side === 'L' ? 'left' : 'right');
+    const row = document.createElement('div'); row.className = 'fingers';
+    const order = side === 'L' ? [5, 4, 3, 2, 1] : [1, 2, 3, 4, 5];
+    for (const n of order) {
+      const f = document.createElement('div'); f.className = 'finger f' + n;
+      f.innerHTML = `<span class="lbl"></span><span class="nm">${['', '엄지', '검지', '중지', '약지', '새끼'][n]}</span>`;
+      fingerEls[side + n] = f; row.appendChild(f);
+    }
+    const palm = document.createElement('div'); palm.className = 'palm'; palm.textContent = side === 'L' ? '왼손' : '오른손';
+    hand.append(row, palm); box.appendChild(hand);
+  }
+}
+const keyName = k => k === 'Space' ? '␣' : k === 'Semicolon' ? ';' : k === 'Period' ? '.' : k.slice(3);
+function renderKeys() {
+  const u = units[cur];
+  const active = u && !finished;
+  const showFinger = settings.finger && active;
+  for (const code in keyEls) {
+    const el = keyEls[code];
+    el.classList.toggle('down', held.has(code));
+  }
+  // 손 그림: 쳐야 할 손가락을 그 키의 역할 색으로 칠하고 손끝에 키를 적는다
+  $('hands').hidden = !settings.finger;
+  const per = {};
+  if (showFinger) for (const k of u.keys) (per[FINGER_ID(FINGER[k])] ||= []).push(k);
+  for (const id in fingerEls) {
+    const f = fingerEls[id], ks = per[id];
+    f.className = f.className.replace(/ (on|cho|jung|jong|space)\b/g, '');
+    f.querySelector('.lbl').textContent = '';
+    if (!ks) continue;
+    const role = KEYMAP[ks[0]] ? KEYMAP[ks[0]][0] : 'space';
+    f.classList.add('on', role);
+    f.querySelector('.lbl').textContent = ks.map(k => keyName(k) + (KEYMAP[k] ? ' ' + jamoOfKey(k) : '')).join(' + ');
+  }
+}
+function flashWrong(keys) {
+  for (const k of keys) { const el = keyEls[k]; if (!el) continue; el.classList.add('wrong'); setTimeout(() => el.classList.remove('wrong'), 350); }
+}
+function fmtTime(ms) { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+function calcStats() {
+  const done = typed.filter(Boolean);
+  const correct = done.filter(t => t.ok).length;
+  const ms = startAt ? ((endAt || performance.now()) - startAt) : 0;
+  const min = ms / 60000;
+  const nonSpace = done.filter(t => t.text !== ' ').length;
+  return {
+    acc: done.length ? Math.round(correct / done.length * 100) : null,
+    speed: min > 0.02 ? Math.round(nonSpace / min) : null,
+    kpm: min > 0.02 ? Math.round(keyCount / min) : null, ms,
+  };
+}
+function renderStats() {
+  const s = calcStats();
+  $('sAcc').textContent = s.acc == null ? '–' : s.acc + '%';
+  $('sSpeed').textContent = s.speed == null ? '–' : s.speed;
+  $('sKeys').textContent = s.kpm == null ? '–' : s.kpm;
+  $('sTime').textContent = fmtTime(s.ms);
+}
+setInterval(() => { if (startAt && !finished) renderStats(); }, 250);
+
+/* ───────── 입력 처리 ───────── */
+function submitChord(keys) {
+  if (finished || !units[cur]) return;
+  const r = resolveChord(keys);
+  if (stage.kind === 'keys') {
+    const onlySpace = keys.every(k => k === 'Space');
+    if (onlySpace) return;
+    const u = units[cur];
+    const ok = keys.length === 1 && keys[0] === u.key;
+    const text = keys.length === 1 && KEYMAP[keys[0]] ? jamoOfKey(keys[0]) : (r.text || '?');
+    record(u, text, ok, keys);
+  } else {
+    const outs = [];
+    if (r.text) outs.push(r.text);
+    if (r.space) outs.push(' ');
+    for (const o of outs) { if (!units[cur]) break; record(units[cur], o, o === units[cur].text, keys); }
+  }
+  renderLines(); renderGuide(); renderKeys(); renderStats();
+  if (cur >= units.length) finish();
+}
+function record(u, text, ok, keys) {
+  typed[cur] = { text, ok };
+  if (!ok) { misses[u.text] = (misses[u.text] || 0) + 1; flashWrong(keys); }
+  cur++;
+}
+function backspace() {
+  if (finished || cur === 0) return;
+  cur--; typed[cur] = null;
+  renderLines(); renderGuide(); renderKeys(); renderStats();
+}
+function finish() {
+  finished = true; endAt = performance.now();
+  const s = calcStats();
+  const prev = records[stage.id];
+  records[stage.id] = { acc: Math.max(s.acc, prev ? prev.acc : 0), speed: Math.max(s.speed || 0, prev ? prev.speed : 0) };
+  store.set('records', records);
+  renderNav(); renderStats(); renderKeys(); renderGuide();
+  const top = Object.entries(misses).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const next = STAGES[STAGES.indexOf(stage) + 1];
+  const pass = s.acc >= 90;
+  const box = $('result');
+  box.innerHTML = `
+    <h3>${pass ? '단계 통과' : '한 번 더 해 볼까요'}</h3>
+    <div class="big">
+      <div><b>${s.acc}%</b><span>정확도</span></div>
+      <div><b>${s.speed ?? '–'}</b><span>${stage.kind === 'keys' ? '분당 낱자' : '분당 글자'}</span></div>
+      <div><b>${s.kpm ?? '–'}</b><span>분당 타건</span></div>
+      <div><b>${fmtTime(s.ms)}</b><span>시간</span></div>
+    </div>
+    <p class="miss">${top.length ? '자주 틀린 글자: ' + top.map(([c, n]) => `<b>${c === ' ' ? '띄어쓰기' : c}</b> ${n}회`).join(', ') : '틀린 글자 없이 끝냈습니다.'}${pass ? '' : '<br>정확도 90% 이상이면 통과입니다.'}</p>
+    <div class="actions">
+      <button class="btn${pass && next ? '' : ' primary'}" id="btnRetry">다시 하기 (Enter)</button>
+      ${next ? `<button class="btn${pass ? ' primary' : ''}" id="btnNext">다음 단계: ${next.name}</button>` : ''}
+    </div>`;
+  box.hidden = false;
+  $('btnRetry').onclick = startRound;
+  if (next) $('btnNext').onclick = () => selectStage(next);
+}
+
+const HANDLED = new Set([...Object.keys(KEYMAP), 'Space']);
+window.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const code = e.code;
+  if (code === 'Escape') { e.preventDefault(); startRound(); return; }
+  if (code === 'Enter' && finished) { e.preventDefault(); startRound(); return; }
+  if (code === 'Backspace') {
+    e.preventDefault();
+    if (chord.size) { chord.clear(); renderComposing(); } else backspace();
+    return;
+  }
+  if (!HANDLED.has(code)) return;
+  e.preventDefault();
+  if (e.repeat || finished) return;
+  const now = performance.now();
+  // 조합 타이머: 마지막 키 이후 시간이 지났으면 앞 글자를 먼저 끝낸다
+  if (chord.size && settings.timer > 0 && now - lastDown > settings.timer) flush();
+  if (!startAt) startAt = now;
+  chord.add(code); held.add(code); lastDown = now; keyCount++;
+  renderKeys(); renderComposing();
+});
+window.addEventListener('keyup', e => {
+  if (!held.has(e.code)) return;
+  e.preventDefault();
+  held.delete(e.code);
+  if (held.size === 0 && chord.size) flush();
+  renderKeys();
+});
+window.addEventListener('blur', () => { held.clear(); chord.clear(); renderKeys(); renderComposing(); });
+function flush() {
+  const keys = [...chord]; chord.clear();
+  renderComposing();
+  submitChord(keys);
+}
+
+/* ───────── 설정 ───────── */
+function bindSettings() {
+  const t = $('timer'), out = $('timerOut');
+  const showT = () => out.textContent = settings.timer ? settings.timer + 'ms' : '모두 뗄 때';
+  t.value = settings.timer; showT();
+  t.oninput = () => { settings.timer = +t.value; showT(); store.set('settings', settings); };
+  $('optHint').checked = settings.hint;
+  $('optFinger').checked = settings.finger;
+  $('optHint').onchange = e => { settings.hint = e.target.checked; store.set('settings', settings); renderGuide(); renderKeys(); };
+  $('optFinger').onchange = e => { settings.finger = e.target.checked; store.set('settings', settings); renderGuide(); renderKeys(); };
+  // 설정을 바꾼 뒤 키 입력이 체크박스·슬라이더로 가지 않게 한다
+  for (const el of document.querySelectorAll('.settings input')) el.addEventListener('change', () => el.blur());
+}
+
+/* ───────── 자체 점검: 권장 타법이 실제 결합 규칙으로 맞는 글자를 만드는지 ───────── */
+function selfTest() {
+  const fails = [];
+  for (let n = 0; n < 11172; n++) {
+    const ch = String.fromCharCode(0xAC00 + n);
+    const got = resolveChord(keysFor(ch)).text;
+    if (got !== ch) fails.push(ch + '→' + got);
+  }
+  console.log(fails.length ? `자체 점검 실패 ${fails.length}건: ${fails.slice(0, 20).join(' ')}` : '자체 점검 통과: 현대 한글 11172자 모두 권장 타법으로 조합됨');
+  return fails;
+}
+
+buildKeyboard(); buildHands(); bindSettings(); selectStage(stage); selfTest();
+</script>
+</body>
+</html>

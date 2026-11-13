@@ -54,6 +54,11 @@ SHARE_DENY = {
     "sddm", "xorg", "TelegramDesktop", "spotify-launcher",
     "mime", "icons/hicolor/icon-theme.cache",
     "org.localsend.localsend_app/shared_preferences.json",  # holds its TLS private key
+    "semoe-typing/profile",  # app-mode Chromium profile (~180MB of caches)
+}
+# Paths kept even inside a denied folder, with no glob filtering (leveldb data files end in .log).
+KEEP_PATHS = {
+    "semoe-typing/profile/Default/Local Storage",  # typing practice records (localStorage)
 }
 # Code/IDE settings worth keeping even though the app folder is denied.
 CONFIG_EXTRA = [
@@ -113,16 +118,21 @@ def run(*cmd, check=True, **kw):
 
 def denied(path: Path, base: Path, deny: set) -> bool:
     rel = path.relative_to(base).as_posix()
+    if any(rel == k or rel.startswith(k + "/") or k.startswith(rel + "/") for k in KEEP_PATHS):
+        return False
     if any(rel == d or rel.startswith(d + "/") for d in deny):
         return True
     return any(fnmatch.fnmatch(path.name, g) for g in GLOB_DENY)
 
 
-def tree_size(p: Path) -> int:
+def tree_size(p: Path, base: Path | None = None, deny: set = frozenset()) -> int:
+    """Size of what would be copied: denied subfolders don't count."""
     if p.is_symlink() or p.is_file():
         return p.lstat().st_size
     total = 0
-    for root, _, files in os.walk(p):
+    for root, dirs, files in os.walk(p):
+        if base is not None:
+            dirs[:] = [d for d in dirs if not denied(Path(root) / d, base, deny)]
         for f in files:
             try:
                 total += (Path(root) / f).lstat().st_size
@@ -164,7 +174,7 @@ def copy_children(src_dir: Path, dst_dir: Path, deny: set):
     for child in sorted(src_dir.iterdir()):
         if denied(child, src_dir, deny):
             continue
-        if tree_size(child) > MAX_ENTRY:
+        if tree_size(child, src_dir, deny) > MAX_ENTRY:
             skipped.append(f"{child} (folder > {MAX_ENTRY // 1024**2}MB, add to a deny list or raise MAX_ENTRY)")
             continue
         copy(child, dst_dir / child.name, src_dir, deny)
@@ -194,7 +204,7 @@ def backup_home():
         for child in sorted(share.iterdir()):
             if denied(child, share, SHARE_DENY):
                 continue
-            if tree_size(child) > MAX_ENTRY:
+            if tree_size(child, share, SHARE_DENY) > MAX_ENTRY:
                 skipped.append(f"{child} (folder > {MAX_ENTRY // 1024**2}MB)")
                 continue
             copy(child, out / ".local/share" / child.name, share, SHARE_DENY)
