@@ -1,0 +1,6 @@
+#!/bin/sh
+# Automatic login at boot (greetd initial_session in /etc/greetd/config.toml):
+# leave a marker so session-start locks the screen first — the lock screen is
+# the login screen — then start Hyprland the usual quiet way.
+touch "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr-autologin"
+exec "$HOME/.local/bin/start-hyprland-quiet"

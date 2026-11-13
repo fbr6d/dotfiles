@@ -5,3 +5,10 @@ vt = 1
 [default_session]
 command = "cage -s -- regreet >/dev/null 2>&1"
 user = "greeter"
+
+# Boot: log in automatically and show the lock screen (hyprlock) as the login
+# screen — see ~/.local/bin/session-start. After a logout greetd shows the
+# default_session (ReGreet) above instead.
+[initial_session]
+command = "/home/leejaeik/.local/bin/start-hyprland-autologin"
+user = "leejaeik"

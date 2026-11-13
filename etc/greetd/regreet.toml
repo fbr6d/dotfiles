@@ -4,6 +4,7 @@
 skip_selection = true
 
 [background]
+path = "/var/lib/greeter-bg/background.jpg"
 fit = "Cover"
 
 [GTK]

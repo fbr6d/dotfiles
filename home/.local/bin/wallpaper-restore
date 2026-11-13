@@ -1,0 +1,19 @@
+#!/bin/sh
+# At login (instead of `waypaper --restore`): put back the wallpaper the login
+# screen was made from (/var/lib/greeter-bg/source = the last one shown), so the
+# desktop under the lock screen is the same picture. waypaper's slideshow daemon
+# switches to a random wallpaper the moment it starts, so it is started only
+# after one slideshow interval (slideshow_interval in waypaper's config, minutes).
+CFG=$HOME/.config/waypaper/config.ini
+
+img=$(cat /var/lib/greeter-bg/source 2>/dev/null)
+[ -f "$img" ] || img=$(sed -n 's/^wallpaper = //p' "$CFG" | sed "s|^~|$HOME|")
+
+for _ in $(seq 50); do awww query >/dev/null 2>&1 && break; sleep 0.1; done   # wait for awww-daemon
+awww img "$img" --transition-type none --resize crop --fill-color 262624
+
+if grep -q '^slideshow_enabled = True' "$CFG"; then
+    min=$(sed -n 's/^slideshow_interval = //p' "$CFG")
+    sleep $(( ${min:-10} * 60 ))
+    exec python -m waypaper.waypaperd
+fi

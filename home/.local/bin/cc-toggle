@@ -1,0 +1,15 @@
+#!/bin/sh
+# Control center (swaync) status tiles: Wi-Fi, wired network, Bluetooth.
+# They only show the state (white = on/connected); clicking changes nothing.
+# swaync doesn't run `sh -c '...'` commands from its config reliably, so the
+# tiles call this plain script:
+#   cc-toggle state wifi|wired|bt -> prints true / false (tile's update-command)
+#   cc-toggle show                -> a click: swaync flips the tile, so close
+#                                    and reopen the panel to put the real state back
+case "$1 $2" in
+    "state wifi")  nmcli -t -f TYPE,STATE dev | grep -q '^wifi:connected$' && echo true || echo false ;;
+    "state wired") nmcli -t -f TYPE,STATE dev | grep -q '^ethernet:connected$' && echo true || echo false ;;
+    "state bt")    bluetoothctl show | grep -q "Powered: yes" && echo true || echo false ;;
+    "show "*)      swaync-client -cp -sw; sleep 0.15; swaync-client -op -sw ;;
+    *) echo "usage: cc-toggle state wifi|wired|bt | show" >&2; exit 2 ;;
+esac

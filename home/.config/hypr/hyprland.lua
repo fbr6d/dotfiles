@@ -65,20 +65,18 @@ local menu        = "rofi -show drun"
 -- end)
 
 hl.on("hyprland.start", function ()
+  -- First: after the automatic login at boot this shows the lock screen (which
+  -- is the login screen) and waits for the first unlock; then it starts the
+  -- programs in ~/.local/bin/session-apps (top bar, notifications, LocalSend,
+  -- clipse, udiskie, ...). After a password login it starts them right away.
+  hl.exec_cmd("~/.local/bin/session-start")
+
+  -- Needed right away, also behind the lock screen
   hl.exec_cmd("fcitx5 -d --replace")
-  hl.exec_cmd("waybar")
-  hl.exec_cmd("swayosd-server")   -- volume/brightness popups
-  hl.exec_cmd("swaync")           -- control center + notifications (clock click)
-  hl.exec_cmd("systemctl --user start hyprpolkitagent")   -- password prompts for apps asking for admin rights (pkexec)
+  hl.exec_cmd("swayosd-server")   -- volume/brightness popups (keys work on the lock screen)
   hl.exec_cmd("hypridle")         -- lock after 10 min idle (~/.config/hypr/hypridle.conf)
   hl.exec_cmd("awww-daemon")       -- wallpaper renderer
-  hl.exec_cmd("sleep 0.5; waypaper --restore")   -- last wallpaper / slideshow (island click)
-  hl.exec_cmd("~/.local/bin/miku-boot")         -- Miku greeting terminal, first login after boot only
-  hl.exec_cmd("/opt/localsend/localsend --hidden")   -- LocalSend in the tray (Hyprland does not run ~/.config/autostart)
-  hl.exec_cmd("clipse -listen")   -- clipboard history (SUPER+SHIFT+V opens it)
-  hl.exec_cmd("udiskie")          -- USB drives mount automatically under /run/media/$USER (~/.config/udiskie/config.yml)
-  hl.exec_cmd("sleep 2; ~/.local/bin/reboot-keep restore")   -- windows saved by a reboot-keep reboot, back in place
-
+  hl.exec_cmd("~/.local/bin/wallpaper-restore")  -- last wallpaper (same as the login screen); slideshow starts after one interval
 end)
 
 -- Switch fcitx5 to English whenever a terminal (or yazi, which runs in its own kitty window) gets focus
@@ -512,6 +510,14 @@ hl.layer_rule({
 
     dim_around = true,
     blur       = true,
+})
+
+-- Top bar (waybar): the pills slide down from the top edge when it starts,
+-- i.e. right after the lock screen fades away at login
+hl.layer_rule({
+    name      = "waybar-slide-down",
+    match     = { namespace = "^waybar$" },
+    animation = "slide top",
 })
 
 -- Layer rules also return a handle.

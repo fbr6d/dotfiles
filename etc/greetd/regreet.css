@@ -29,3 +29,15 @@ entry.password image { opacity: 0; }
 
 /* notices in the bottom bar ("Auto-selecting session ...") are hidden too */
 overlay > box > frame { opacity: 0; }
+
+/* smooth typing, like the lock screen (hyprlock animations): the border and
+   background fade between idle and focused, with a soft glow while typing */
+entry.password, passwordentry {
+  transition: border-color 260ms cubic-bezier(0.25, 0.1, 0.25, 1),
+              background-color 260ms cubic-bezier(0.25, 0.1, 0.25, 1),
+              box-shadow 260ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+entry.password:focus-within, passwordentry:focus-within {
+  background: #343432;
+  box-shadow: 0 0 0 6px rgba(230, 230, 230, 0.06);
+}

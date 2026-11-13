@@ -1,0 +1,12 @@
+#!/bin/sh
+# Run by Hyprland at login. After the automatic login at boot (greetd
+# initial_session -> start-hyprland-autologin, which leaves a marker file) the
+# lock screen is the login screen: lock first, and start the remaining
+# programs (session-apps) only after the first unlock. A normal password login
+# starts them right away.
+MARK=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr-autologin
+if [ -e "$MARK" ]; then
+    rm -f "$MARK"
+    "$HOME/.local/bin/login-lock"
+fi
+exec "$HOME/.local/bin/session-apps"
