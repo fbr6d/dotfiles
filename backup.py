@@ -68,6 +68,9 @@ GLOB_DENY = [
     "*.bak-*", "*.bak", "*.removed", "*.orig", "*~", "*.swp", "*.log", "*.lock",
     "lock", ".parentlock", "__pycache__", "*.pyc", "Cache", "cache", "Caches",
     "CachedData", "GPUCache", "Code Cache", "*history*", "*.sqlite*",
+    # Electron/Chromium app caches and crash reports (e.g. ~/.config/via-nativia).
+    "DawnCache", "DawnGraphiteCache", "DawnWebGPUCache", "GrShaderCache", "ShaderCache",
+    "Crashpad", "blob_storage", "Service Worker", "Shared Dictionary",
     "*.db", "*.db-*", "cookie", "cookies*", "Cookies*", "*.kdbx",
     "id_rsa*", "id_ed25519*", "*.pem", "*.key", "hosts.yml", "credentials*",
     "*token*", "*secret*", ".env", "auth.json", "*.socket",

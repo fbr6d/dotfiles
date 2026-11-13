@@ -15,6 +15,16 @@ STEP="${1:-all}"
 say() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 want() { [[ "$STEP" == all || "$STEP" == "$1" ]]; }
 
+# Configs, the greetd auto-login and some links hard-code this home path.
+BACKUP_HOME=/home/leejaeik
+if [[ "$HOME" != "$BACKUP_HOME" ]]; then
+    echo "Warning: the backup was made as $BACKUP_HOME, but this account is $HOME."
+    echo "Paths in configs (kitty, ghostty, waypaper, swaync, greetd auto-login) will point to the wrong place."
+    echo "Create the user 'leejaeik' and run this as that user, or press y to continue anyway."
+    read -r -p "Continue? [y/N] " ans
+    [[ "$ans" == [yY] ]] || exit 1
+fi
+
 # The backup comes from a T2 MacBook. On other hardware, leave out the Mac-only
 # kernel, repo, firmware, fan/brightness services and Apple keyboard tweaks.
 T2=0
@@ -90,6 +100,11 @@ if want files; then
     place "$REPO/home" "$HOME"
     chmod +x "$HOME"/.local/bin/* 2>/dev/null || true
     fc-cache -f >/dev/null 2>&1 || true
+    # Links whose target isn't in the backup (e.g. the Claude Code CLI, ~325MB).
+    find "$HOME/.local/bin" -maxdepth 1 -xtype l -print | while read -r l; do
+        echo "Broken link: $l -> $(readlink "$l")"
+        [[ "$(basename "$l")" == claude ]] && echo "  Reinstall Claude Code: curl -fsSL https://claude.ai/install.sh | bash"
+    done
 fi
 
 if want zen && [[ -d "$REPO/zen" ]]; then
