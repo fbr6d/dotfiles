@@ -35,7 +35,7 @@ HOME_DENY = {
     ".bash_history", ".zsh_history", ".python_history", ".node_repl_history",
     ".lesshst", ".viminfo", ".wget-hsts", ".Xauthority", ".ICEauthority",
     ".claude.json", ".claude.json.backup", ".sudo_as_admin_successful",
-    ".netrc", ".git-credentials", ".pypirc", ".npmrc",
+    ".netrc", ".git-credentials", ".pypirc", ".npmrc", ".codex",  # Codex CLI: login token + sessions
 }
 # Children of ~/.config that are never copied.
 CONFIG_DENY = {
