@@ -88,6 +88,7 @@ noto-fonts-cjk
 noto-fonts-emoji
 ntfs-3g
 obsidian
+openai-codex
 openocd
 papers
 paru
