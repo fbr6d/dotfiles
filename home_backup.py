@@ -40,6 +40,9 @@ DIR_DENY = {".git", "node_modules", ".venv", "venv", "__pycache__", "target",
 # GLOB_DENY from backup.py also skips history/cookie/key/token-named files.
 # In personal projects, lock/bak/log files are real data (Cargo.lock, Ghidra ~index.bak, tool logs).
 SKIP_GLOBS = [g for g in GLOB_DENY if g not in ("cache", "Cache", "build", "*.lock", "*.bak", "*.log")]
+# Videos (lectures, recordings) would push the repo past GitHub's size limits.
+VIDEO_GLOBS = ["*.mp4", "*.MP4", "*.mkv", "*.mov", "*.MOV", "*.avi", "*.webm", "*.m4v", "*.wmv", "*.flv"]
+SKIP_GLOBS += VIDEO_GLOBS
 
 skipped = []
 
@@ -81,7 +84,9 @@ def copy(src: Path, dst: Path):
         for child in sorted(src.iterdir()):
             copy(child, dst / child.name)
     elif src.is_file():
-        if any(fnmatch.fnmatch(src.name, g) for g in SKIP_GLOBS):
+        if any(fnmatch.fnmatch(src.name, g) for g in VIDEO_GLOBS):
+            pass  # skipped on purpose, not worth a line per file
+        elif any(fnmatch.fnmatch(src.name, g) for g in SKIP_GLOBS):
             skipped.append(f"{src} (name looks like a secret/cache file)")
         elif src.stat().st_size > MAX_FILE:
             skipped.append(f"{src} (file > 95MB, GitHub limit)")

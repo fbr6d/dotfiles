@@ -77,7 +77,7 @@
       ]
     },
     "label#battery": {
-      "text": "󰁹  배터리 90% · 사용 중",
+      "text": "󰂂  배터리 88% · 사용 중",
       "max-lines": 1
     },
     "menubar#net": {
