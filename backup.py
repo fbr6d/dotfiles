@@ -42,7 +42,7 @@ CONFIG_DENY = {
     "Claude", "pulse", "dconf", "go", "yay", "zen", "gh", "github-copilot",
     "google-chrome", "chromium", "BraveSoftware", "vivaldi", "discord",
     "Slack", "Signal", "Element", "spotify", "obsidian", "Code", "VSCodium",
-    "Cursor", "1Password", "Bitwarden", "keepassxc", "rclone", "session",
+    "Codex", "Cursor", "1Password", "Bitwarden", "keepassxc", "rclone", "session",
     "libvirt", "unity3d", "JetBrains", "Electron", "kdeconnect",
 }
 # Children of ~/.local/share that are never copied.
@@ -55,6 +55,8 @@ SHARE_DENY = {
     "mime", "icons/hicolor/icon-theme.cache",
     "org.localsend.localsend_app/shared_preferences.json",  # holds its TLS private key
     "semoe-typing/profile",  # app-mode Chromium profile (~180MB of caches)
+    "Anki2",   # card collection goes to home-backup (home_backup.py), not settings
+    "claude",  # Claude Code CLI binaries; reinstall instead (see restore.sh)
 }
 # Paths kept even inside a denied folder, with no glob filtering (leveldb data files end in .log).
 KEEP_PATHS = {

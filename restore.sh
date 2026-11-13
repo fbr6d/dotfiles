@@ -125,6 +125,9 @@ if want home; then
     place "$HOME/home-backup/files" "$HOME"
     # Files from Claude "No folder" sessions, one folder per session.
     [[ -d "$HOME/home-backup/claude-sessions" ]] && place "$HOME/home-backup/claude-sessions" "$HOME/Claude-sessions"
+    for pkg in "$HOME"/home-backup/anki/*/latest.colpkg; do
+        [[ -f "$pkg" ]] && echo "Anki cards: open Anki, then File > Import > $pkg (audio/images are not in the backup)"
+    done
 fi
 
 if want dconf && [[ -s "$REPO/meta/dconf.ini" ]]; then

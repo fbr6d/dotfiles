@@ -134,6 +134,20 @@ def backup_sessions():
             copy(child, dst / child.name)
 
 
+def backup_anki():
+    """Keep the newest Anki backup (.colpkg: cards + review history, no media) per profile.
+
+    A fixed file name so each run replaces the last one instead of piling up.
+    Import it in Anki with File > Import.
+    """
+    for prof in sorted((HOME / ".local/share/Anki2").glob("*/backups")):
+        pkgs = sorted(prof.glob("*.colpkg"))
+        if pkgs:
+            dst = REPO / "anki" / prof.parent.name / "latest.colpkg"
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(pkgs[-1], dst)
+
+
 def main():
     ensure_repo()
     shutil.rmtree(OUT, ignore_errors=True)
@@ -142,6 +156,7 @@ def main():
             continue
         copy(child, OUT / child.name)
     backup_sessions()
+    backup_anki()
     if not (REPO / "README.md").exists():
         (REPO / "README.md").write_text(
             "# home-backup\n\n`~` 의 개인 파일(문서, 사진, 다운로드 등). 설정은 dotfiles 저장소에 따로 있음.\n\n"
