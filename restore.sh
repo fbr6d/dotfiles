@@ -163,6 +163,11 @@ if want etc && [[ -d "$REPO/etc" ]]; then
     place "$tmp" /etc sudo
     sudo systemctl daemon-reload
     [[ -f "$REPO/etc/locale.gen" ]] && sudo locale-gen
+    # Login-screen background (regreet.toml), written by ~/.local/bin/greeter-bg as this user.
+    if grep -qs greeter-bg "$REPO/etc/greetd/regreet.toml"; then
+        sudo install -d -o "$USER" -g "$(id -gn)" -m 755 /var/lib/greeter-bg
+        [[ -x "$HOME/.local/bin/greeter-bg" ]] && "$HOME/.local/bin/greeter-bg" || true
+    fi
     for f in default/grub mkinitcpio.conf; do
         if [[ -f "$REPO/etc/$f" ]] && ! cmp -s "$REPO/etc/$f" "/etc/$f"; then
             echo "Not applied (boot-critical): /etc/$f differs from the backup. Compare with:"
