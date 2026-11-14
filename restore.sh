@@ -124,6 +124,7 @@ if want home; then
         udisksctl mount -b "$dev" >/dev/null && usb="$(findmnt -nro TARGET LABEL=HOME-MIGRATE | head -n1)"
     fi
     if [[ -d "$usb/home" ]]; then
+        command -v rsync >/dev/null || sudo pacman -S --needed --noconfirm rsync
         # No --delete: never removes anything already on this computer.
         rsync -aHAX --info=progress2 "$usb/home/" "$HOME/"
     else
