@@ -33,6 +33,17 @@ T2_PKGS='^(linux-t2.*|apple-.*|arch-mact2-.*|t2fanrd|tiny-dfr)$'
 T2_UNITS='^(t2fanrd|max-brightness)\.service$'
 T2_ETC=(systemd/system/max-brightness.service modprobe.d/hid_apple.conf pacman.d/arch-mact2-mirrorlist)
 
+# Snapshots (snapper, snap-pac, grub-btrfs) only work on a btrfs root; on ext4
+# they fail at every boot and every pacman run.
+BTRFS=0
+[[ "$(findmnt -no FSTYPE /)" == btrfs ]] && BTRFS=1
+BTRFS_PKGS='^(snapper|snap-pac|grub-btrfs|btrfs-assistant)$'
+BTRFS_UNITS='^(grub-btrfsd\.service|snapper-.*\.timer)$'
+BTRFS_ETC=(conf.d/snapper)
+
+# Remove the [arch-mact2] repo section from a pacman.conf (header up to the next section).
+strip_mact2() { sed -i '/^\[arch-mact2\]/,/^\[/{/^\[arch-mact2\]/d;/^\[/!d}' "$1"; }
+
 # Kernel, microcode and GPU drivers for the machine being restored.
 hw_pkgs() {
     if (( ! T2 )); then echo linux linux-headers; fi
@@ -67,8 +78,7 @@ if want packages; then
         cp -a "$REPO/etc/pacman.conf" "$tmp/etc/"
         [[ -d "$REPO/etc/pacman.d" ]] && cp -a "$REPO/etc/pacman.d" "$tmp/etc/"
         if (( ! T2 )); then
-            # Drop the [arch-mact2] repo section (header through the line before the next section).
-            sed -i '/^\[arch-mact2\]/,/^\[/{/^\[arch-mact2\]/d;/^\[/!d}' "$tmp/etc/pacman.conf"
+            strip_mact2 "$tmp/etc/pacman.conf"
             rm -f "$tmp/etc/pacman.d/arch-mact2-mirrorlist"
         fi
         place "$tmp/etc" /etc sudo
@@ -77,7 +87,10 @@ if want packages; then
     fi
     # Skip names no longer in the repos instead of failing the whole install.
     want_pkgs() {
-        if (( T2 )); then cat "$REPO/meta/pacman.txt"; else grep -vE "$T2_PKGS" "$REPO/meta/pacman.txt"; fi
+        local list; list=$(cat "$REPO/meta/pacman.txt")
+        (( T2 )) || list=$(grep -vE "$T2_PKGS" <<<"$list")
+        (( BTRFS )) || list=$(grep -vE "$BTRFS_PKGS" <<<"$list")
+        echo "$list"
         hw_pkgs | tr ' ' '\n'
     }
     mapfile -t pkgs < <(comm -12 <(want_pkgs | sort -u) <(pacman -Slq | sort -u))
@@ -142,7 +155,11 @@ if want etc && [[ -d "$REPO/etc" ]]; then
     # Boot files depend on the hardware; show them instead of overwriting.
     tmp=$(mktemp -d) && cp -a "$REPO/etc/." "$tmp/"
     rm -f "$tmp/default/grub" "$tmp/mkinitcpio.conf"
-    if (( ! T2 )); then for f in "${T2_ETC[@]}"; do rm -f "$tmp/$f"; done; fi
+    if (( ! T2 )); then
+        for f in "${T2_ETC[@]}"; do rm -f "$tmp/$f"; done
+        [[ -f "$tmp/pacman.conf" ]] && strip_mact2 "$tmp/pacman.conf"
+    fi
+    if (( ! BTRFS )); then for f in "${BTRFS_ETC[@]}"; do rm -f "$tmp/$f"; done; fi
     place "$tmp" /etc sudo
     sudo systemctl daemon-reload
     [[ -f "$REPO/etc/locale.gen" ]] && sudo locale-gen
@@ -160,6 +177,7 @@ if want services; then
     say "Enabling services"
     while read -r u; do
         (( ! T2 )) && [[ "$u" =~ $T2_UNITS ]] && continue
+        (( ! BTRFS )) && [[ "$u" =~ $BTRFS_UNITS ]] && continue
         [[ -n "$u" && "$u" != *@* ]] || continue
         # --force: a fresh install may already point display-manager.service at
         # another login screen (e.g. sddm), and a plain enable then fails.
