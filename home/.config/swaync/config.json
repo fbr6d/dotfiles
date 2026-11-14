@@ -77,7 +77,7 @@
       ]
     },
     "label#battery": {
-      "text": "󰂄  배터리 93% · 충전 완료",
+      "text": "󰂂  배터리 84% · 사용 중",
       "max-lines": 1
     },
     "menubar#net": {
@@ -99,7 +99,7 @@
             "active": true
           },
           {
-            "label": "󰂱  MX Master 3S",
+            "label": "󰂱  MX Master 3S 외 1",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state bt",
