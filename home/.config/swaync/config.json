@@ -77,7 +77,7 @@
       ]
     },
     "label#battery": {
-      "text": "󰂄  배터리 89% · 충전 중",
+      "text": "󰂄  배터리 93% · 충전 완료",
       "max-lines": 1
     },
     "menubar#net": {
