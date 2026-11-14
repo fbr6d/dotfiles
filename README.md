@@ -19,20 +19,8 @@ git clone https://github.com/<계정>/dotfiles ~/dotfiles
 ```
 
 단계별로만 하려면 `restore.sh packages|files|zen|home|dconf|etc|services`.
-`home` 단계는 개인 파일 저장소(`home-backup`)를 받아 `~`에 풀어 놓습니다(`gh auth login` 먼저).
+`home` 단계는 `HOME-MIGRATE` USB의 홈 백업을 `~`에 풀어 놓습니다(이 컴퓨터에 있는 파일은 지우지 않음).
 덮어쓴 기존 파일은 `~/.dotfiles-old/<시각>/`에 보관됩니다.
-
-## 개인 파일 백업 (별도 저장소)
-
-```bash
-~/dotfiles/home_backup.py
-```
-
-`~`의 숨김이 아닌 폴더(문서, 사진, 다운로드, Projects 등)를 비공개 저장소 `home-backup`에 따로 올립니다.
-`yay` 빌드 폴더, `node_modules`·`.git` 같은 빌드/의존성 폴더, 95MB 넘는 파일(GitHub 한도)은 건너뜁니다.
-
-Claude 앱에서 폴더 없이 시작한 세션의 작업 파일도 `claude-sessions/<날짜> <세션 제목> [<id>]/`에 함께 올립니다.
-세션을 지워도 마지막 백업본은 남습니다. 복원하면 `~/Claude-sessions/`에 풀립니다(`.venv`, `build` 등은 제외).
 
 ## USB 전체 백업 (HOME-MIGRATE)
 
@@ -41,7 +29,7 @@ Claude 앱에서 폴더 없이 시작한 세션의 작업 파일도 `claude-sess
 ```
 
 `HOME-MIGRATE` 라벨의 USB(ext4)에 홈 디렉터리 전체를 그대로 복사합니다. 동영상·ISO처럼 GitHub에 못 올리는 큰 파일도 포함되고,
-캐시·휴지통·다시 받을 수 있는 것(Rust 크레이트 다운로드, Claude CLI 실행 파일)만 뺍니다. 다시 실행하면 바뀐 부분만 복사합니다.
+캐시·휴지통·다시 받을 수 있는 것(Rust 크레이트 다운로드, Claude CLI 실행 파일)만 뺍니다. 다시 실행하면 바뀐 부분만 복사합니다. 개인 파일은 GitHub에 올리지 않고 이 USB에만 백업합니다(`home_backup.py`는 더 이상 쓰지 않음).
 
 새 컴퓨터에서(같은 사용자 이름으로) USB를 꽂고:
 

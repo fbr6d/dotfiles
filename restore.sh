@@ -118,16 +118,17 @@ if want zen && [[ -d "$REPO/zen" ]]; then
 fi
 
 if want home; then
-    say "Restoring personal files (Documents, Pictures, ...) from the home-backup repo"
-    if [[ ! -d "$HOME/home-backup/.git" ]]; then
-        gh repo clone home-backup "$HOME/home-backup" || git clone "https://github.com/$(gh api user --jq .login)/home-backup.git" "$HOME/home-backup"
+    say "Restoring personal files from the HOME-MIGRATE USB (made by usb_backup.sh)"
+    usb="$(findmnt -nro TARGET LABEL=HOME-MIGRATE 2>/dev/null | head -n1 || true)"
+    if [[ -z "$usb" ]] && dev=$(blkid -L HOME-MIGRATE 2>/dev/null); then
+        udisksctl mount -b "$dev" >/dev/null && usb="$(findmnt -nro TARGET LABEL=HOME-MIGRATE | head -n1)"
     fi
-    place "$HOME/home-backup/files" "$HOME"
-    # Files from Claude "No folder" sessions, one folder per session.
-    [[ -d "$HOME/home-backup/claude-sessions" ]] && place "$HOME/home-backup/claude-sessions" "$HOME/Claude-sessions"
-    for pkg in "$HOME"/home-backup/anki/*/latest.colpkg; do
-        [[ -f "$pkg" ]] && echo "Anki cards: open Anki, then File > Import > $pkg (audio/images are not in the backup)"
-    done
+    if [[ -d "$usb/home" ]]; then
+        # No --delete: never removes anything already on this computer.
+        rsync -aHAX --info=progress2 "$usb/home/" "$HOME/"
+    else
+        echo "HOME-MIGRATE USB not found; plug it in and run: $0 home"
+    fi
 fi
 
 if want dconf && [[ -s "$REPO/meta/dconf.ini" ]]; then
