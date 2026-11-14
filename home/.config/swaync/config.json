@@ -77,7 +77,7 @@
       ]
     },
     "label#battery": {
-      "text": "󰂄  배터리 92% · 충전 완료",
+      "text": "󰂂  배터리 82% · 사용 중",
       "max-lines": 1
     },
     "menubar#net": {
@@ -99,7 +99,7 @@
             "active": true
           },
           {
-            "label": "󰂱  QK65V2C BT3",
+            "label": "󰂱  MX Master 3S 외 1",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state bt",

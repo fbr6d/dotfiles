@@ -5,6 +5,7 @@ clipse
 fcitx5-semoe
 hyprshell-bin
 overskride-bin
+ventoy-bin
 waypaper
 yay
 yay-debug

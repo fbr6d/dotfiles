@@ -22,6 +22,7 @@ chafa
 chromium
 cmake
 csvlens
+cups
 dosfstools
 drawio-desktop
 efibootmgr
@@ -86,6 +87,7 @@ neovim
 networkmanager
 noto-fonts-cjk
 noto-fonts-emoji
+nss-mdns
 ntfs-3g
 obsidian
 openai-codex
@@ -112,6 +114,7 @@ starship
 sudo
 swaync
 swayosd
+system-config-printer
 t2fanrd
 tesseract
 tesseract-data-eng
