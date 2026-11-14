@@ -72,6 +72,7 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd("~/.local/bin/session-start")
 
   -- Needed right away, also behind the lock screen
+  hl.exec_cmd("~/.local/bin/monitor-maxrr --watch")  -- highest refresh rate at native resolution, also after hotplug
   hl.exec_cmd("fcitx5 -d --replace")
   hl.exec_cmd("swayosd-server")   -- volume/brightness popups (keys work on the lock screen)
   hl.exec_cmd("hypridle")         -- lock after 10 min idle (~/.config/hypr/hypridle.conf)

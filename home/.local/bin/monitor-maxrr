@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Run every monitor at its highest refresh rate *at its native resolution*.
+
+Hyprland's "highrr" mode picks the highest refresh rate of any mode, which can
+drop to a lower resolution (e.g. 1280x1024@75 over 2560x1440@60). Here the
+native resolution is the monitor's preferred mode (first in availableModes),
+and only its refresh rate is raised.
+
+  monitor-maxrr          apply once
+  monitor-maxrr --watch  apply now and again whenever a monitor is plugged in
+                         or the config is reloaded (started from hyprland.lua)
+"""
+import json
+import os
+import re
+import socket
+import subprocess
+import sys
+
+
+def hyprctl(*args):
+    return subprocess.run(["hyprctl", *args], capture_output=True, text=True).stdout
+
+
+def apply():
+    for mon in json.loads(hyprctl("-j", "monitors", "all") or "[]"):
+        modes = mon.get("availableModes") or []
+        if not modes:
+            continue
+        native = modes[0].split("@")[0]
+        best = max((m for m in modes if m.split("@")[0] == native),
+                   key=lambda m: float(m.split("@")[1].rstrip("Hz")))
+        rate = float(best.split("@")[1].rstrip("Hz"))
+        current = f"{mon['width']}x{mon['height']}"
+        if current == native and mon["refreshRate"] >= rate - 0.01:
+            continue
+        mode = best.removesuffix("Hz")
+        name = re.sub(r'[^\w.-]', "", mon["name"])
+        # Keep position/scale automatic like the catch-all rule in hyprland.lua.
+        hyprctl("eval", f'hl.monitor({{ output = "{name}", mode = "{mode}", '
+                        f'position = "auto", scale = "auto" }})')
+
+
+def watch():
+    path = f"{os.environ['XDG_RUNTIME_DIR']}/hypr/{os.environ['HYPRLAND_INSTANCE_SIGNATURE']}/.socket2.sock"
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+        s.connect(path)
+        buf = b""
+        while chunk := s.recv(4096):
+            buf += chunk
+            *lines, buf = buf.split(b"\n")
+            if any(l.startswith((b"monitoraddedv2>>", b"configreloaded>>")) for l in lines):
+                apply()
+
+
+apply()
+if "--watch" in sys.argv:
+    watch()
