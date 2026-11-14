@@ -1,0 +1,126 @@
+{
+  "$schema": "/etc/xdg/swaync/configSchema.json",
+  "positionX": "right",
+  "positionY": "top",
+  "layer": "overlay",
+  "control-center-layer": "top",
+  "layer-shell": true,
+  "cssPriority": "user",
+  "control-center-margin-top": 8,
+  "control-center-margin-right": 8,
+  "control-center-margin-bottom": 8,
+  "control-center-width": 380,
+  "control-center-height": 0,
+  "notification-window-width": 380,
+  "fit-to-screen": false,
+  "hide-on-clear": false,
+  "hide-on-action": true,
+  "timeout": 6,
+  "timeout-low": 4,
+  "timeout-critical": 0,
+  "keyboard-shortcuts": true,
+  "image-visibility": "when-available",
+  "transition-time": 180,
+  "widgets": [
+    "menubar#net",
+    "buttons-grid",
+    "volume",
+    "backlight",
+    "buttons-grid#power",
+    "label#battery",
+    "title",
+    "notifications"
+  ],
+  "widget-config": {
+    "title": {
+      "text": "알림",
+      "clear-all-button": true,
+      "button-text": "모두 지우기"
+    },
+    "volume": {
+      "label": "󰕾",
+      "show-per-app": false
+    },
+    "backlight": {
+      "label": "󰃠",
+      "device": "acpi_video0"
+    },
+    "buttons-grid": {
+      "actions": [
+        {
+          "label": "󰂱  기기 연결",
+          "command": "sh -c 'swaync-client -cp; overskride'"
+        },
+        {
+          "label": "󰂛  방해 금지",
+          "type": "toggle",
+          "command": "sh -c 'swaync-client -d -sw'",
+          "update-command": "sh -c 'swaync-client -D -sw'"
+        }
+      ],
+      "buttons-per-row": 2
+    },
+    "buttons-grid#power": {
+      "actions": [
+        {
+          "label": "󰌾",
+          "command": "sh -c 'swaync-client -cp -sw; loginctl lock-session'"
+        },
+        {
+          "label": "󰜉",
+          "command": "/home/leejaeik/.local/bin/power-confirm reboot"
+        },
+        {
+          "label": "󰐥",
+          "command": "/home/leejaeik/.local/bin/power-confirm poweroff"
+        }
+      ]
+    },
+    "label#battery": {
+      "text": "󰂑  배터리 없음",
+      "max-lines": 1
+    },
+    "menubar#net": {
+      "buttons#net": {
+        "position": "left",
+        "actions": [
+          {
+            "label": "󰖩  연결 안 됨",
+            "type": "toggle",
+            "command": "/home/leejaeik/.local/bin/cc-toggle show",
+            "update-command": "/home/leejaeik/.local/bin/cc-toggle state wifi",
+            "active": false
+          },
+          {
+            "label": "󰈀  유선",
+            "type": "toggle",
+            "command": "/home/leejaeik/.local/bin/cc-toggle show",
+            "update-command": "/home/leejaeik/.local/bin/cc-toggle state wired",
+            "active": true
+          },
+          {
+            "label": "󰂯  Bluetooth",
+            "type": "toggle",
+            "command": "/home/leejaeik/.local/bin/cc-toggle show",
+            "update-command": "/home/leejaeik/.local/bin/cc-toggle state bt",
+            "active": true
+          }
+        ]
+      }
+    }
+  },
+  "scripts": {
+    "focus-sender": {
+      "exec": "/home/leejaeik/.local/bin/notify-focus",
+      "app-name": ".*",
+      "run-on": "action"
+    }
+  },
+  "script-fail-notify": false,
+  "notification-visibility": {
+    "dotfiles-backup": {
+      "state": "transient",
+      "app-name": "^Backup$"
+    }
+  }
+}

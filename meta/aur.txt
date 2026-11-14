@@ -2,10 +2,13 @@
 chatgpt-desktop
 claude-desktop
 clipse
-fcitx5-semoe
 hyprshell-bin
+lib32-mesa
+lib32-vulkan-radeon
 overskride-bin
+rasdaemon
+unigine-heaven
 ventoy-bin
 waypaper
-yay
-yay-debug
+yay-bin
+yay-bin-debug

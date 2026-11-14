@@ -77,7 +77,7 @@
       ]
     },
     "label#battery": {
-      "text": "󰁺  배터리 4% · 사용 중",
+      "text": "󰂑  배터리 없음",
       "max-lines": 1
     },
     "menubar#net": {
@@ -85,11 +85,11 @@
         "position": "left",
         "actions": [
           {
-            "label": "󰖩  wormh…",
+            "label": "󰖩  연결 안 됨",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state wifi",
-            "active": true
+            "active": false
           },
           {
             "label": "󰈀  유선",
