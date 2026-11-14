@@ -158,8 +158,16 @@ if want services; then
     say "Enabling services"
     while read -r u; do
         (( ! T2 )) && [[ "$u" =~ $T2_UNITS ]] && continue
-        [[ -n "$u" && "$u" != *@* ]] && sudo systemctl enable "$u" 2>/dev/null || true
+        [[ -n "$u" && "$u" != *@* ]] || continue
+        # --force: a fresh install may already point display-manager.service at
+        # another login screen (e.g. sddm), and a plain enable then fails.
+        force=(); [[ "$u" == greetd.service ]] && force=(--force)
+        sudo systemctl enable "${force[@]}" "$u" >/dev/null 2>&1 || echo "Could not enable $u"
     done < "$REPO/meta/services-system.txt"
+    if grep -qx greetd.service "$REPO/meta/services-system.txt"; then
+        systemctl is-enabled -q greetd && echo "Login screen: greetd enabled (Hyprland starts at boot)" \
+            || echo "Login screen NOT enabled: run 'sudo systemctl enable --force greetd' and reboot"
+    fi
     while read -r u; do
         [[ -n "$u" && "$u" != *@* ]] && systemctl --user enable "$u" 2>/dev/null || true
     done < "$REPO/meta/services-user.txt"

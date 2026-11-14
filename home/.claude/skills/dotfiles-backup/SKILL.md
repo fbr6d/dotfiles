@@ -11,8 +11,9 @@ Two private GitHub repos, both scripts live in `~/dotfiles`:
 |---|---|---|
 | settings / 설정 / dotfiles | `~/dotfiles/backup.py` | `~/dotfiles` |
 | home directory / personal files / 홈디렉터리 / 사진·문서 | `~/dotfiles/home_backup.py` | `~/home-backup` |
+| USB / 전체 백업 / 모든 파일 / HOME-MIGRATE | `~/dotfiles/usb_backup.sh` (run in background: can take minutes) | USB labeled HOME-MIGRATE |
 
-Run both when the user asks for both, or for "everything" / "전부".
+Run both GitHub scripts when the user asks for both, or for "everything" / "전부". Use the USB script only when the user mentions the USB or all files including videos; if the USB isn't plugged in, say so.
 
 1. Run the script(s). Each snapshots, scans for secrets, commits and pushes.
 2. Report what each printed: committed or "No changes", the shortstat, and any "Skipped" lines.

@@ -34,6 +34,21 @@ git clone https://github.com/<계정>/dotfiles ~/dotfiles
 Claude 앱에서 폴더 없이 시작한 세션의 작업 파일도 `claude-sessions/<날짜> <세션 제목> [<id>]/`에 함께 올립니다.
 세션을 지워도 마지막 백업본은 남습니다. 복원하면 `~/Claude-sessions/`에 풀립니다(`.venv`, `build` 등은 제외).
 
+## USB 전체 백업 (HOME-MIGRATE)
+
+```bash
+~/dotfiles/usb_backup.sh
+```
+
+`HOME-MIGRATE` 라벨의 USB(ext4)에 홈 디렉터리 전체를 그대로 복사합니다. 동영상·ISO처럼 GitHub에 못 올리는 큰 파일도 포함되고,
+캐시·휴지통·다시 받을 수 있는 것(Rust 크레이트 다운로드, Claude CLI 실행 파일)만 뺍니다. 다시 실행하면 바뀐 부분만 복사합니다.
+
+새 컴퓨터에서(같은 사용자 이름으로) USB를 꽂고:
+
+```bash
+rsync -aHAX --info=progress2 /run/media/$USER/HOME-MIGRATE/home/ ~/
+```
+
 ## 무엇이 들어가나
 
 | 폴더 | 내용 |
