@@ -1,0 +1,10 @@
+[Unit]
+Description=OpenRGB 서버 (RGB 빠른 제어용)
+
+[Service]
+ExecStart=/usr/bin/openrgb --server --noautoconnect
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

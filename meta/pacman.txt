@@ -92,6 +92,7 @@ nvme-cli
 obsidian
 openai-codex
 openocd
+openrgb
 os-prober
 papers
 paru

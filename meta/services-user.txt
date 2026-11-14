@@ -1,3 +1,5 @@
+openrgb-server.service
+rgb-notify-flash.service
 wireplumber.service
 xdg-user-dirs.service
 p11-kit-server.socket
