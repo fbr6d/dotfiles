@@ -1,0 +1,12 @@
+2026/11/15-18:01:05.858 44f6f Reusing MANIFEST /home/leejaeik/.config/Hermes/Local Storage/leveldb/MANIFEST-000001
+2026/11/15-18:01:05.860 44f6f Recovering log #4
+2026/11/15-18:01:05.860 44f6f Reusing old log /home/leejaeik/.config/Hermes/Local Storage/leveldb/000004.log 
+2026/11/15-18:02:05.861 44fc5 Level-0 table #8: started
+2026/11/15-18:02:05.877 44fc5 Level-0 table #8: 115977 bytes OK
+2026/11/15-18:02:05.884 44fc5 Delete type=0 #4
+2026/11/15-18:03:05.973 44fc5 Level-0 table #10: started
+2026/11/15-18:03:05.988 44fc5 Level-0 table #10: 52825 bytes OK
+2026/11/15-18:03:05.995 44fc5 Delete type=0 #7
+2026/11/15-18:09:00.637 44fc5 Level-0 table #12: started
+2026/11/15-18:09:00.652 44fc5 Level-0 table #12: 57095 bytes OK
+2026/11/15-18:09:00.660 44fc5 Delete type=0 #9

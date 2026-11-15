@@ -1,0 +1,5 @@
+2026/11/15-17:56:30.249 42673 Creating DB /home/leejaeik/.config/Hermes/Local Storage/leveldb since it was missing.
+2026/11/15-17:56:30.282 42673 Reusing MANIFEST /home/leejaeik/.config/Hermes/Local Storage/leveldb/MANIFEST-000001
+2026/11/15-17:58:30.331 42673 Level-0 table #5: started
+2026/11/15-17:58:30.346 42673 Level-0 table #5: 140501 bytes OK
+2026/11/15-17:58:30.354 42673 Delete type=0 #3
