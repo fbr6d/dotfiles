@@ -1,0 +1,12 @@
+#!/bin/sh
+# "기기 연결" in the control center: GNOME Settings opened on Wi-Fi (or the
+# panel given as $1, e.g. bluetooth), in Korean. Outside GNOME it only shows
+# its panels when it thinks it runs in GNOME, hence XDG_CURRENT_DESKTOP.
+panel=${1:-wifi}
+# the Bluetooth panel needs GNOME's rfkill helper, or it says "블루투스 없음"
+pgrep -x gsd-rfkill >/dev/null ||
+    XDG_CURRENT_DESKTOP=GNOME setsid -f /usr/lib/gsd-rfkill >/dev/null 2>&1
+if locale -a 2>/dev/null | grep -qi '^ko_KR\.utf-\?8$'; then
+    export LANG=ko_KR.UTF-8 LANGUAGE=ko
+fi
+XDG_CURRENT_DESKTOP=GNOME exec gnome-control-center "$panel"

@@ -63,7 +63,7 @@
             "transition-left-to-right": false,
             "children-class": "tray-drawer"
         },
-        "modules": ["clock", "tray"]
+        "modules": ["custom/clock", "tray"]
     },
     "group/left": {
         "orientation": "horizontal",
@@ -101,7 +101,17 @@
         "on-click": "~/.local/bin/spotify-popup"
     },
 
-    // Clock at the far right: click toggles the swaync control center
+    // Clock at the far right with CPU / GPU / RAM load meters under the time
+    // (~/.local/bin/waybar-clock); click toggles the swaync control center
+    "custom/clock": {
+        "exec": "~/.local/bin/waybar-clock",
+        "justify": "center",
+        "return-type": "json",
+        "restart-interval": 2,
+        "on-click": "swaync-client -t -sw"
+    },
+
+    // Plain clock (no longer shown; replaced by custom/clock above)
     "clock": {
         "format": "{:%H:%M}",
         "on-click": "swaync-client -t -sw",

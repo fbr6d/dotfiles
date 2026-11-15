@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+# Keeps the focused window when the swaync control center closes.
+# Closing the panel (e.g. by clicking outside it) sometimes hands focus to the
+# window under the pointer, often a column peeking in from the right, and the
+# scrolling layout then slides the whole tape over to it. This remembers the
+# focused window when the panel opens and, if focus jumps elsewhere right after
+# it closes, puts it back. Started from ~/.local/bin/session-apps.
+import json, os, socket, subprocess, time
+
+PANEL = "swaync-control-center"
+WINDOW_S = 0.6   # focus changes this soon after closing count as accidental
+
+def sock():
+    base = f"{os.environ['XDG_RUNTIME_DIR']}/hypr/{os.environ['HYPRLAND_INSTANCE_SIGNATURE']}"
+    s = socket.socket(socket.AF_UNIX)
+    s.connect(base + "/.socket2.sock")
+    return s
+
+def active():
+    try:
+        out = subprocess.run(["hyprctl", "-j", "activewindow"], capture_output=True, text=True).stdout
+        return json.loads(out).get("address")
+    except (ValueError, OSError):
+        return None
+
+def exists(addr):
+    out = subprocess.run(["hyprctl", "-j", "clients"], capture_output=True, text=True).stdout
+    return any(c["address"] == addr for c in json.loads(out))
+
+def main():
+    s = sock()
+    saved, closed_at, buf = None, 0.0, b""
+    while True:
+        data = s.recv(4096)
+        if not data:
+            return
+        buf += data
+        *lines, buf = buf.split(b"\n")
+        for raw in lines:
+            ev, _, arg = raw.decode(errors="replace").partition(">>")
+            if ev == "openlayer" and arg == PANEL:
+                saved, closed_at = active(), 0.0
+            elif ev == "closelayer" and arg == PANEL:
+                closed_at = time.monotonic()
+            elif ev == "activewindowv2" and saved and closed_at:
+                addr = "0x" + arg if not arg.startswith("0x") else arg
+                if time.monotonic() - closed_at > WINDOW_S:
+                    saved, closed_at = None, 0.0
+                elif addr != saved and exists(saved):
+                    subprocess.run(["hyprctl", "dispatch",
+                                    f'hl.dsp.focus({{window="address:{saved}"}})'],
+                                   capture_output=True)
+                    saved, closed_at = None, 0.0
+
+if __name__ == "__main__":
+    while True:
+        try:
+            main()
+        except (OSError, KeyError):
+            pass
+        time.sleep(2)

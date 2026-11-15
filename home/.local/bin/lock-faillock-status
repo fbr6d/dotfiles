@@ -1,0 +1,25 @@
+#!/bin/sh
+# Shown on the lock screen (hyprlock label, run every second): after too many
+# wrong passwords pam_faillock locks the account for a while, and during that
+# time even the right password is refused. Prints how long is left, or nothing.
+# Reads the lockout time from the journal (the tally file is root-only).
+CONF=/etc/security/faillock.conf
+ut=$(sed -n 's/^[[:space:]]*unlock_time[[:space:]]*=[[:space:]]*\([0-9]*\).*/\1/p' "$CONF" | tail -1)
+deny=$(sed -n 's/^[[:space:]]*deny[[:space:]]*=[[:space:]]*\([0-9]*\).*/\1/p' "$CONF" | tail -1)
+ut=${ut:-600}
+deny=${deny:-3}
+[ "$ut" -gt 0 ] 2>/dev/null || exit 0
+
+t=$(journalctl -q --since "-$((ut + 5))s" -o short-unix \
+        -g "failures for user $(id -un) account temporarily locked" 2>/dev/null |
+    tail -1 | cut -d. -f1)
+[ -n "$t" ] || exit 0
+left=$((t + ut - $(date +%s)))
+[ "$left" -gt 0 ] || exit 0
+
+if [ "$left" -ge 60 ]; then
+    when="$(((left + 59) / 60))분"
+else
+    when="${left}초"
+fi
+printf '비밀번호를 %s번 틀려 잠시 잠겼습니다 · %s 뒤에 다시 입력하세요\n' "$deny" "$when"

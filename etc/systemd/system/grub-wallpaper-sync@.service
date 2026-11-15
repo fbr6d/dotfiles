@@ -1,0 +1,13 @@
+[Unit]
+Description=Sync GRUB theme background with %i's current wallpaper (at shutdown)
+RequiresMountsFor=/boot /home
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/true
+ExecStop=/usr/local/bin/grub-wallpaper-sync %i 3440x1440
+TimeoutStopSec=60
+
+[Install]
+WantedBy=multi-user.target

@@ -621,13 +621,14 @@ hl.window_rule({
 })
 
 
--- Overskride (Bluetooth devices, opened from the control center): floating, centered
+-- GNOME Settings (Wi-Fi / Bluetooth, opened from the control center's 기기 연결
+-- via ~/.local/bin/device-settings): floating, centered
 hl.window_rule({
-    name  = "overskride",
-    match = { class = "^io\\.github\\.kaii_lb\\.Overskride$" },
+    name  = "gnome-settings",
+    match = { class = "^org\\.gnome\\.Settings$" },
 
     float  = true,
-    size   = "900 640",
+    size   = "1000 720",
     center = true,
 })
 

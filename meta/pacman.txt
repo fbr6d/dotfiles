@@ -34,6 +34,7 @@ fcitx5-hangul
 fd
 ffmpeg
 ffmpegthumbnailer
+fio
 fish
 flameshot
 fzf
@@ -41,6 +42,8 @@ ghidra
 ghostty
 git
 github-cli
+glmark2
+gnome-control-center
 gobject-introspection-runtime
 greetd
 greetd-regreet
@@ -75,6 +78,7 @@ lvm2
 man-db
 man-pages
 memtest_vulkan
+memtester
 mesa
 mesa-utils
 meson
@@ -105,14 +109,17 @@ pipewire-zeroconf
 plymouth
 python-gobject
 python-pillow
+qemu-desktop
 quickshell
 resvg
 ripgrep
 rofi
 rsync
 rustup
+smartmontools
 spotify-launcher
 starship
+stress-ng
 swaync
 swayosd
 system-config-printer
@@ -128,6 +135,7 @@ ttf-nerd-fonts-symbols-mono
 udiskie
 unzip
 vim
+vkmark
 vulkan-radeon
 vulkan-tools
 waybar

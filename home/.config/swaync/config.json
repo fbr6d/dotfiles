@@ -49,7 +49,7 @@
       "actions": [
         {
           "label": "󰂱  기기 연결",
-          "command": "sh -c 'swaync-client -cp; overskride'"
+          "command": "sh -c 'swaync-client -cp; ~/.local/bin/device-settings'"
         },
         {
           "label": "󰂛  방해 금지",
@@ -85,11 +85,11 @@
         "position": "left",
         "actions": [
           {
-            "label": "󰖩  연결 안 됨",
+            "label": "󰖩  wormh…",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state wifi",
-            "active": false
+            "active": true
           },
           {
             "label": "󰈀  유선",
@@ -99,7 +99,7 @@
             "active": true
           },
           {
-            "label": "󰂯  Bluetooth",
+            "label": "󰂱  MX Master 3S",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state bt",

@@ -7,6 +7,7 @@ run() { setsid -f sh -c "$1" >/dev/null 2>&1; }
 run waybar                                          # top bar (slides down from the top)
 run swaync                                          # control center + notifications
 run "$HOME/.local/bin/swaync-status"                # keeps Wi-Fi / Bluetooth / battery in the control center current
+run "$HOME/.local/bin/cc-focus-keeper"              # control center closing never steals focus / scrolls the windows
 run "systemctl --user start hyprpolkitagent"        # password prompts for pkexec
 run "/opt/localsend/localsend --hidden"             # LocalSend in the tray
 run "clipse -listen"                                # clipboard history (SUPER+SHIFT+V)
