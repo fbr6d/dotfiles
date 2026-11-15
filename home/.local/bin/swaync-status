@@ -100,6 +100,14 @@ def apply(state):
     wc.pop("slider#battery", None)
     wc["label#battery"] = {"text": bat_text, "max-lines": 1}
     cfg["widgets"] = ["label#battery" if w == "slider#battery" else w for w in cfg["widgets"]]
+    # the battery card only on a computer that has a battery (hidden on a desktop);
+    # it goes back right after the power buttons when one shows up
+    has_bat = os.path.exists(BAT)
+    if not has_bat and "label#battery" in cfg["widgets"]:
+        cfg["widgets"].remove("label#battery")
+    elif has_bat and "label#battery" not in cfg["widgets"]:
+        w = cfg["widgets"]
+        w.insert(w.index("buttons-grid#power") + 1 if "buttons-grid#power" in w else len(w), "label#battery")
     tmp = CONF + ".tmp"
     with open(tmp, "w") as f:
         json.dump(cfg, f, ensure_ascii=False, indent=2)

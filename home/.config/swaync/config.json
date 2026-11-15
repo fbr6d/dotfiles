@@ -27,7 +27,6 @@
     "volume",
     "backlight",
     "buttons-grid#power",
-    "label#battery",
     "title",
     "notifications"
   ],
@@ -74,7 +73,8 @@
           "label": "󰐥",
           "command": "/home/leejaeik/.local/bin/power-confirm poweroff"
         }
-      ]
+      ],
+      "buttons-per-row": 3
     },
     "label#battery": {
       "text": "󰂑  배터리 없음",
@@ -85,7 +85,7 @@
         "position": "left",
         "actions": [
           {
-            "label": "󰖩  wormh…",
+            "label": "󰖩  Wi-Fi",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state wifi",

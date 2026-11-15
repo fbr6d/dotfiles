@@ -46,6 +46,7 @@
    widths. White = connected / on; no hover feedback since clicking does nothing */
 .widget-menubar { margin: 0; padding: 0; background: transparent; }
 .widget-menubar > .menu-button-bar > .start { margin-left: 0; }
+.widget-menubar > .menu-button-bar > .end { margin-right: 0; }   /* empty, but its default 8px margin kept the row short of the right edge */
 .widget-menubar > .menu-button-bar > .widget-menubar-container button {
   background: @surface;
   color: @text;
@@ -55,10 +56,10 @@
   margin: 3px;
   box-shadow: none;
   font-size: 12px;
-  min-width: 80px;
+  min-width: 83px;
 }
 .widget-menubar > .menu-button-bar > .widget-menubar-container button:nth-child(3) {
-  min-width: 172px;
+  min-width: 174px;
   font-size: 13px;
 }
 .widget-menubar > .menu-button-bar > .widget-menubar-container button:hover { background: @surface; }
@@ -121,7 +122,7 @@ scale slider { background: @text; border-radius: 999px; min-width: 16px; min-hei
 .widget-buttons-grid.power { margin: 8px 0 0 0; }
 .widget-buttons-grid.power > flowbox { }
 .widget-buttons-grid.power > flowbox > flowboxchild > button {
-  min-width: 44px;
+  min-width: 121px;   /* fills its third of the row, like the buttons above */
   min-height: 44px;
   padding: 0;
   border-radius: 999px;
@@ -139,3 +140,7 @@ scale slider { background: @text; border-radius: 999px; min-width: 16px; min-hei
   margin: 12px 0 4px 0;
 }
 .widget-label > label { color: @text; font-size: 14px; }
+
+/* Line the rows up: flowbox cells add no padding of their own, so the button
+   grid, the power row and the status row all start and end at the same edges */
+.widget-buttons-grid > flowbox > flowboxchild { padding: 0; margin: 0; }

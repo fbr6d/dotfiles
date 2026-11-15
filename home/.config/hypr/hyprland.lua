@@ -30,12 +30,12 @@ hl.monitor({
     cm       = "srgb",
 })
 
--- Any other monitor
+-- Any other monitor (the desktop's WQHD): always 1x, never Hyprland's guess
 hl.monitor({
     output   = "",
     mode     = "preferred",
     position = "auto",
-    scale    = "auto",
+    scale    = 1,
 })
 
 
