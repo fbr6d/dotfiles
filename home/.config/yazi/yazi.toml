@@ -5,6 +5,7 @@ sort_dir_first = true          # folders first
 
 # "열기" 메뉴 (O / Shift+Enter): 파일 종류마다 고를 수 있는 앱
 [opener]
+glow      = [ { run = 'glow --pager %s1', block = true, desc = "glow로 보기", for = "unix" } ]
 edit      = [ { run = 'nvim %s', block = true, desc = "nvim으로 편집", for = "unix" } ]
 kate      = [ { run = 'kate %s', orphan = true, desc = "Kate (창 편집기)" } ]
 kwrite    = [ { run = 'kwrite %s', orphan = true, desc = "KWrite (간단 편집기)" } ]
@@ -37,7 +38,7 @@ prepend_rules = [
 	{ url = "*.svg", use = [ "imv", "htmlview", "drawio", "edit", "convert", "localsend", "other" ] },
 	{ url = "*.{html,htm}", use = [ "htmlview", "edit", "kate", "localsend", "other" ] },
 	{ url = "*.tsv", use = [ "csvlens", "edit", "kate", "localsend", "other" ] },
-	{ url = "*.md", use = [ "edit", "kate", "localsend", "other" ] },
+	{ url = "*.md", use = [ "edit", "glow", "kate", "localsend", "other" ] },
 	{ mime = "text/*", use = [ "edit", "kate", "kwrite", "localsend", "hex", "other", "nautilus" ] },
 	{ mime = "application/{json,ndjson,javascript,toml,x-yaml,xml}", use = [ "edit", "kate", "kwrite", "localsend", "other" ] },
 	{ mime = "application/pdf", use = [ "papers", "localsend", "other", "nautilus" ] },

@@ -8,9 +8,10 @@ import json
 import subprocess
 import sys
 
-# Rounded (circled) Material icons
-# Material Symbols Rounded: skip_previous, skip_next, pause, play_arrow
-ICONS = {"prev": "\ue045", "next": "\ue044", "Playing": "\ue034", "Paused": "\ue037"}
+# The icons are SVG files drawn by CSS (~/.config/waybar/icons, style.css), so
+# they sit exactly in the middle of the pill; the text is only a space that
+# keeps the button visible. "class" picks the icon: playing -> pause icon,
+# paused -> play icon.
 role = sys.argv[1] if len(sys.argv) > 1 else "play"
 
 proc = subprocess.Popen(
@@ -29,9 +30,4 @@ for line in proc.stdout:
     if status not in ("Playing", "Paused"):
         emit("")
         continue
-    icon = ICONS[status] if role == "play" else ICONS[role]
-    # GTK3 CSS can't set variable-font axes, but a Pango font description can:
-    # filled (FILL=1) rounded glyphs; play/pause a bit larger, like Apple's mini player
-    size = 19 if role == "play" else 16
-    emit(f"<span font_desc='Material Symbols Rounded {size} @FILL=1,wght=500'>{icon}</span>",
-         html.escape(track), status.lower())   # titles may contain & or <
+    emit(" ", html.escape(track), status.lower())   # titles may contain & or <

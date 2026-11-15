@@ -85,7 +85,7 @@
         "position": "left",
         "actions": [
           {
-            "label": "󰖩  Wi-Fi",
+            "label": "󰖩  wormh…",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state wifi",
@@ -99,7 +99,7 @@
             "active": true
           },
           {
-            "label": "󰂱  MX Master 3S",
+            "label": "󰂱  재익의 AirPods Pro 외 1",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state bt",

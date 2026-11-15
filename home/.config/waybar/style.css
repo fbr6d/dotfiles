@@ -42,10 +42,28 @@ window#waybar {
 /* Spotify control pill: the three buttons form one pill. The background sits on
    the buttons (not the group) so nothing is left behind when they hide. */
 #custom-media-prev, #custom-media-play, #custom-media-next {
-    background: #141413;
-    color: #faf9f5;
-    padding: 0 2px;   /* glyph font, size and fill come from waybar-media's markup */
+    background-color: #141413;
+    color: transparent;
+    padding: 0 2px;
+    font-size: 1px;                    /* the label is just a space; the icon is an SVG */
+    min-width: 22px;
+    background-repeat: no-repeat;
+    background-origin: content-box;    /* center the icon in the button, not its padding */
+    background-position: center;
+    background-size: 20px 20px;
+    /* emboss without the 1px side ring, which drew seams between the three buttons */
+    box-shadow: inset 0 1px 0 rgba(250, 249, 245, 0.10),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.55);
 }
+#custom-media-play { min-width: 26px; background-size: 24px 24px; }
+#custom-media-prev { background-image: url("/home/leejaeik/.config/waybar/icons/media-prev.svg"); }
+#custom-media-next { background-image: url("/home/leejaeik/.config/waybar/icons/media-next.svg"); }
+#custom-media-play.playing { background-image: url("/home/leejaeik/.config/waybar/icons/media-pause.svg"); }
+#custom-media-play.paused  { background-image: url("/home/leejaeik/.config/waybar/icons/media-play.svg"); }
+#custom-media-prev:hover { background-image: url("/home/leejaeik/.config/waybar/icons/media-prev-hover.svg"); }
+#custom-media-next:hover { background-image: url("/home/leejaeik/.config/waybar/icons/media-next-hover.svg"); }
+#custom-media-play.playing:hover { background-image: url("/home/leejaeik/.config/waybar/icons/media-pause-hover.svg"); }
+#custom-media-play.paused:hover  { background-image: url("/home/leejaeik/.config/waybar/icons/media-play-hover.svg"); }
 #custom-media-prev { border-radius: 16px 0 0 16px; padding-left: 10px; margin-left: 7px; }   /* 14px gap from the visualizer */
 #custom-media-next { border-radius: 0 16px 16px 0; padding-right: 10px; }
 /* Lyrics pill: small gray "title · artist" (set by waybar-lyrics markup), then the

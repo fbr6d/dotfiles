@@ -43,6 +43,7 @@ ghostty
 git
 github-cli
 glmark2
+glow
 gnome-control-center
 gobject-introspection-runtime
 greetd
@@ -77,6 +78,7 @@ localsend
 lvm2
 man-db
 man-pages
+memtest86+-efi
 memtest_vulkan
 memtester
 mesa

@@ -1,3 +1,4 @@
+hermes-gateway.service
 openrgb-server.service
 rgb-notify-flash.service
 wireplumber.service
