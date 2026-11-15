@@ -99,7 +99,7 @@
             "active": true
           },
           {
-            "label": "󰂱  재익의 AirPods Pro 외 1",
+            "label": "󰂱  MX Master 3S",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state bt",
