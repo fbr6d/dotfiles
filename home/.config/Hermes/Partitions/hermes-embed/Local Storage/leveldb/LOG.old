@@ -1,3 +1,3 @@
-2026/11/16-23:44:19.357 37715 Reusing MANIFEST /home/leejaeik/.config/Hermes/Partitions/hermes-embed/Local Storage/leveldb/MANIFEST-000001
-2026/11/16-23:44:19.358 37715 Recovering log #3
-2026/11/16-23:44:19.358 37715 Reusing old log /home/leejaeik/.config/Hermes/Partitions/hermes-embed/Local Storage/leveldb/000003.log 
+2026/11/17-03:17:19.421 9ae8f Reusing MANIFEST /home/leejaeik/.config/Hermes/Partitions/hermes-embed/Local Storage/leveldb/MANIFEST-000001
+2026/11/17-03:17:19.421 9ae8f Recovering log #3
+2026/11/17-03:17:19.421 9ae8f Reusing old log /home/leejaeik/.config/Hermes/Partitions/hermes-embed/Local Storage/leveldb/000003.log 

@@ -1,14 +1,17 @@
-2026/11/16-23:44:19.351 376d2 Reusing MANIFEST /home/leejaeik/.config/Hermes/Local Storage/leveldb/MANIFEST-000001
-2026/11/16-23:44:19.357 376d2 Recovering log #409
-2026/11/16-23:44:19.357 376d2 Level-0 table #412: started
-2026/11/16-23:44:19.365 376d2 Level-0 table #412: 154029 bytes OK
-2026/11/16-23:44:19.373 376d2 Delete type=0 #409
-2026/11/16-23:44:19.373 37710 Compacting 4@0 + 1@1 files
-2026/11/16-23:44:19.388 37710 Generated table #414@0: 2238 keys, 1298339 bytes
-2026/11/16-23:44:19.388 37710 Compacted 4@0 + 1@1 files => 1298339 bytes
-2026/11/16-23:44:19.395 37710 compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/11/16-23:44:19.396 37710 Delete type=2 #412
-2026/11/16-23:44:19.396 37710 Delete type=2 #410
-2026/11/16-23:44:19.396 37710 Delete type=2 #406
-2026/11/16-23:44:19.396 37710 Delete type=2 #404
-2026/11/16-23:44:19.396 37710 Delete type=2 #408
+2026/11/17-03:17:19.418 9ae7b Reusing MANIFEST /home/leejaeik/.config/Hermes/Local Storage/leveldb/MANIFEST-000001
+2026/11/17-03:17:19.421 9ae7b Recovering log #501
+2026/11/17-03:17:19.421 9ae7b Level-0 table #504: started
+2026/11/17-03:17:19.427 9ae7b Level-0 table #504: 32490 bytes OK
+2026/11/17-03:17:19.435 9ae7b Delete type=0 #501
+2026/11/17-03:17:19.435 9ae40 Compacting 4@0 + 1@1 files
+2026/11/17-03:17:19.450 9ae40 Generated table #506@0: 2946 keys, 1474576 bytes
+2026/11/17-03:17:19.450 9ae40 Compacted 4@0 + 1@1 files => 1474576 bytes
+2026/11/17-03:17:19.458 9ae40 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/11/17-03:17:19.458 9ae40 Delete type=2 #504
+2026/11/17-03:17:19.458 9ae40 Delete type=2 #500
+2026/11/17-03:17:19.458 9ae40 Delete type=2 #496
+2026/11/17-03:17:19.458 9ae40 Delete type=2 #502
+2026/11/17-03:17:19.458 9ae40 Delete type=2 #498
+2026/11/17-03:18:19.436 9ae40 Level-0 table #508: started
+2026/11/17-03:18:19.444 9ae40 Level-0 table #508: 214850 bytes OK
+2026/11/17-03:18:19.451 9ae40 Delete type=0 #505

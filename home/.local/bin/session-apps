@@ -10,6 +10,7 @@ run "$HOME/.local/bin/swaync-status"                # keeps Wi-Fi / Bluetooth / 
 run "$HOME/.local/bin/cc-focus-keeper"              # control center closing never steals focus / scrolls the windows
 run "systemctl --user start hyprpolkitagent"        # password prompts for pkexec
 run "/opt/localsend/localsend --hidden"             # LocalSend in the tray
+run "sleep 2; /opt/1Password/1password --silent"     # 1Password in the tray (keyring is unlocked by hyprlock PAM first)
 run "clipse -listen"                                # clipboard history (SUPER+SHIFT+V)
 run udiskie                                         # USB drives mount automatically
 # (2026-11-16) old miku-boot greeting removed; backup in ~/.local/share/backups/miku-greeting-20261116
