@@ -84,7 +84,7 @@
         "position": "left",
         "actions": [
           {
-            "label": "󰖩  wormh…",
+            "label": "󰖩  Wi-Fi",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state wifi",

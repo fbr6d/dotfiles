@@ -1,6 +1,7 @@
 {
   "connectionProfiles": {
-    "local": "miku-engineer"
+    "local": "ksat-administrator"
   },
-  "connectionProfilesImported": true
+  "connectionProfilesImported": true,
+  "profile": "ksat-administrator"
 }

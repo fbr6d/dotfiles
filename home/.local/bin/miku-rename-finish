@@ -1,0 +1,43 @@
+#!/bin/bash
+# One-shot (2026-11-16): rename Hermes profile miku-engineer -> miku once no chat session uses it.
+# Backups: ~/.local/share/backups/miku-rename-20261116/   Log: same dir, finish.log
+B="$HOME/.local/share/backups/miku-rename-20261116"
+LOG="$B/finish.log"
+exec >>"$LOG" 2>&1
+echo "== $(date '+%F %T') start"
+H="$HOME/.hermes/hermes-agent/.hermes/bin/hermes"
+
+# 1. wait until no `-p miku-engineer chat` process is alive (gateway is handled by rename itself)
+for i in $(seq 1 43200); do   # up to 12 h
+    pids=$(pgrep -f -- '-p miku-engineer chat' | grep -vx "$$")
+    [ -z "$pids" ] && break
+    sleep 1
+done
+if [ -n "$pids" ]; then echo "timeout: still running $pids"; notify-send "미쿠" "프로필 이름 변경을 못 했어요 (대화가 계속 열려 있음)"; exit 1; fi
+sleep 2
+
+# 2. rename (moves dir, stops/restarts gateway, makes ~/.local/bin/miku wrapper)
+if ! "$H" profile rename miku-engineer miku; then
+    echo "rename failed"; notify-send "미쿠" "프로필 이름 변경 실패: $LOG"; exit 1
+fi
+[ -x "$HOME/.local/bin/miku" ] || { echo "wrapper missing, creating"; "$H" profile alias miku; }
+
+# 3. art dir, autostart line, desktop app profile, handoff doc
+[ -d "$HOME/.local/share/miku-engineer" ] && mv "$HOME/.local/share/miku-engineer" "$HOME/.local/share/miku"
+sed -i 's#\$HOME/.local/bin/miku-engineer-boot"\( *\)\# Hermes (miku-engineer)#$HOME/.local/bin/miku-boot"\1        \# Hermes (miku)#' "$HOME/.local/bin/session-apps"
+sed -i 's#miku-engineer-boot#miku-boot#' "$HOME/.local/bin/session-apps"
+sed -i 's#"local": "miku-engineer"#"local": "miku"#' "$HOME/.config/Hermes/active-profile.json"
+sed -i 's#miku-engineer-start#miku-start#g; s#miku-engineer-boot#miku-boot#g; s#share/miku-engineer#share/miku#g' \
+    "$HOME/.hermes/profiles/miku/handoff-miku-greeter.md" 2>/dev/null
+
+# 4. remove old launchers (copies are in $B)
+rm -f "$HOME/.local/bin/miku-engineer-start" "$HOME/.local/bin/miku-engineer-boot"
+[ -e "$HOME/.local/bin/miku-engineer" ] && rm -f "$HOME/.local/bin/miku-engineer"
+
+# 5. verify
+"$H" profile list
+ls -la "$HOME/.local/bin/miku" "$HOME/.local/share/miku/miku.ans"
+grep -n miku "$HOME/.local/bin/session-apps"
+cat "$HOME/.config/Hermes/active-profile.json"
+echo "== $(date '+%F %T') done"
+notify-send "미쿠" "프로필 이름이 miku로 바뀌었어요! (≧▽≦)"

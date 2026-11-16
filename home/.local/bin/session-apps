@@ -13,6 +13,6 @@ run "/opt/localsend/localsend --hidden"             # LocalSend in the tray
 run "clipse -listen"                                # clipboard history (SUPER+SHIFT+V)
 run udiskie                                         # USB drives mount automatically
 # (2026-11-16) old miku-boot greeting removed; backup in ~/.local/share/backups/miku-greeting-20261116
-run "$HOME/.local/bin/miku-engineer-boot"              # Hermes (miku-engineer) greeting terminal, first login after boot only
+run "$HOME/.local/bin/miku-boot"                      # Hermes (miku) greeting terminal, first login after boot only
 run "sleep 2; $HOME/.local/bin/reboot-keep restore" # windows saved by a reboot-keep reboot
 run "sleep 3; $HOME/.local/bin/greeter-bg"          # login-screen background = blurred wallpaper

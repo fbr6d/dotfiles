@@ -1,18 +1,29 @@
-2026/11/16-20:07:58.027 1dba9 Reusing MANIFEST /home/leejaeik/.config/Hermes/Local Storage/leveldb/MANIFEST-000001
-2026/11/16-20:07:58.030 1dba9 Recovering log #341
-2026/11/16-20:07:58.030 1dba9 Reusing old log /home/leejaeik/.config/Hermes/Local Storage/leveldb/000341.log 
-2026/11/16-20:08:58.031 1dba9 Level-0 table #345: started
-2026/11/16-20:08:58.046 1dba9 Level-0 table #345: 75673 bytes OK
-2026/11/16-20:08:58.054 1dba9 Delete type=0 #341
-2026/11/16-20:08:58.054 1dba9 Compacting 4@0 + 1@1 files
-2026/11/16-20:08:58.067 1dba9 Generated table #346@0: 1092 keys, 858089 bytes
-2026/11/16-20:08:58.067 1dba9 Compacted 4@0 + 1@1 files => 858089 bytes
-2026/11/16-20:08:58.074 1dba9 compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/11/16-20:08:58.075 1dba9 Delete type=2 #345
-2026/11/16-20:08:58.075 1dba9 Delete type=2 #338
-2026/11/16-20:08:58.075 1dba9 Delete type=2 #336
-2026/11/16-20:08:58.075 1dba9 Delete type=2 #342
-2026/11/16-20:08:58.075 1dba9 Delete type=2 #340
-2026/11/16-20:28:34.027 1dba9 Level-0 table #348: started
-2026/11/16-20:28:34.042 1dba9 Level-0 table #348: 24666 bytes OK
-2026/11/16-20:28:34.050 1dba9 Delete type=0 #344
+2026/11/16-22:00:00.460 2f27 Reusing MANIFEST /home/leejaeik/.config/Hermes/Local Storage/leveldb/MANIFEST-000001
+2026/11/16-22:00:00.466 2f27 Recovering log #363
+2026/11/16-22:00:00.467 2f27 Level-0 table #367: started
+2026/11/16-22:00:00.473 2f27 Level-0 table #367: 83847 bytes OK
+2026/11/16-22:00:00.481 2f27 Delete type=0 #363
+2026/11/16-22:01:00.482 2ee3 Level-0 table #370: started
+2026/11/16-22:01:00.489 2ee3 Level-0 table #370: 44684 bytes OK
+2026/11/16-22:01:00.497 2ee3 Delete type=0 #368
+2026/11/16-22:12:50.761 2f27 Level-0 table #372: started
+2026/11/16-22:12:50.777 2f27 Level-0 table #372: 55896 bytes OK
+2026/11/16-22:12:50.785 2f27 Delete type=0 #369
+2026/11/16-22:19:00.633 2f27 Level-0 table #374: started
+2026/11/16-22:19:00.648 2f27 Level-0 table #374: 30442 bytes OK
+2026/11/16-22:19:00.656 2f27 Delete type=0 #371
+2026/11/16-22:19:00.656 2f27 Compacting 4@0 + 1@1 files
+2026/11/16-22:19:00.669 2f27 Generated table #375@0: 1819 keys, 1050167 bytes
+2026/11/16-22:19:00.669 2f27 Compacted 4@0 + 1@1 files => 1050167 bytes
+2026/11/16-22:19:00.681 2f27 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/11/16-22:19:00.681 2f27 Delete type=2 #374
+2026/11/16-22:19:00.681 2f27 Delete type=2 #372
+2026/11/16-22:19:00.681 2f27 Delete type=2 #367
+2026/11/16-22:19:00.681 2f27 Delete type=2 #370
+2026/11/16-22:19:00.681 2f27 Delete type=2 #365
+2026/11/16-22:27:00.633 2f27 Level-0 table #377: started
+2026/11/16-22:27:00.648 2f27 Level-0 table #377: 24492 bytes OK
+2026/11/16-22:27:00.656 2f27 Delete type=0 #373
+2026/11/16-22:37:00.633 2f27 Level-0 table #379: started
+2026/11/16-22:37:00.648 2f27 Level-0 table #379: 32122 bytes OK
+2026/11/16-22:37:00.656 2f27 Delete type=0 #376
