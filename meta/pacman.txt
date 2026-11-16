@@ -45,6 +45,7 @@ github-cli
 glmark2
 glow
 gnome-control-center
+gnome-keyring
 gobject-introspection-runtime
 greetd
 greetd-regreet
