@@ -3,11 +3,12 @@ chatgpt-desktop
 claude-desktop
 clipse
 hyprshell-bin
-lib32-mesa
-lib32-vulkan-radeon
+localsend-bin
+paru-bin
 rasdaemon
 unigine-heaven
 ventoy-bin
 waypaper
 yay-bin
 yay-bin-debug
+zen-browser-bin

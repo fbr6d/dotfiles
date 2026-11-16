@@ -1,3 +1,42 @@
-2026/11/16-19:20:24.242 66a8 Reusing MANIFEST /home/leejaeik/.config/Hermes/Local Storage/leveldb/MANIFEST-000001
-2026/11/16-19:20:24.247 66a8 Recovering log #341
-2026/11/16-19:20:24.247 66a8 Reusing old log /home/leejaeik/.config/Hermes/Local Storage/leveldb/000341.log 
+2026/11/16-20:32:23.750 1242 Reusing MANIFEST /home/leejaeik/.config/Hermes/Local Storage/leveldb/MANIFEST-000001
+2026/11/16-20:32:23.755 1242 Recovering log #347
+2026/11/16-20:32:23.755 1242 Reusing old log /home/leejaeik/.config/Hermes/Local Storage/leveldb/000347.log 
+2026/11/16-20:33:23.756 1242 Level-0 table #351: started
+2026/11/16-20:33:23.771 1242 Level-0 table #351: 51818 bytes OK
+2026/11/16-20:33:23.779 1242 Delete type=0 #347
+2026/11/16-20:40:23.919 1242 Level-0 table #353: started
+2026/11/16-20:40:23.934 1242 Level-0 table #353: 20348 bytes OK
+2026/11/16-20:40:23.942 1242 Delete type=0 #350
+2026/11/16-20:48:23.920 1242 Level-0 table #355: started
+2026/11/16-20:48:23.935 1242 Level-0 table #355: 23267 bytes OK
+2026/11/16-20:48:23.942 1242 Delete type=0 #352
+2026/11/16-20:48:23.943 1242 Compacting 4@0 + 1@1 files
+2026/11/16-20:48:23.955 1242 Generated table #356@0: 1549 keys, 914624 bytes
+2026/11/16-20:48:23.955 1242 Compacted 4@0 + 1@1 files => 914624 bytes
+2026/11/16-20:48:23.966 1242 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/11/16-20:48:23.967 1242 Delete type=2 #355
+2026/11/16-20:48:23.967 1242 Delete type=2 #351
+2026/11/16-20:48:23.967 1242 Delete type=2 #348
+2026/11/16-20:48:23.967 1242 Delete type=2 #353
+2026/11/16-20:48:23.967 1242 Delete type=2 #346
+2026/11/16-20:55:23.919 1242 Level-0 table #358: started
+2026/11/16-20:55:23.934 1242 Level-0 table #358: 28251 bytes OK
+2026/11/16-20:55:23.942 1242 Delete type=0 #354
+2026/11/16-20:59:23.919 1242 Level-0 table #360: started
+2026/11/16-20:59:23.926 1242 Level-0 table #360: 26574 bytes OK
+2026/11/16-20:59:23.934 1242 Delete type=0 #357
+2026/11/16-21:03:23.919 1242 Level-0 table #362: started
+2026/11/16-21:03:23.935 1242 Level-0 table #362: 169873 bytes OK
+2026/11/16-21:03:23.943 1242 Delete type=0 #359
+2026/11/16-21:09:23.919 1242 Level-0 table #364: started
+2026/11/16-21:09:23.934 1242 Level-0 table #364: 60559 bytes OK
+2026/11/16-21:09:23.942 1242 Delete type=0 #361
+2026/11/16-21:09:23.942 1242 Compacting 4@0 + 1@1 files
+2026/11/16-21:09:23.954 1242 Generated table #365@0: 1699 keys, 957042 bytes
+2026/11/16-21:09:23.954 1242 Compacted 4@0 + 1@1 files => 957042 bytes
+2026/11/16-21:09:23.962 1242 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/11/16-21:09:23.962 1242 Delete type=2 #360
+2026/11/16-21:09:23.962 1242 Delete type=2 #356
+2026/11/16-21:09:23.962 1242 Delete type=2 #364
+2026/11/16-21:09:23.962 1242 Delete type=2 #358
+2026/11/16-21:09:23.962 1242 Delete type=2 #362

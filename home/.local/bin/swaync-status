@@ -102,6 +102,13 @@ def apply(state):
     cfg["widgets"] = ["label#battery" if w == "slider#battery" else w for w in cfg["widgets"]]
     # the battery card only on a computer that has a battery (hidden on a desktop);
     # it goes back right after the power buttons when one shows up
+    # the brightness slider likewise only where there is a built-in screen backlight
+    has_backlight = bool(os.listdir("/sys/class/backlight")) if os.path.isdir("/sys/class/backlight") else False
+    if not has_backlight and "backlight" in cfg["widgets"]:
+        cfg["widgets"].remove("backlight")
+    elif has_backlight and "backlight" not in cfg["widgets"]:
+        w = cfg["widgets"]
+        w.insert(w.index("volume") + 1 if "volume" in w else len(w), "backlight")
     has_bat = os.path.exists(BAT)
     if not has_bat and "label#battery" in cfg["widgets"]:
         cfg["widgets"].remove("label#battery")

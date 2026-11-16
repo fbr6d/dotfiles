@@ -66,6 +66,8 @@ kate
 kitty
 lact
 lazygit
+lib32-mesa
+lib32-vulkan-radeon
 libgirepository
 libicns
 libreoffice-fresh
@@ -74,7 +76,6 @@ linux
 linux-firmware
 linux-headers
 linux-lts
-localsend
 lvm2
 man-db
 man-pages
@@ -101,8 +102,6 @@ openocd
 openrgb
 os-prober
 papers
-paru
-paru-debug
 picocom
 pipewire
 pipewire-alsa
@@ -147,6 +146,5 @@ wireplumber
 wl-clipboard
 xdg-desktop-portal-hyprland
 yazi
-zen-browser-bin
 zoxide
 zram-generator

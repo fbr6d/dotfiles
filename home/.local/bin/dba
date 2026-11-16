@@ -1,2 +1,0 @@
-#!/bin/sh
-exec /home/leejaeik/.hermes/hermes-agent/.hermes/bin/hermes -p dba "$@"

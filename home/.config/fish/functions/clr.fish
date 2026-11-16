@@ -1,4 +1,3 @@
-function clr --description 'Clear the screen and show the Miku greeting'
+function clr --description 'Clear the screen'
     clear
-    ~/.local/bin/miku-greeting
 end
