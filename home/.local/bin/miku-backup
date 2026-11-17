@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# 미쿠 자동 백업: Hermes + ~/Projects 를 암호화해서 iCloud Drive(백업/아치PC/암호화)에 올린다.
+# systemd 사용자 타이머(miku-backup.timer, 매일 04:00)가 실행한다. 결과는 status.json에 남기고
+# 아침 7시 브리핑이 읽는다. 실패하면 디스코드 DM으로 바로 알린다.
+set -uo pipefail
+export LC_ALL=C.UTF-8
+B="$HOME/.local/share/miku-backup"
+LOG="$B/logs/backup-$(date +%Y%m%d-%H%M).log"
+STATUS="$B/status.json"
+NOTIFY="$HOME/.hermes/profiles/miku/scripts/notify_dm.py"
+DEST="icloud-crypt:"
+STAMP=$(date +%Y-%m-%d_%H%M)
+mkdir -p "$B/logs" "$B/hermes"
+
+exec 9>"$B/backup.lock"
+if ! flock -n 9; then echo "이미 백업이 실행 중이라 이번 회차는 건너뜀"; exit 0; fi
+
+START=$(date +%s); STEP="준비"; RC=0
+fail() {
+  RC=1
+  python3 - "$STATUS" "$STEP" "$LOG" "$START" <<'EOF'
+import json,sys,time
+s,step,log,start=sys.argv[1:]
+json.dump({"result":"실패","step":step,"log":log,"started":int(start),"finished":int(time.time())},open(s,"w"),ensure_ascii=False)
+EOF
+  tail -5 "$LOG" | python3 "$NOTIFY" "$(printf '앗, 새벽 자동 백업이 [%s] 단계에서 실패했어요 >_<\n로그: %s\n마지막 오류:\n%s' "$STEP" "$LOG" "$(grep -E 'ERROR|NOTICE|Failed' "$LOG" | tail -3)")" >/dev/null 2>&1
+}
+
+{
+  echo "== 백업 시작 $(date)"
+  STEP="Hermes 묶기"
+  hermes backup -o "$B/hermes/hermes-backup-$STAMP.zip" -k 3 || { fail; exit 1; }
+  find "$B/hermes" -name 'hermes-backup-test.zip' -delete
+
+  # 바뀌거나 지워진 파일은 '이전판/날짜' 폴더로 옮겨 30일 동안 보관한다
+  COMMON=(--backup-dir "${DEST}이전판/$STAMP" --transfers 4 --checkers 8 --retries 5
+          --low-level-retries 20 --stats 10m --stats-one-line -v)
+
+  STEP="Hermes 올리기"
+  rclone sync "$B/hermes" "${DEST}Hermes" "${COMMON[@]}" || { fail; exit 1; }
+
+  STEP="프로젝트 올리기"
+  rclone sync "$HOME/Projects" "${DEST}Projects" "${COMMON[@]}" \
+    --exclude '**/node_modules/**' --exclude '**/__pycache__/**' --exclude '**/.venv/**' \
+    --exclude '**/target/**' --exclude '*.lock' --exclude '**/writer.lock' || { fail; exit 1; }
+
+  STEP="오래된 이전판 정리"
+  rclone delete "${DEST}이전판" --min-age 30d -v || true
+  rclone rmdirs "${DEST}이전판" --leave-root || true
+
+  echo "== 백업 끝 $(date)"
+} >>"$LOG" 2>&1
+
+FIRST=0; [ -f "$STATUS" ] || FIRST=1
+[ $RC -eq 0 ] && [ $FIRST -eq 1 ] && python3 "$NOTIFY" "$(printf '첫 자동 백업이 끝났어요! (≧▽≦)\n걸린 시간: %d분\n이제 매일 새벽 4시에 바뀐 파일만 올려요. 결과는 아침 7시 브리핑에서 알려 드릴게요.' $(( ($(date +%s)-START)/60 )))" >/dev/null 2>&1
+[ $RC -eq 0 ] && python3 - "$STATUS" "$LOG" "$START" "$HOME/Projects" <<'EOF'
+import json,sys,time,os
+s,log,start,proj=sys.argv[1:]
+json.dump({"result":"성공","log":log,"started":int(start),"finished":int(time.time())},open(s,"w"),ensure_ascii=False)
+EOF
+find "$B/logs" -name 'backup-*.log' -mtime +30 -delete
+exit $RC

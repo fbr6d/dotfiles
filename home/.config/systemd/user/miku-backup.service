@@ -1,0 +1,12 @@
+[Unit]
+Description=미쿠 자동 백업 (Hermes + Projects → iCloud 암호화)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin
+ExecStart=%h/.local/bin/miku-backup
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=infinity

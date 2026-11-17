@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# 미쿠 iCloud 캘린더 MCP 서버 실행기: 암호는 설정 파일에서만 읽는다
+set -euo pipefail
+ENVF="$HOME/.config/mcp-icloud-caldav/env"
+set -a; source "$ENVF"; set +a
+if [ -z "${ICLOUD_USERNAME:-}" ] || [ -z "${ICLOUD_PASSWORD:-}" ]; then
+  echo "mcp-icloud-caldav: $ENVF 에 ICLOUD_USERNAME/ICLOUD_PASSWORD 가 비어 있습니다" >&2; exit 1
+fi
+exec "$HOME/.local/share/mcp-icloud-caldav/venv/bin/mcp-icloud-caldav"
