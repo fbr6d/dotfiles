@@ -6,6 +6,7 @@ hyprshell-bin
 localsend-bin
 paru-bin
 rasdaemon
+realesrgan-ncnn-vulkan-bin
 unigine-heaven
 ventoy-bin
 waypaper
