@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""데스크톱 알림이 뜰 때마다 메인보드 RGB를 잠깐 다른 색으로 깜빡인 뒤 원래 모드로 되돌린다.
+
+설정(환경 변수):
+  RGB_FLASH_COLOR    깜빡일 색 (기본 00AAFF)
+  RGB_FLASH_SECONDS  켜 두는 시간 (기본 1.5)
+  RGB_RESTORE_MODE   되돌릴 모드 (기본 rainbow)
+  RGB_DEVICE         OpenRGB 장치 번호 (기본 0)
+"""
+import os
+import subprocess
+import threading
+import time
+
+COLOR = os.environ.get("RGB_FLASH_COLOR", "00AAFF")
+SECONDS = float(os.environ.get("RGB_FLASH_SECONDS", "1.5"))
+RESTORE = os.environ.get("RGB_RESTORE_MODE", "rainbow")
+DEVICE = os.environ.get("RGB_DEVICE", "0")
+
+lock = threading.Lock()
+
+
+def openrgb(*args):
+    subprocess.run(["openrgb", "-d", DEVICE, *args],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
+
+
+def flash():
+    # 이미 깜빡이는 중이면 겹치지 않게 건너뛴다
+    if not lock.acquire(blocking=False):
+        return
+    try:
+        openrgb("-m", "static", "-c", COLOR)
+        time.sleep(SECONDS)
+        openrgb("-m", RESTORE)
+    finally:
+        lock.release()
+
+
+def main():
+    proc = subprocess.Popen(
+        ["dbus-monitor", "--session",
+         "type='method_call',interface='org.freedesktop.Notifications',member='Notify'"],
+        stdout=subprocess.PIPE, text=True, bufsize=1)
+    for line in proc.stdout:
+        if "member=Notify" in line:
+            threading.Thread(target=flash, daemon=True).start()
+    raise SystemExit(proc.wait() or 1)
+
+
+if __name__ == "__main__":
+    main()

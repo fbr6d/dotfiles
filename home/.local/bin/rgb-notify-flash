@@ -5,6 +5,7 @@
   RGB_FLASH_COLOR    깜빡일 색 (기본 00AAFF)
   RGB_FLASH_SECONDS  켜 두는 시간 (기본 1.5)
   RGB_RESTORE_MODE   되돌릴 모드 (기본 rainbow)
+  RGB_RESTORE_COLOR  되돌릴 모드의 색 (비우면 색 지정 안 함)
   RGB_DEVICE         OpenRGB 장치 번호 (기본 0)
 """
 import os
@@ -15,6 +16,7 @@ import time
 COLOR = os.environ.get("RGB_FLASH_COLOR", "00AAFF")
 SECONDS = float(os.environ.get("RGB_FLASH_SECONDS", "1.5"))
 RESTORE = os.environ.get("RGB_RESTORE_MODE", "rainbow")
+RESTORE_COLOR = os.environ.get("RGB_RESTORE_COLOR", "")
 DEVICE = os.environ.get("RGB_DEVICE", "0")
 
 lock = threading.Lock()
@@ -25,6 +27,13 @@ def openrgb(*args):
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
 
 
+def restore():
+    if RESTORE_COLOR:
+        openrgb("-m", RESTORE, "-c", RESTORE_COLOR)
+    else:
+        openrgb("-m", RESTORE)
+
+
 def flash():
     # 이미 깜빡이는 중이면 겹치지 않게 건너뛴다
     if not lock.acquire(blocking=False):
@@ -32,12 +41,14 @@ def flash():
     try:
         openrgb("-m", "static", "-c", COLOR)
         time.sleep(SECONDS)
-        openrgb("-m", RESTORE)
+        restore()
     finally:
         lock.release()
 
 
 def main():
+    # 켜질 때 평소 색(예: 미쿠색)을 먼저 적용한다
+    restore()
     proc = subprocess.Popen(
         ["dbus-monitor", "--session",
          "type='method_call',interface='org.freedesktop.Notifications',member='Notify'"],

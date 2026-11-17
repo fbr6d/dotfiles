@@ -5,7 +5,9 @@ After=openrgb-server.service
 
 [Service]
 ExecStartPre=/usr/bin/sleep 3
-Environment=RGB_RESTORE_MODE=off
+Environment=RGB_RESTORE_MODE=static
+Environment=RGB_RESTORE_COLOR=39C5BB
+Environment=RGB_FLASH_COLOR=E12885
 ExecStart=%h/.local/bin/rgb-notify-flash
 Restart=on-failure
 RestartSec=5
