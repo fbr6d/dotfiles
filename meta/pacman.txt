@@ -92,8 +92,10 @@ nautilus
 ncdu
 neovim
 networkmanager
+nodejs-lts-krypton
 noto-fonts-cjk
 noto-fonts-emoji
+npm
 nss-mdns
 ntfs-3g
 nvme-cli

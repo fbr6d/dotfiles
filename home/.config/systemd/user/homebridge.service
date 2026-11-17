@@ -1,0 +1,14 @@
+[Unit]
+Description=Homebridge (WiZ 조명 → 애플 홈)
+After=network-online.target
+
+[Service]
+WorkingDirectory=%h/.local/share/homebridge
+ExecStart=/usr/bin/node %h/.local/share/homebridge/node_modules/homebridge-config-ui-x/dist/bin/hb-service.js run -I -U %h/.local/share/homebridge/storage -P %h/.local/share/homebridge/node_modules --stdout
+Environment=PATH=/usr/bin:/bin
+Environment=UIX_STORAGE_PATH=%h/.local/share/homebridge/storage
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
