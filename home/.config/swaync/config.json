@@ -98,7 +98,7 @@
             "active": true
           },
           {
-            "label": "󰂱  MX Master 3S",
+            "label": "󰂯  Bluetooth",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state bt",
