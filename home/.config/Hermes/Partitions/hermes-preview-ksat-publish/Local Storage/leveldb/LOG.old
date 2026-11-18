@@ -1,3 +1,3 @@
-2026/11/17-02:57:47.565 3ec49 Reusing MANIFEST /home/leejaeik/.config/Hermes/Partitions/hermes-preview-ksat-publish/Local Storage/leveldb/MANIFEST-000001
-2026/11/17-02:57:47.565 3ec49 Recovering log #3
-2026/11/17-02:57:47.565 3ec49 Reusing old log /home/leejaeik/.config/Hermes/Partitions/hermes-preview-ksat-publish/Local Storage/leveldb/000003.log 
+2026/11/17-09:33:50.588 b673d Reusing MANIFEST /home/leejaeik/.config/Hermes/Partitions/hermes-preview-ksat-publish/Local Storage/leveldb/MANIFEST-000001
+2026/11/17-09:33:50.588 b673d Recovering log #3
+2026/11/17-09:33:50.589 b673d Reusing old log /home/leejaeik/.config/Hermes/Partitions/hermes-preview-ksat-publish/Local Storage/leveldb/000003.log 
