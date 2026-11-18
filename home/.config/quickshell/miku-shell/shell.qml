@@ -11,6 +11,7 @@ ShellRoot {
     ControlCenter { id: cc }
     Popups {}
     TrackCard {}
+    Mascot {}
     Variants {
         model: {
             const want = Quickshell.env("MIKU_CC_OUTPUT");

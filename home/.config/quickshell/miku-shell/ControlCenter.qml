@@ -1,7 +1,7 @@
 // 제어센터 (swaync 제어센터 대체)
 //   일정: iCloud 캘린더 오늘·내일 (읽기 전용, scripts/cal-feed, 열 때 1분 넘었으면 + 10분마다)
 //   상태 줄(Wi-Fi 1/4 · 유선 1/4 · 블루투스 1/2, 표시 전용)
-//   기기 연결 · 방해 금지
+//   기기 연결 · 방해 금지 · 마스코트(보이기/숨기기)
 //   볼륨 · (화면 밝기: 노트북처럼 밝기 장치가 있을 때만)
 //   ── 조명 ── 머리글(실시간 상태), 켜기/끄기 · 따뜻하게 · 집중 · 색 선택(1/4씩), 색 팔레트, 밝기
 //   잠금 · 재부팅 · 끄기 · (배터리: 배터리가 있을 때만)
@@ -254,6 +254,12 @@ PanelWindow {
                     icon: "do_not_disturb_on"; label: "방해 금지"; fontSize: 13
                     active: Notifs.dnd
                     onClicked: Notifs.dnd = !Notifs.dnd
+                }
+                Tile {
+                    Layout.fillWidth: true; Layout.preferredWidth: 1
+                    icon: "face_retouching_natural"; label: "마스코트"; fontSize: 13
+                    active: MascotState.shown
+                    onClicked: MascotState.shown = !MascotState.shown
                 }
             }
 
