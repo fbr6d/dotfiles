@@ -1,0 +1,102 @@
+#!/usr/bin/python3
+"""상단 바 시스템 상태 알약용: 온도 · iCloud 백업 · iCloud 인증 남은 날을 JSON 한 줄로 출력 (읽기 전용).
+alerts 가 비어 있으면 바에서는 알약을 숨긴다 (오른쪽에 마우스를 올리면 자세히 펼쳐짐)."""
+import datetime as dt
+import json
+import os
+import re
+import subprocess
+
+HOME = os.path.expanduser("~")
+B = os.path.join(HOME, ".local/share/miku-backup")
+CPU_HOT = 85
+AUTH_WARN_DAYS = 7
+
+
+def sh(*cmd):
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=5).stdout
+    except Exception:
+        return ""
+
+
+def temps():
+    cpu = gpu = ssd = None
+    try:
+        data = json.loads(sh("sensors", "-j") or "{}")
+    except Exception:
+        data = {}
+    ssds = []
+    for chip, vals in data.items():
+        for feat, d in vals.items():
+            if not isinstance(d, dict):
+                continue
+            t = next((v for k, v in d.items() if k.endswith("_input")), None)
+            if t is None:
+                continue
+            if chip.startswith("k10temp") and feat == "Tctl":
+                cpu = round(t)
+            elif chip.startswith("amdgpu-pci-0300") and feat == "edge":
+                gpu = round(t)
+            elif chip.startswith("nvme") and feat == "Composite":
+                ssds.append(round(t))
+    if ssds:
+        ssd = max(ssds)
+    return cpu, gpu, ssd
+
+
+def backup():
+    st = {}
+    try:
+        st = json.load(open(os.path.join(B, "status.json")))
+    except Exception:
+        pass
+    active = sh("systemctl", "--user", "is-active", "miku-backup.service").strip()
+    running = active in ("active", "activating")
+    pct = None
+    if running:
+        logs = sorted((f for f in os.listdir(os.path.join(B, "logs")) if f.endswith(".log")), reverse=True)
+        if logs:
+            with open(os.path.join(B, "logs", logs[0]), "rb") as f:
+                f.seek(0, 2)
+                f.seek(max(0, f.tell() - 200000))
+                tail = f.read().decode("utf-8", "ignore")
+            m = re.findall(r"GiB / [\d.]+ GiB, (\d+)%", tail)
+            pct = int(m[-1]) if m else None
+    fin = st.get("finished")
+    when = dt.datetime.fromtimestamp(fin).strftime("%-m/%-d %H:%M") if fin else None
+    return {"running": running, "pct": pct, "result": st.get("result"), "finished": when}
+
+
+def auth_days():
+    try:
+        d = dt.date.fromisoformat(open(os.path.join(B, "icloud-auth-date")).read().strip())
+        return (d + dt.timedelta(days=30) - dt.date.today()).days
+    except Exception:
+        return None
+
+
+cpu, gpu, ssd = temps()
+bk = backup()
+ad = auth_days()
+alerts = []  # (단계, 짧은 글자) 단계: red / yellow / info
+if cpu is not None and cpu >= CPU_HOT:
+    alerts.append({"level": "red", "text": f"CPU {cpu}°"})
+if bk["running"]:
+    alerts.append({"level": "info", "text": f"백업 {bk['pct']}%" if bk["pct"] is not None else "백업 중"})
+elif bk["result"] == "실패":
+    alerts.append({"level": "red", "text": "백업 실패"})
+if ad is not None and ad <= AUTH_WARN_DAYS:
+    alerts.append({"level": "yellow" if ad > 0 else "red", "text": f"iCloud 인증 D-{ad}" if ad > 0 else "iCloud 인증 만료"})
+
+detail = [f"CPU {cpu}°" if cpu is not None else "CPU ?",
+          f"GPU {gpu}°" if gpu is not None else "GPU 쉬는 중",
+          f"SSD {ssd}°" if ssd is not None else "SSD ?"]
+if bk["running"]:
+    detail.append(f"백업 {bk['pct']}%" if bk["pct"] is not None else "백업 중")
+elif bk["result"]:
+    detail.append(f"백업 {bk['result']} {bk['finished'] or ''}".strip())
+if ad is not None:
+    detail.append(f"인증 D-{ad}")
+
+print(json.dumps({"alerts": alerts, "detail": " · ".join(detail)}, ensure_ascii=False))

@@ -124,7 +124,7 @@ def main():
         # 따로 띄운다 (창을 기다리는 동안 swaync 버튼이 묶이지 않게)
         if not pilot().get("state"):
             return
-        subprocess.run(["swaync-client", "-cp", "-sw"], capture_output=True)
+        subprocess.run(["qs", "-c", "miku-shell", "ipc", "call", "cc", "close"], capture_output=True)
         subprocess.Popen([sys.executable, os.path.abspath(__file__), "color-pick"],
                          start_new_session=True, stdin=subprocess.DEVNULL,
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

@@ -1,0 +1,19 @@
+#!/bin/sh
+# Programs started once the desktop is actually in use: right away after a
+# password login, or — after the automatic login at boot — only once the lock
+# screen is unlocked for the first time (see session-start).
+run() { setsid -f sh -c "$1" >/dev/null 2>&1; }
+
+run waybar                                          # top bar (slides down from the top)
+run "systemctl --user start swaync"                # control center + notifications (its D-Bus unit, so an early notification never starts a second copy)
+run "$HOME/.local/bin/swaync-status"                # keeps Wi-Fi / Bluetooth / battery in the control center current
+run "$HOME/.local/bin/cc-focus-keeper"              # control center closing never steals focus / scrolls the windows
+run "systemctl --user start hyprpolkitagent"        # password prompts for pkexec
+run "/opt/localsend/localsend --hidden"             # LocalSend in the tray
+run "sleep 2; /opt/1Password/1password --silent"     # 1Password in the tray (keyring is unlocked by hyprlock PAM first)
+run "clipse -listen"                                # clipboard history (SUPER+SHIFT+V)
+run udiskie                                         # USB drives mount automatically
+# (2026-11-16) old miku-boot greeting removed; backup in ~/.local/share/backups/miku-greeting-20261116
+run "$HOME/.local/bin/miku-boot"                      # Hermes (miku) greeting terminal, first login after boot only
+run "sleep 2; $HOME/.local/bin/reboot-keep restore" # windows saved by a reboot-keep reboot
+run "sleep 3; $HOME/.local/bin/greeter-bg"          # login-screen background = blurred wallpaper

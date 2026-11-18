@@ -6,7 +6,7 @@ case "$1" in
     poweroff) q="시스템을 종료할까요?"; yes="󰐥  시스템 종료" ;;
     *) echo "usage: power-confirm reboot|poweroff" >&2; exit 2 ;;
 esac
-swaync-client -cp -sw >/dev/null 2>&1   # close the control center first
+qs -c miku-shell ipc call cc close >/dev/null 2>&1   # close the control center first
 choice=$(printf '%s\n%s\n' "취소" "$yes" | rofi -dmenu -i -no-custom -p "$q" \
     -theme-str 'window { width: 340px; } listview { lines: 2; } inputbar { children: [ prompt ]; }')
 [ "$choice" = "$yes" ] && exec systemctl "$1"

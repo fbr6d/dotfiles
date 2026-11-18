@@ -3,9 +3,12 @@
 # window of the app that sent it (switching workspace if needed, and bringing
 # parked popups like Spotify back from workspace 99).
 # swaync passes SWAYNC_DESKTOP_ENTRY and SWAYNC_APP_NAME in the environment.
+# Quickshell(miku-shell) passes them as arguments instead:
+#   notify-focus <desktop-entry> <app-name>
 import json
 import os
 import subprocess
+import sys
 
 HIDDEN = 99
 
@@ -19,7 +22,10 @@ def norm(s):
 
 
 def main():
-    keys = [norm(os.environ.get(v, "")) for v in ("SWAYNC_DESKTOP_ENTRY", "SWAYNC_APP_NAME")]
+    if len(sys.argv) > 1:
+        keys = [norm(a) for a in sys.argv[1:3]]
+    else:
+        keys = [norm(os.environ.get(v, "")) for v in ("SWAYNC_DESKTOP_ENTRY", "SWAYNC_APP_NAME")]
     keys = [k for k in keys if k]
     if not keys:
         return

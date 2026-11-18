@@ -4,9 +4,10 @@
 # screen is unlocked for the first time (see session-start).
 run() { setsid -f sh -c "$1" >/dev/null 2>&1; }
 
-run waybar                                          # top bar (slides down from the top)
-run "systemctl --user start swaync"                # control center + notifications (its D-Bus unit, so an early notification never starts a second copy)
-run "$HOME/.local/bin/swaync-status"                # keeps Wi-Fi / Bluetooth / battery in the control center current
+# (2026-11-18) waybar + swaync + swaync-status → Quickshell miku-shell (~/.config/quickshell/miku-shell):
+# top bar, control center and notifications in one. swaync.service is masked so D-Bus can't start it.
+# Old lines in ~/.local/share/backups/miku-shell-20261118/session-apps
+run "qs -c miku-shell"                              # top bar + control center + notifications
 run "$HOME/.local/bin/cc-focus-keeper"              # control center closing never steals focus / scrolls the windows
 run "systemctl --user start hyprpolkitagent"        # password prompts for pkexec
 run "/opt/localsend/localsend --hidden"             # LocalSend in the tray

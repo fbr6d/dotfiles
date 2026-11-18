@@ -1,0 +1,93 @@
+#!/home/leejaeik/.local/share/mcp-icloud-caldav/venv/bin/python
+"""제어센터 일정 칸용: iCloud 캘린더의 오늘·내일 일정을 JSON 한 줄로 출력 (읽기 전용).
+계정은 ~/.config/mcp-icloud-caldav/env 에서만 읽고 절대 출력하지 않는다.
+(아침 브리핑의 ~/.hermes/profiles/miku/scripts/today_calendar.py 와 같은 방식)"""
+import datetime as dt
+import json
+import os
+from zoneinfo import ZoneInfo
+
+KST = ZoneInfo("Asia/Seoul")
+ENV = os.path.expanduser("~/.config/mcp-icloud-caldav/env")
+WEEK = "월화수목금토일"
+
+
+def load_env():
+    conf = {}
+    with open(ENV) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                conf[k.strip()] = v.strip().strip('"').strip("'")
+    return conf
+
+
+def to_kst(v):
+    if isinstance(v, dt.datetime):
+        if v.tzinfo is None:
+            v = v.replace(tzinfo=KST)
+        return v.astimezone(KST), False
+    return v, True  # date = 종일 일정
+
+
+def main():
+    import caldav
+
+    c = load_env()
+    user, pw = c.get("ICLOUD_USERNAME"), c.get("ICLOUD_PASSWORD")
+    if not user or not pw:
+        return {"error": "계정 정보 없음"}
+    today = dt.datetime.now(KST).replace(hour=0, minute=0, second=0, microsecond=0)
+    days = [{"label": l, "start": today + dt.timedelta(days=i), "events": []}
+            for i, l in enumerate(("오늘", "내일"))]
+    end = today + dt.timedelta(days=2)
+    client = caldav.DAVClient(url="https://caldav.icloud.com", username=user, password=pw, timeout=20)
+    for cal in client.principal().calendars():
+        try:
+            cname = cal.get_display_name()
+        except Exception:
+            cname = "?"
+        try:
+            evs = cal.search(start=today, end=end, event=True, expand=True)
+        except Exception:  # 일정이 아닌 캘린더(미리 알림 등)는 건너뛴다
+            continue
+        for ev in evs:
+            comp = ev.icalendar_component
+            s, allday = to_kst(comp.get("dtstart").dt)
+            e = comp.get("dtend")
+            e = to_kst(e.dt)[0] if e else None
+            title = str(comp.get("summary", "(제목 없음)"))
+            for d in days:
+                ds = d["start"]
+                de = ds + dt.timedelta(days=1)
+                if allday:
+                    sd = s
+                    ed = e if isinstance(e, dt.date) and not isinstance(e, dt.datetime) else s + dt.timedelta(days=1)
+                    hit = sd <= ds.date() < ed
+                    key, when = "00:00", "종일"
+                else:
+                    ee = e if isinstance(e, dt.datetime) else s
+                    hit = s < de and (ee > ds or s >= ds)
+                    key = s.strftime("%H:%M") if s >= ds else "00:00"
+                    when = (s.strftime("%H:%M") if s >= ds else "~") + (
+                        f"~{ee.strftime('%H:%M')}" if isinstance(e, dt.datetime) and ee < de else "")
+                if hit:
+                    past = (not allday) and (e if isinstance(e, dt.datetime) else s) < dt.datetime.now(KST)
+                    d["events"].append({"key": key, "when": when, "title": title, "cal": cname, "past": past})
+    out = []
+    for d in days:
+        evs = sorted(d["events"], key=lambda x: x["key"])
+        for x in evs:
+            x.pop("key")
+        st = d["start"]
+        out.append({"label": d["label"], "date": f"{st.month}/{st.day} ({WEEK[st.weekday()]})", "events": evs})
+    return {"days": out, "fetched": dt.datetime.now(KST).strftime("%H:%M")}
+
+
+if __name__ == "__main__":
+    try:
+        res = main()
+    except Exception as e:
+        res = {"error": f"일정을 못 불러왔어요 ({type(e).__name__})"}
+    print(json.dumps(res, ensure_ascii=False))

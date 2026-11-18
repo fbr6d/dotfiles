@@ -1,9 +1,10 @@
 // 제어센터 (swaync 제어센터 대체)
+//   일정: iCloud 캘린더 오늘·내일 (읽기 전용, scripts/cal-feed, 열 때 1분 넘었으면 + 10분마다)
 //   상태 줄(Wi-Fi 1/4 · 유선 1/4 · 블루투스 1/2, 표시 전용)
 //   기기 연결 · 방해 금지
-//   볼륨
+//   볼륨 · (화면 밝기: 노트북처럼 밝기 장치가 있을 때만)
 //   ── 조명 ── 머리글(실시간 상태), 켜기/끄기 · 따뜻하게 · 집중 · 색 선택(1/4씩), 색 팔레트, 밝기
-//   잠금 · 재부팅 · 끄기
+//   잠금 · 재부팅 · 끄기 · (배터리: 배터리가 있을 때만)
 //   알림 목록 (모두 지우기)
 // 열고 닫기: qs -c miku-shell ipc call cc toggle
 import Quickshell
@@ -11,6 +12,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Services.Pipewire
+import Quickshell.Services.UPower
 import QtQuick
 import QtQuick.Layouts
 
@@ -29,7 +31,7 @@ PanelWindow {
         return Quickshell.screens[0];
     }
 
-    onOpenChanged: Notifs.ccOpen = open
+    onOpenChanged: { Notifs.ccOpen = open; if (open) blProc.running = true }
     function show() { open = true; refreshAll() }
     function hide() { open = false }
     function toggle() { open ? hide() : show() }
@@ -40,7 +42,10 @@ PanelWindow {
     anchors { top: true; right: true }
     margins { top: 8; right: 8 }
     implicitWidth: 380
-    implicitHeight: box.implicitHeight
+    // 창 높이는 화면 높이로 고정하고 입력은 box 영역만 받는다.
+    // (내용 높이를 따라가면 팔레트가 펼쳐지는 동안 매 프레임 창 크기가 바뀌어 애니메이션이 끊긴다)
+    implicitHeight: (screen ? screen.height : 1080) - 16
+    mask: Region { item: box }
     exclusionMode: ExclusionMode.Normal
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "miku-cc"
@@ -50,7 +55,7 @@ PanelWindow {
     HyprlandFocusGrab {
         windows: [panel]
         active: panel.open
-        onCleared: panel.hide()
+        onCleared: if (Quickshell.env("MIKU_CC_OPEN") !== "1") panel.hide()   // 시험 띄우기 중에는 안 닫음
     }
 
     // ---------------- 상태 읽기 ----------------
@@ -62,7 +67,7 @@ PanelWindow {
     readonly property bool lightOn: light.state === true
     property bool colorOpen: false
 
-    function refreshAll() { netProc.running = true; refreshLight(); tick.n++ }
+    function refreshAll() { netProc.running = true; refreshLight(); refreshCal(); tick.n++ }
     function refreshLight() { if (!lightProc.running) lightProc.running = true }
     function lightAction(args) { run([wiz].concat(args)); lightSoon.restart() }
 
@@ -85,9 +90,27 @@ PanelWindow {
             }
         }
     }
-    Timer { interval: 3000; repeat: true; running: panel.open; onTriggered: netProc.running = true }
+    // ---------------- 일정 (iCloud 캘린더 오늘·내일, 읽기 전용) ----------------
+    property var cal: ({})
+    property double calAt: 0
+    function refreshCal() {
+        if (!calProc.running && Date.now() - calAt > 60000) calProc.running = true
+    }
+    Process {
+        id: calProc
+        command: [panel.home + "/.config/quickshell/miku-shell/scripts/cal-feed"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try { panel.cal = JSON.parse(text); panel.calAt = Date.now() } catch (e) {}
+            }
+        }
+    }
+    Timer { interval: 600000; repeat: true; running: true; triggeredOnStart: true; onTriggered: { panel.calAt = 0; panel.refreshCal() } }
+
+    // 닫혀 있을 때도 가끔 읽어 둬서 열자마자 바로 보이게
+    Timer { interval: panel.open ? 3000 : 10000; repeat: true; running: true; triggeredOnStart: true; onTriggered: netProc.running = true }
     Timer { id: tick; property int n: 0; interval: 30000; repeat: true; running: panel.open; onTriggered: n++ }
-    Timer { interval: 2000; repeat: true; running: panel.open; onTriggered: panel.refreshLight() }
+    Timer { interval: panel.open ? 2000 : 10000; repeat: true; running: true; triggeredOnStart: true; onTriggered: panel.refreshLight() }
     Timer { id: lightSoon; interval: 350; onTriggered: panel.refreshLight() }
 
     function lightStatus() {
@@ -100,6 +123,32 @@ PanelWindow {
     }
     readonly property string lightHex: light.r !== undefined && !light.temp
         ? Qt.rgba(light.r / 255, light.g / 255, light.b / 255, 1) : "transparent"
+
+    // 화면 밝기 (brightnessctl -m: 장치,종류,현재,퍼센트,최대). 장치가 없으면 칸을 숨김
+    property bool hasBacklight: false
+    property real backlight: 0
+    Process {
+        id: blProc
+        command: ["sh", "-c", "ls /sys/class/backlight 2>/dev/null | grep -q . && brightnessctl -m -c backlight info"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const f = text.trim().split(",");
+                panel.hasBacklight = f.length >= 4;
+                if (panel.hasBacklight && !blCard.pressed) panel.backlight = parseInt(f[3]) / 100;
+            }
+        }
+    }
+
+    // 배터리 (UPower). 데스크톱처럼 배터리가 없으면 칸을 숨김
+    readonly property var battery: UPower.displayDevice
+    readonly property bool hasBattery: battery && battery.ready && battery.isLaptopBattery
+    function batteryText() {
+        const p = Math.round(battery.percentage * 100);
+        const st = battery.state === UPowerDeviceState.Charging ? "충전 중"
+                 : battery.state === UPowerDeviceState.FullyCharged ? "충전 완료"
+                 : battery.state === UPowerDeviceState.PendingCharge ? "충전 안 함" : "사용 중";
+        return "배터리 " + p + "% · " + st;
+    }
 
     // 볼륨 (PipeWire 기본 출력)
     readonly property var sink: Pipewire.defaultAudioSink
@@ -125,6 +174,63 @@ PanelWindow {
             id: col
             anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }
             spacing: 6
+
+            // ── 일정 (오늘 · 내일) ──
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.leftMargin: 4; Layout.rightMargin: 4; Layout.topMargin: 2
+                spacing: 8
+                Text {
+                    visible: !!panel.cal.error
+                    text: panel.cal.error || ""
+                    color: Theme.dim; font.family: Theme.font; font.pixelSize: 12
+                }
+                Text {
+                    visible: !panel.cal.error && !panel.cal.days
+                    text: "일정 불러오는 중…"
+                    color: Theme.dim; font.family: Theme.font; font.pixelSize: 12
+                }
+                Repeater {
+                    model: panel.cal.days || []
+                    ColumnLayout {
+                        id: day
+                        required property var modelData
+                        Layout.fillWidth: true
+                        spacing: 3
+                        RowLayout {
+                            spacing: 6
+                            Text { text: day.modelData.label; color: Theme.text; font.family: Theme.font; font.pixelSize: 13; font.weight: Font.Bold }
+                            Text { text: day.modelData.date; color: Theme.dim; font.family: Theme.font; font.pixelSize: 12 }
+                        }
+                        Text {
+                            visible: day.modelData.events.length === 0
+                            text: day.modelData.label === "오늘" ? "오늘은 일정이 없어요" : "내일은 일정이 없어요"
+                            color: Theme.dim; font.family: Theme.font; font.pixelSize: 12
+                        }
+                        Repeater {
+                            model: day.modelData.events
+                            RowLayout {
+                                required property var modelData
+                                Layout.fillWidth: true
+                                spacing: 10
+                                Text {
+                                    Layout.preferredWidth: 78
+                                    text: modelData.when
+                                    color: modelData.past ? Theme.dim : Theme.muted; opacity: modelData.past ? 0.7 : 1; font.family: Theme.font; font.pixelSize: 12; font.weight: Font.DemiBold
+                                    font.features: { "tnum": 1 }
+                                }
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.title
+                                    color: modelData.past ? Theme.dim : Theme.text;   // 이미 끝난 일정은 흐리게 font.family: Theme.font; font.pixelSize: 13
+                                    elide: Text.ElideRight
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Rectangle { Layout.fillWidth: true; Layout.topMargin: 2; Layout.bottomMargin: 2; implicitHeight: 1; color: Theme.raised }
 
             // 상태 줄: 누를 수 없는 표시 칸
             RowLayout {
@@ -158,6 +264,15 @@ PanelWindow {
                 value: panel.sink ? Math.min(1, panel.sink.audio.volume) : 0
                 onMoved: v => { if (panel.sink) panel.sink.audio.volume = v }
                 onIconClicked: if (panel.sink) panel.sink.audio.muted = !panel.sink.audio.muted
+            }
+
+            SliderCard {
+                id: blCard
+                visible: panel.hasBacklight
+                Layout.fillWidth: true
+                icon: "brightness_medium"
+                value: panel.backlight
+                onMoved: v => panel.run(["brightnessctl", "-q", "-c", "backlight", "set", Math.max(1, Math.round(v * 100)) + "%"])
             }
 
             // ── 조명 ──
@@ -204,18 +319,26 @@ PanelWindow {
                 }
             }
 
-            // 색 팔레트 (색 선택을 누르면 펼쳐짐)
+            // 색 팔레트 (색 선택을 누르면 펼쳐짐): 자주 쓰는 색 8개 + 끌어서 고르는 색상 막대
             Rectangle {
+                id: palette
                 Layout.fillWidth: true
-                implicitHeight: panel.colorOpen ? 44 : 0
+                // reveal 0→1 하나로 높이·간격·내용 페이드를 함께 움직인다
+                property real reveal: panel.colorOpen ? 1 : 0
+                Behavior on reveal { NumberAnimation { duration: 300; easing.type: Easing.OutQuart } }
+                implicitHeight: 84 * reveal
+                Layout.topMargin: -6 * (1 - reveal)   // 접힐 때 줄 간격 6px 도 같이 줄어 '툭' 튀지 않게
                 clip: true
                 radius: 12
                 color: Theme.surface
-                visible: implicitHeight > 0
-                Behavior on implicitHeight { NumberAnimation { duration: Theme.base; easing.type: Easing.OutCubic } }
+                opacity: Math.min(1, reveal * 2)
+                visible: reveal > 0.001
                 Row {
-                    anchors.centerIn: parent
-                    spacing: 10
+                    id: swatches
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    y: 10 - 8 * (1 - palette.reveal)
+                    opacity: palette.reveal
+                    spacing: 12
                     Repeater {
                         model: ["39C5BB", "E12885", "F38BA8", "FAB387", "F9E2AF", "A6E3A1", "89B4FA", "CBA6F7"]
                         Rectangle {
@@ -233,17 +356,49 @@ PanelWindow {
                             }
                         }
                     }
+                }
+                // 색상 막대: 손을 뗄 때 그 색으로 바꿈
+                Item {
+                    id: hueBar
+                    anchors { left: parent.left; right: parent.right; leftMargin: 16; rightMargin: 16 }
+                    y: 50 - 8 * (1 - palette.reveal)
+                    opacity: palette.reveal
+                    height: 22
+                    property real hue: 0.5
+                    function hex(h) {
+                        const c = Qt.hsva(h, 1, 1, 1);
+                        const t = v => Math.round(v * 255).toString(16).padStart(2, "0");
+                        return (t(c.r) + t(c.g) + t(c.b)).toUpperCase();
+                    }
                     Rectangle {
-                        width: 26; height: 26; radius: 13
-                        color: more.containsMouse ? Theme.text : Theme.raised
-                        Icon { anchors.centerIn: parent; text: "colorize"; size: 16; color: more.containsMouse ? Theme.onLight : Theme.text }
-                        MouseArea {
-                            id: more
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: { panel.hide(); panel.run([panel.wiz, "color-pick"]) }
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: parent.width; height: 10; radius: 5
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+                            GradientStop { position: 0.0; color: "#ff0000" }
+                            GradientStop { position: 1 / 6; color: "#ffff00" }
+                            GradientStop { position: 2 / 6; color: "#00ff00" }
+                            GradientStop { position: 3 / 6; color: "#00ffff" }
+                            GradientStop { position: 4 / 6; color: "#0000ff" }
+                            GradientStop { position: 5 / 6; color: "#ff00ff" }
+                            GradientStop { position: 1.0; color: "#ff0000" }
                         }
+                    }
+                    Rectangle {
+                        width: 18; height: 18; radius: 9
+                        anchors.verticalCenter: parent.verticalCenter
+                        x: hueBar.hue * (hueBar.width - width)
+                        color: Qt.hsva(hueBar.hue, 1, 1, 1)
+                        border.color: Theme.text
+                        border.width: 3
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        function at(mx) { return Math.max(0, Math.min(1, mx / width)) }
+                        onPressed: mouse => hueBar.hue = at(mouse.x)
+                        onPositionChanged: mouse => { if (pressed) hueBar.hue = at(mouse.x) }
+                        onReleased: panel.lightAction(["rgb", hueBar.hex(hueBar.hue)])
                     }
                 }
             }
@@ -264,6 +419,31 @@ PanelWindow {
                        onClicked: { panel.hide(); panel.run([panel.home + "/.local/bin/power-confirm", "reboot"]) } }
                 Tile { Layout.fillWidth: true; Layout.preferredWidth: 1; radius: 22; icon: "power_settings_new"; iconSize: 20
                        onClicked: { panel.hide(); panel.run([panel.home + "/.local/bin/power-confirm", "poweroff"]) } }
+            }
+
+            Rectangle {
+                visible: panel.hasBattery
+                Layout.fillWidth: true
+                implicitHeight: 44
+                radius: 12
+                color: Theme.surface
+                Row {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 16
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 10
+                    Icon {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: panel.hasBattery && panel.battery.state === UPowerDeviceState.Charging ? "battery_charging_full" : "battery_full"
+                        color: panel.hasBattery && panel.battery.percentage < 0.1 ? Theme.red
+                             : panel.hasBattery && panel.battery.percentage < 0.25 ? "#fab387" : Theme.text
+                    }
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: panel.hasBattery ? panel.batteryText() : ""
+                        color: Theme.text; font.family: Theme.font; font.pixelSize: 13
+                    }
+                }
             }
 
             // 알림
@@ -297,7 +477,7 @@ PanelWindow {
                 clip: true
                 spacing: 6
                 boundsBehavior: Flickable.StopAtBounds
-                model: Notifs.list.values.slice().reverse()
+                model: Notifs.list.slice().reverse()
                 verticalLayoutDirection: ListView.TopToBottom
                 delegate: NotificationCard {
                     required property var modelData

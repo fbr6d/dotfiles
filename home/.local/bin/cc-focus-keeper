@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Keeps the focused window when the swaync control center closes.
+# Keeps the focused window when the control center (Quickshell miku-shell) closes.
 # Closing the panel (e.g. by clicking outside it) sometimes hands focus to the
 # window under the pointer, often a column peeking in from the right, and the
 # scrolling layout then slides the whole tape over to it. This remembers the
@@ -7,7 +7,7 @@
 # it closes, puts it back. Started from ~/.local/bin/session-apps.
 import json, os, socket, subprocess, time
 
-PANEL = "swaync-control-center"
+PANEL = "miku-cc"   # Quickshell miku-shell control center (was swaync-control-center)
 WINDOW_S = 0.6   # focus changes this soon after closing count as accidental
 
 def sock():

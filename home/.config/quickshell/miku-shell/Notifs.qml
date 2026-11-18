@@ -15,8 +15,11 @@ Singleton {
     property var hovered: ({})             // 마우스가 올라간 팝업 id (시간 멈춤)
     property var popups: []
     property var times: ({})
-    readonly property var list: server.trackedNotifications
-    readonly property int count: server.trackedNotifications.values.length
+    // MIKU_NO_NOTIF=1 이면 알림 서버를 켜지 않는다 (swaync 가 도는 동안 시험할 때)
+    readonly property var server: serverLoader.item
+    readonly property var empty: []
+    readonly property var list: server ? server.trackedNotifications.values : empty
+    readonly property int count: list.length
 
     // 기록에 남기지 않는 앱 (swaync notification-visibility 의 transient 와 같음)
     readonly property var transientApps: ["Backup"]
@@ -32,7 +35,7 @@ Singleton {
         if (transientIds[n.id]) { delete transientIds[n.id]; n.dismiss() }
     }
     function clearAll() {
-        for (const n of server.trackedNotifications.values.slice()) n.dismiss();
+        for (const n of list.slice()) n.dismiss();
         popups = [];
     }
     function ago(id) {
@@ -48,17 +51,22 @@ Singleton {
     function activate(n) {
         const def = n.actions.find(a => a.identifier === "default");
         if (def) def.invoke();
-        Quickshell.execDetached(["env", "SWAYNC_DESKTOP_ENTRY=" + (n.desktopEntry || ""),
-                                 "SWAYNC_APP_NAME=" + (n.appName || ""),
-                                 Quickshell.env("HOME") + "/.local/bin/notify-focus"]);
+        Quickshell.execDetached([Quickshell.env("HOME") + "/.local/bin/notify-focus",
+                                 n.desktopEntry || "", n.appName || ""]);
         n.dismiss();
     }
     function icon(n) {
-        if (n.image) return n.image;
+        // Quickshell 은 아이콘 이름도 image://icon/<이름> 으로 넘겨 줘서, 테마에 없는 이름이면 체크무늬가 나온다
+        if (n.image && n.image.startsWith("image://icon/")) {
+            if (Quickshell.hasThemeIcon(n.image.slice(13))) return n.image;
+        } else if (n.image) return n.image;
         if (n.appIcon && (n.appIcon.startsWith("/") || n.appIcon.startsWith("file:"))) return n.appIcon;
         if (n.appIcon && Quickshell.hasThemeIcon(n.appIcon)) return Quickshell.iconPath(n.appIcon);
         const e = n.desktopEntry ? DesktopEntries.byId(n.desktopEntry) : null;
         if (e && e.icon && Quickshell.hasThemeIcon(e.icon)) return Quickshell.iconPath(e.icon);
+        // 마지막으로 앱 이름으로 .desktop 을 짐작해서 (예: "Spotify" → spotify-launcher)
+        const g = n.appName && DesktopEntries.heuristicLookup ? DesktopEntries.heuristicLookup(n.appName) : null;
+        if (g && g.icon && Quickshell.hasThemeIcon(g.icon)) return Quickshell.iconPath(g.icon);
         return "";
     }
 
@@ -76,8 +84,10 @@ Singleton {
         }
     }
 
-    NotificationServer {
-        id: server
+    Loader {
+        id: serverLoader
+        active: Quickshell.env("MIKU_NO_NOTIF") !== "1"
+        sourceComponent: NotificationServer {
         keepOnReload: true
         bodySupported: true
         bodyMarkupSupported: true
@@ -97,6 +107,7 @@ Singleton {
             n.closed.connect(() => root.removePopup(n));
             // 기록에 안 남기는 알림은 팝업이 사라질 때 같이 지운다
             if (!keep) root.transientIds[n.id] = true;
+        }
         }
     }
 }

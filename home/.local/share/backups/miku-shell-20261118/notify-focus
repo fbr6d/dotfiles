@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+# swaync "run-on: action" script: when a notification is clicked, focus the
+# window of the app that sent it (switching workspace if needed, and bringing
+# parked popups like Spotify back from workspace 99).
+# swaync passes SWAYNC_DESKTOP_ENTRY and SWAYNC_APP_NAME in the environment.
+import json
+import os
+import subprocess
+
+HIDDEN = 99
+
+
+def hypr(*args):
+    return subprocess.run(["hyprctl", *args], capture_output=True, text=True).stdout
+
+
+def norm(s):
+    return "".join(ch for ch in s.lower() if ch.isalnum())
+
+
+def main():
+    keys = [norm(os.environ.get(v, "")) for v in ("SWAYNC_DESKTOP_ENTRY", "SWAYNC_APP_NAME")]
+    keys = [k for k in keys if k]
+    if not keys:
+        return
+    clients = json.loads(hypr("-j", "clients"))
+    clients.sort(key=lambda c: c["focusHistoryID"])   # most recently used first
+
+    def score(c):
+        cls, title = norm(c["class"]), norm(c["initialTitle"])
+        best = 0
+        for k in keys:
+            if cls == k:
+                best = max(best, 3)        # org.gnome.Nautilus == org.gnome.Nautilus
+            elif cls.endswith(k) or k.endswith(cls):
+                best = max(best, 2)        # com.anthropic.Claude ~ claude
+            elif k in cls or k in title:
+                best = max(best, 1)
+        return best
+
+    match = max(clients, key=score, default=None)
+    if not match or score(match) == 0:
+        return
+    win = f'"address:{match["address"]}"'
+    if match["workspace"].get("id") == HIDDEN:   # parked popup: bring it here first
+        ws = json.loads(hypr("-j", "activeworkspace"))["id"]
+        hypr("dispatch", f"hl.dsp.window.move({{ window = {win}, workspace = {ws}, follow = false }})")
+    hypr("dispatch", f"hl.dsp.focus({{ window = {win} }})")
+    hypr("dispatch", f'hl.dsp.window.alter_zorder({{ window = {win}, mode = "top" }})')
+
+
+if __name__ == "__main__":
+    main()

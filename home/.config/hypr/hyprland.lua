@@ -513,11 +513,11 @@ hl.layer_rule({
     blur       = true,
 })
 
--- Top bar (waybar): the pills slide down from the top edge when it starts,
--- i.e. right after the lock screen fades away at login
+-- Top bar (Quickshell miku-shell, was waybar): the pills slide down from the top
+-- edge when it starts, i.e. right after the lock screen fades away at login
 hl.layer_rule({
-    name      = "waybar-slide-down",
-    match     = { namespace = "^waybar$" },
+    name      = "bar-slide-down",
+    match     = { namespace = "^(miku-bar|waybar)$" },
     animation = "slide top",
 })
 
