@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""swaync-status: keep the control center (swaync) showing the real state.
+
+swaync only reads a toggle's state when the panel opens and its labels are
+fixed text, so this small loop checks Wi-Fi, Bluetooth and the battery every
+few seconds and, only when something changed, writes it into
+~/.config/swaync/config.json and reloads swaync — while the panel is closed (see panel_open):
+  - status row (buttons-grid#net, display only — white = connected/on):
+      Wi-Fi + network name | wired network | Bluetooth + connected device(s)
+  - battery card:      a plain text line (not a slider), e.g. "󰂀  87% · 사용 중"
+Started at login by ~/.local/bin/session-apps.
+"""
+import json, os, subprocess, time
+
+CONF = os.path.expanduser("~/.config/swaync/config.json")
+BAT = "/sys/class/power_supply/BAT0"
+INTERVAL = 3
+SHORT = 6   # characters of a network / device name that fit in a quarter tile
+
+
+def sh(*cmd):
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=5).stdout.strip()
+    except Exception:
+        return ""
+
+
+def short(text, n=SHORT):
+    return text if len(text) <= n else text[: n - 1] + "…"
+
+
+def devices():
+    """nmcli device states, e.g. {'wifi': ['connected'], 'ethernet': ['connected', 'disconnected']}"""
+    out = {}
+    for line in sh("nmcli", "-t", "-f", "TYPE,STATE", "dev").splitlines():
+        kind, _, state = line.partition(":")
+        out.setdefault(kind, []).append(state)
+    return out
+
+
+def wifi(devs):
+    if sh("nmcli", "radio", "wifi") != "enabled":
+        return False, "󰖪  꺼짐"
+    if "connected" not in devs.get("wifi", []):
+        return False, "󰖩  연결 안 됨"
+    ssid = ""
+    for line in sh("nmcli", "-t", "-f", "ACTIVE,SSID", "dev", "wifi").splitlines():
+        if line.startswith("yes:"):
+            ssid = line[4:].replace("\\:", ":")
+            break
+    return True, "󰖩  " + short(ssid or "Wi-Fi")
+
+
+def wired(devs):
+    if "connected" in devs.get("ethernet", []):
+        return True, "󰈀  유선"
+    return False, "󰈂  유선 없음"
+
+
+def bluetooth():
+    on = "Powered: yes" in sh("bluetoothctl", "show")
+    names = []
+    if on:
+        for line in sh("bluetoothctl", "devices", "Connected").splitlines():
+            parts = line.split(" ", 2)
+            if len(parts) == 3:
+                names.append(parts[2])
+    if not on:
+        return False, "󰂲  블루투스 꺼짐"
+    if not names:
+        return True, "󰂯  Bluetooth"
+    text = names[0] if len(names) == 1 else f"{names[0]} 외 {len(names) - 1}"
+    return True, "󰂱  " + text
+
+
+def battery():
+    try:
+        cap = int(open(f"{BAT}/capacity").read())
+        status = open(f"{BAT}/status").read().strip()
+    except OSError:
+        return "󰂑  배터리 없음"
+    charging = status in ("Charging", "Full")
+    icons = "󰁺󰁻󰁼󰁽󰁾󰁿󰂀󰂁󰂂󰁹"
+    icon = "󰂄" if charging else icons[min(cap // 10, 9)]
+    state = {"Charging": "충전 중", "Full": "충전 완료", "Discharging": "사용 중",
+             "Not charging": "충전 안 함"}.get(status, status)
+    return f"{icon}  배터리 {cap}% · {state}"
+
+
+def apply(state):
+    with open(CONF) as f:
+        cfg = json.load(f)
+    tiles = {"wifi": state[0], "wired": state[1], "bt": state[2]}
+    bat_text = state[3]
+    for a in cfg["widget-config"]["menubar#net"]["buttons#net"]["actions"]:
+        kind = a.get("update-command", "").rsplit(" ", 1)[-1]
+        if kind in tiles:
+            a["active"], a["label"] = tiles[kind]
+    wc = cfg["widget-config"]
+    wc.pop("slider#battery", None)
+    wc["label#battery"] = {"text": bat_text, "max-lines": 1}
+    cfg["widgets"] = ["label#battery" if w == "slider#battery" else w for w in cfg["widgets"]]
+    # the battery card only on a computer that has a battery (hidden on a desktop);
+    # it goes back right after the power buttons when one shows up
+    # the brightness slider likewise only where there is a built-in screen backlight
+    has_backlight = bool(os.listdir("/sys/class/backlight")) if os.path.isdir("/sys/class/backlight") else False
+    if not has_backlight and "backlight" in cfg["widgets"]:
+        cfg["widgets"].remove("backlight")
+    elif has_backlight and "backlight" not in cfg["widgets"]:
+        w = cfg["widgets"]
+        w.insert(w.index("volume") + 1 if "volume" in w else len(w), "backlight")
+    has_bat = os.path.exists(BAT)
+    if not has_bat and "label#battery" in cfg["widgets"]:
+        cfg["widgets"].remove("label#battery")
+    elif has_bat and "label#battery" not in cfg["widgets"]:
+        w = cfg["widgets"]
+        w.insert(w.index("buttons-grid#power") + 1 if "buttons-grid#power" in w else len(w), "label#battery")
+    tmp = CONF + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(cfg, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    os.replace(tmp, CONF)
+    subprocess.run(["swaync-client", "-R", "-sw"], capture_output=True)
+
+
+def panel_open():
+    """True while the control center is showing. Reloading swaync then would
+    leave its volume / brightness sliders at 0 until it is reopened, so changes
+    wait until it closes (it is checked every few seconds, so it is current
+    whenever it opens)."""
+    try:
+        layers = json.loads(sh("hyprctl", "-j", "layers") or "{}")
+    except ValueError:
+        return False
+    return any(x.get("namespace") == "swaync-control-center"
+               for mon in layers.values() for lvl in mon.get("levels", {}).values() for x in lvl)
+
+
+def main():
+    last = None
+    while True:
+        devs = devices()
+        state = (wifi(devs), wired(devs), bluetooth(), battery())
+        if state != last and not panel_open():
+            try:
+                apply(state)
+                last = state
+            except Exception:
+                pass
+        time.sleep(INTERVAL)
+
+
+if __name__ == "__main__":
+    main()

@@ -8,6 +8,9 @@ few seconds and, only when something changed, writes it into
   - status row (buttons-grid#net, display only — white = connected/on):
       Wi-Fi + network name | wired network | Bluetooth + connected device(s)
   - battery card:      a plain text line (not a slider), e.g. "󰂀  87% · 사용 중"
+  - WiZ 조명:          머리글(label#lighthead)에 켜짐/꺼짐·밝기·빛 색을 쓰고,
+                       켜기/끄기 버튼(menubar#light 첫 칸)의 흰색·글자를 실제 상태로 맞춘다
+                       (전구는 ~/.local/bin/wiz-light status-json 으로 읽는다)
 Started at login by ~/.local/bin/session-apps.
 """
 import json, os, subprocess, time
@@ -87,6 +90,31 @@ def battery():
     return f"{icon}  배터리 {cap}% · {state}"
 
 
+WIZ = os.path.expanduser("~/.local/bin/wiz-light")
+
+
+def light():
+    """(켜짐 여부, 버튼 글자, 머리글 글자). 전구가 대답이 없으면 꺼짐으로 보고 '연결 안 됨'."""
+    try:
+        p = json.loads(subprocess.run([WIZ, "status-json"], capture_output=True,
+                                      text=True, timeout=6).stdout or "{}")
+    except Exception:
+        p = {"error": "no-reply"}
+    if "error" in p or "state" not in p:
+        return False, "󰌶  꺼짐", "󰌵  조명 · 연결 안 됨"
+    if not p["state"]:
+        return False, "󰌶  꺼짐", "󰌵  조명 · 꺼짐"
+    parts = ["켜짐", f"밝기 {int(p.get('dimming', 0))}%"]
+    temp = p.get("temp")
+    if temp:
+        parts.append("따뜻한 빛" if temp <= 3000 else "흰 빛" if temp >= 4500 else "중간 빛")
+    elif all(k in p for k in "rgb"):
+        parts.append("색 #%02X%02X%02X" % (p["r"], p["g"], p["b"]))
+    elif p.get("sceneId"):
+        parts.append(f"장면 {p['sceneId']}")
+    return True, "󰌵  켜짐", "󰌵  조명 · " + " · ".join(parts)
+
+
 def apply(state):
     with open(CONF) as f:
         cfg = json.load(f)
@@ -97,6 +125,12 @@ def apply(state):
         if kind in tiles:
             a["active"], a["label"] = tiles[kind]
     wc = cfg["widget-config"]
+    on, btn, head = state[4]
+    if "label#lighthead" in wc:
+        wc["label#lighthead"]["text"] = head
+    for a in wc.get("menubar#light", {}).get("buttons#light", {}).get("actions", []):
+        if a.get("type") == "toggle":
+            a["active"], a["label"] = on, btn
     wc.pop("slider#battery", None)
     wc["label#battery"] = {"text": bat_text, "max-lines": 1}
     cfg["widgets"] = ["label#battery" if w == "slider#battery" else w for w in cfg["widgets"]]
@@ -140,7 +174,7 @@ def main():
     last = None
     while True:
         devs = devices()
-        state = (wifi(devs), wired(devs), bluetooth(), battery())
+        state = (wifi(devs), wired(devs), bluetooth(), battery(), light())
         if state != last and not panel_open():
             try:
                 apply(state)

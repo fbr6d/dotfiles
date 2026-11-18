@@ -56,10 +56,10 @@
   margin: 3px;
   box-shadow: none;
   font-size: 12px;
-  min-width: 83px;
+  min-width: 89px;
 }
 .widget-menubar > .menu-button-bar > .widget-menubar-container button:nth-child(3) {
-  min-width: 174px;
+  min-width: 180px;
   font-size: 13px;
 }
 .widget-menubar > .menu-button-bar > .widget-menubar-container button:hover { background: @surface; }
@@ -144,3 +144,34 @@ scale slider { background: @text; border-radius: 999px; min-width: 16px; min-hei
 /* Line the rows up: flowbox cells add no padding of their own, so the button
    grid, the power row and the status row all start and end at the same edges */
 .widget-buttons-grid > flowbox > flowboxchild { padding: 0; margin: 0; }
+
+/* WiZ 조명 (label#lighthead + menubar#light + slider#light, ~/.local/bin/wiz-light):
+   구분선이 있는 머리글(현재 상태는 swaync-status가 계속 채움),
+   켜기/끄기 | 따뜻하게 | 집중 | 색 선택 줄, 밝기 슬라이더.
+   menubar라서 버튼마다 너비를 따로 줄 수 있다 (상태 줄과 같은 340px 합계) */
+.widget-label.lighthead {
+  background: transparent;
+  border: none;
+  border-top: 1px solid @raised;
+  border-radius: 0;
+  padding: 10px 4px 2px 4px;
+  margin: 8px 0 0 0;
+}
+.widget-label.lighthead > label { color: @dim; font-size: 12px; font-weight: 700; }
+.widget-menubar.light > .menu-button-bar > .widget-menubar-container button,
+.widget-menubar.light > .menu-button-bar > .widget-menubar-container button:nth-child(3) {
+  min-width: 80px;
+  font-size: 12px;
+}
+.widget-menubar.light > .menu-button-bar > .widget-menubar-container button:nth-child(1) { min-width: 104px; }
+/* 메뉴바 공통 규칙은 hover를 없앴지만 조명 버튼은 실제로 눌리니 hover를 돌려준다 */
+.widget-menubar.light > .menu-button-bar > .widget-menubar-container button:hover { background: @raised; }
+.widget-menubar.light > .menu-button-bar > .widget-menubar-container button.active,
+.widget-menubar.light > .menu-button-bar > .widget-menubar-container button:checked { background: @text; color: @base; }
+.widget-slider {
+  background: @surface;
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin: 4px 0;
+}
+.widget-slider label { color: @dim; font-size: 16px; }

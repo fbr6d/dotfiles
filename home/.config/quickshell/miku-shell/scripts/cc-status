@@ -1,0 +1,51 @@
+#!/usr/bin/python3
+"""제어센터 상태 줄용: Wi-Fi · 유선 · 블루투스 상태를 JSON 한 줄로 출력.
+(swaync-status 의 같은 함수를 옮겨 온 것. Quickshell 제어센터가 몇 초마다 실행)"""
+import json, subprocess
+
+SHORT = 6
+
+
+def sh(*cmd):
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=4).stdout.strip()
+    except Exception:
+        return ""
+
+
+def short(t, n=SHORT):
+    return t if len(t) <= n else t[: n - 1] + "…"
+
+
+devs = {}
+for line in sh("nmcli", "-t", "-f", "TYPE,STATE", "dev").splitlines():
+    k, _, s = line.partition(":")
+    devs.setdefault(k, []).append(s)
+
+if sh("nmcli", "radio", "wifi") != "enabled":
+    wifi = {"on": False, "icon": "wifi_off", "label": "꺼짐"}
+elif "connected" not in devs.get("wifi", []):
+    wifi = {"on": False, "icon": "wifi_off", "label": "연결 안 됨"}
+else:
+    ssid = ""
+    for line in sh("nmcli", "-t", "-f", "ACTIVE,SSID", "dev", "wifi").splitlines():
+        if line.startswith("yes:"):
+            ssid = line[4:].replace("\\:", ":")
+            break
+    wifi = {"on": True, "icon": "wifi", "label": short(ssid or "Wi-Fi")}
+
+wired = ({"on": True, "icon": "lan", "label": "유선"} if "connected" in devs.get("ethernet", [])
+         else {"on": False, "icon": "lan", "label": "유선 없음"})
+
+if "Powered: yes" not in sh("bluetoothctl", "show"):
+    bt = {"on": False, "icon": "bluetooth_disabled", "label": "블루투스 꺼짐"}
+else:
+    names = [l.split(" ", 2)[2] for l in sh("bluetoothctl", "devices", "Connected").splitlines()
+             if len(l.split(" ", 2)) == 3]
+    if not names:
+        bt = {"on": True, "icon": "bluetooth", "label": "Bluetooth"}
+    else:
+        bt = {"on": True, "icon": "bluetooth_connected",
+              "label": names[0] if len(names) == 1 else f"{names[0]} 외 {len(names) - 1}"}
+
+print(json.dumps({"wifi": wifi, "wired": wired, "bt": bt}, ensure_ascii=False))

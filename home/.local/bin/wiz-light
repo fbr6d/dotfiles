@@ -1,0 +1,157 @@
+#!/usr/bin/env python3
+"""WiZ 조명 제어 (제어센터 swaync용, 로컬 UDP 38899 — 외부 서버 안 씀).
+
+사용법:
+  wiz-light state            켜져 있으면 true, 꺼져 있으면 false 출력 (토글 버튼 update-command)
+  wiz-light toggle           SWAYNC_TOGGLE_STATE(true/false)에 맞춰 켜기/끄기, 없으면 반전
+  wiz-light on | off
+  wiz-light get-brightness   밝기(10~100) 출력 (슬라이더 cmd_getter)
+  wiz-light set-brightness N 밝기 설정 + 켜기 (슬라이더 cmd_setter)
+  wiz-light warm             따뜻한 빛 2700K (조명이 켜져 있을 때만)
+  wiz-light focus            집중용 흰 빛 5000K (조명이 켜져 있을 때만)
+  wiz-light color            제어센터를 닫고 색 고르기 창을 띄워 그 색으로 바꿈 (켜져 있을 때만)
+  wiz-light rgb RRGGBB       그 색으로 바꿈 (켜져 있을 때만)
+  wiz-light status-json      전구 상태 JSON 한 줄 (swaync-status가 제어센터 표시용으로 읽음)
+
+조명이 꺼져 있으면 warm / focus / color / rgb 는 아무것도 하지 않는다
+(제어센터 조명 줄의 오른쪽 세 버튼).
+
+전구 IP는 ~/.cache/wiz-light/ip 에 기억하고, 응답이 없으면 같은 네트워크에서
+MAC 주소로 다시 찾는다 (공유기가 IP를 바꿔도 동작).
+"""
+import json
+import re
+import subprocess
+import os
+import socket
+import sys
+import time
+
+MAC = "9877d5e783c4"          # 방 WiZ 전구
+PORT = 38899
+CACHE = os.path.expanduser("~/.cache/wiz-light/ip")
+WARM_K, FOCUS_K = 2700, 5000
+
+
+def _sock(timeout):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    s.settimeout(timeout)
+    return s
+
+
+def _ask(ip, method, params=None, timeout=0.8, tries=2):
+    msg = json.dumps({"method": method, "params": params or {}}).encode()
+    s = _sock(timeout)
+    try:
+        for _ in range(tries):
+            s.sendto(msg, (ip, PORT))
+            try:
+                data, _ = s.recvfrom(4096)
+                return json.loads(data)
+            except (socket.timeout, ValueError):
+                continue
+    finally:
+        s.close()
+    return None
+
+
+def _discover():
+    msg = json.dumps({"method": "getPilot", "params": {}}).encode()
+    s = _sock(0.3)
+    try:
+        for _ in range(3):
+            s.sendto(msg, ("255.255.255.255", PORT))
+            end = time.time() + 1.0
+            while time.time() < end:
+                try:
+                    data, addr = s.recvfrom(4096)
+                    r = json.loads(data).get("result", {})
+                    if r.get("mac") == MAC:
+                        os.makedirs(os.path.dirname(CACHE), exist_ok=True)
+                        with open(CACHE, "w") as f:
+                            f.write(addr[0])
+                        return addr[0]
+                except (socket.timeout, ValueError):
+                    pass
+    finally:
+        s.close()
+    return None
+
+
+def call(method, params=None):
+    ip = None
+    try:
+        ip = open(CACHE).read().strip()
+    except OSError:
+        pass
+    if ip:
+        r = _ask(ip, method, params)
+        if r is not None:
+            return r
+    ip = _discover()
+    return _ask(ip, method, params) if ip else None
+
+
+def pilot():
+    r = call("getPilot")
+    return (r or {}).get("result") or {}
+
+
+def main():
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "state"
+    if cmd == "state":
+        print("true" if pilot().get("state") else "false")
+    elif cmd == "toggle":
+        want = os.environ.get("SWAYNC_TOGGLE_STATE")
+        on = (want == "true") if want in ("true", "false") else not pilot().get("state")
+        call("setPilot", {"state": on})
+    elif cmd in ("on", "off"):
+        call("setPilot", {"state": cmd == "on"})
+    elif cmd == "get-brightness":
+        print(int(pilot().get("dimming", 10)))
+    elif cmd == "set-brightness":
+        try:
+            v = int(float(sys.argv[2]))
+        except (IndexError, ValueError):
+            sys.exit("밝기 값이 필요해요 (10~100)")
+        call("setPilot", {"state": True, "dimming": max(10, min(100, v))})
+    elif cmd in ("warm", "focus"):
+        if pilot().get("state"):
+            call("setPilot", {"temp": WARM_K if cmd == "warm" else FOCUS_K})
+    elif cmd == "color":
+        # 꺼져 있으면 아무것도 안 함. 켜져 있으면 제어센터를 닫고 색 고르기 창을
+        # 따로 띄운다 (창을 기다리는 동안 swaync 버튼이 묶이지 않게)
+        if not pilot().get("state"):
+            return
+        subprocess.run(["swaync-client", "-cp", "-sw"], capture_output=True)
+        subprocess.Popen([sys.executable, os.path.abspath(__file__), "color-pick"],
+                         start_new_session=True, stdin=subprocess.DEVNULL,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    elif cmd == "color-pick":
+        p = pilot()
+        args = ["zenity", "--color-selection", "--show-palette", "--title", "조명 색 고르기"]
+        if all(k in p for k in "rgb"):
+            args += ["--color", f"rgb({p['r']},{p['g']},{p['b']})"]
+        out = subprocess.run(args, capture_output=True, text=True).stdout
+        nums = re.findall(r"[\d.]+", out)
+        if len(nums) >= 3 and pilot().get("state"):
+            r, g, b = (max(0, min(255, round(float(x)))) for x in nums[:3])
+            call("setPilot", {"r": r, "g": g, "b": b})
+    elif cmd == "rgb":
+        try:
+            h = sys.argv[2].lstrip("#")
+            r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+        except (IndexError, ValueError):
+            sys.exit("색 값이 필요해요 (예: 39C5BB)")
+        if pilot().get("state"):
+            call("setPilot", {"r": r, "g": g, "b": b})
+    elif cmd == "status-json":
+        r = call("getPilot")
+        print(json.dumps((r or {}).get("result") or {"error": "no-reply"}))
+    else:
+        sys.exit(__doc__)
+
+
+if __name__ == "__main__":
+    main()

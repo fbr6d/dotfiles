@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+"""상단 바 가사 칸용: Spotify 곡 정보와 지금 가사 줄을 JSON 한 줄씩 출력 (바뀔 때만).
+  {"show": bool, "info": "제목 · 아티스트", "line": "가사 줄" 또는 "", "lyrics": 가사 있음 여부}
+가사 받아오기(LRCLIB)·캐시(~/.cache/waybar-lyrics)는 ~/.local/bin/waybar-lyrics 의 것을 그대로 쓴다.
+폭 애니메이션·자르기·흐르는 제목은 Quickshell(Bar.qml)이 그린다."""
+import importlib.machinery, importlib.util, json, os, sys, time
+
+path = os.path.expanduser("~/.local/bin/waybar-lyrics")
+loader = importlib.machinery.SourceFileLoader("waybar_lyrics", path)
+spec = importlib.util.spec_from_loader("waybar_lyrics", loader)
+wl = importlib.util.module_from_spec(spec)
+loader.exec_module(wl)
+
+lyrics = wl.Lyrics()
+last = None
+while True:
+    st = wl.player_state()
+    out = {"show": False, "info": "", "line": "", "lyrics": False}
+    if st and st["title"] and st["status"] == "Playing":
+        lyrics.load(st)
+        out["show"] = True
+        out["info"] = f"{st['title']} · {st['artist']}" if st["artist"] else st["title"]
+        out["lyrics"] = bool(lyrics.lines)
+        if lyrics.lines:
+            out["line"] = lyrics.line_at(st["position"]) or "♪"
+    if out != last:
+        print(json.dumps(out, ensure_ascii=False), flush=True)
+        last = out
+    time.sleep(wl.TICK_S)

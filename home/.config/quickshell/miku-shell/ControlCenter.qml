@@ -1,0 +1,323 @@
+// 제어센터 (swaync 제어센터 대체)
+//   상태 줄(Wi-Fi 1/4 · 유선 1/4 · 블루투스 1/2, 표시 전용)
+//   기기 연결 · 방해 금지
+//   볼륨
+//   ── 조명 ── 머리글(실시간 상태), 켜기/끄기 · 따뜻하게 · 집중 · 색 선택(1/4씩), 색 팔레트, 밝기
+//   잠금 · 재부팅 · 끄기
+//   알림 목록 (모두 지우기)
+// 열고 닫기: qs -c miku-shell ipc call cc toggle
+import Quickshell
+import Quickshell.Io
+import Quickshell.Wayland
+import Quickshell.Hyprland
+import Quickshell.Services.Pipewire
+import QtQuick
+import QtQuick.Layouts
+
+PanelWindow {
+    id: panel
+
+    readonly property string home: Quickshell.env("HOME")
+    readonly property string wiz: home + "/.local/bin/wiz-light"
+    property bool open: false
+
+    // 시험용: MIKU_CC_OUTPUT 이 있으면 그 출력에, 없으면 지금 포커스된 모니터에
+    readonly property string wantOutput: Quickshell.env("MIKU_CC_OUTPUT") || ""
+    screen: {
+        const name = wantOutput || (Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "");
+        for (const s of Quickshell.screens) if (s.name === name) return s;
+        return Quickshell.screens[0];
+    }
+
+    onOpenChanged: Notifs.ccOpen = open
+    function show() { open = true; refreshAll() }
+    function hide() { open = false }
+    function toggle() { open ? hide() : show() }
+    function run(cmd) { Quickshell.execDetached(cmd) }
+
+    visible: open || fadeOut.running
+    color: "transparent"
+    anchors { top: true; right: true }
+    margins { top: 8; right: 8 }
+    implicitWidth: 380
+    implicitHeight: box.implicitHeight
+    exclusionMode: ExclusionMode.Normal
+    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.namespace: "miku-cc"
+    WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+
+    // 바깥을 누르면 닫힘
+    HyprlandFocusGrab {
+        windows: [panel]
+        active: panel.open
+        onCleared: panel.hide()
+    }
+
+    // ---------------- 상태 읽기 ----------------
+    property var net: ({ wifi: { on: false, icon: "wifi", label: "…" },
+                         wired: { on: false, icon: "lan", label: "…" },
+                         bt: { on: false, icon: "bluetooth", label: "…" } })
+    property var light: ({})
+    readonly property bool lightKnown: light.state !== undefined
+    readonly property bool lightOn: light.state === true
+    property bool colorOpen: false
+
+    function refreshAll() { netProc.running = true; refreshLight(); tick.n++ }
+    function refreshLight() { if (!lightProc.running) lightProc.running = true }
+    function lightAction(args) { run([wiz].concat(args)); lightSoon.restart() }
+
+    Process {
+        id: netProc
+        command: [panel.home + "/.config/quickshell/miku-shell/scripts/cc-status"]
+        stdout: StdioCollector { onStreamFinished: { try { panel.net = JSON.parse(text) } catch (e) {} } }
+    }
+    Process {
+        id: lightProc
+        command: [panel.wiz, "status-json"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const p = JSON.parse(text);
+                    panel.light = p.error ? ({}) : p;
+                    if (!bright.pressed && p.dimming !== undefined) bright.value = (p.dimming - 10) / 90;
+                    if (p.state === false) panel.colorOpen = false;
+                } catch (e) { panel.light = ({}) }
+            }
+        }
+    }
+    Timer { interval: 3000; repeat: true; running: panel.open; onTriggered: netProc.running = true }
+    Timer { id: tick; property int n: 0; interval: 30000; repeat: true; running: panel.open; onTriggered: n++ }
+    Timer { interval: 2000; repeat: true; running: panel.open; onTriggered: panel.refreshLight() }
+    Timer { id: lightSoon; interval: 350; onTriggered: panel.refreshLight() }
+
+    function lightStatus() {
+        if (!lightKnown) return "연결 안 됨";
+        if (!lightOn) return "꺼짐";
+        const parts = ["켜짐", "밝기 " + light.dimming + "%"];
+        if (light.temp) parts.push(light.temp <= 3000 ? "따뜻한 빛" : light.temp >= 4500 ? "흰 빛" : "중간 빛");
+        else if (light.r !== undefined) parts.push("색");
+        return parts.join(" · ");
+    }
+    readonly property string lightHex: light.r !== undefined && !light.temp
+        ? Qt.rgba(light.r / 255, light.g / 255, light.b / 255, 1) : "transparent"
+
+    // 볼륨 (PipeWire 기본 출력)
+    readonly property var sink: Pipewire.defaultAudioSink
+    PwObjectTracker { objects: [panel.sink] }
+
+    // ---------------- 화면 ----------------
+    Rectangle {
+        id: box
+        width: parent.width
+        implicitHeight: col.implicitHeight + 24
+        radius: 16
+        color: Theme.bg
+        border.color: Theme.surface
+        border.width: 1
+        focus: panel.open
+        Keys.onEscapePressed: panel.hide()
+
+        opacity: panel.open ? 1 : 0
+        transform: Translate { y: panel.open ? 0 : -8; Behavior on y { NumberAnimation { duration: Theme.base; easing.type: Easing.OutCubic } } }
+        Behavior on opacity { NumberAnimation { id: fadeOut; duration: Theme.base; easing.type: Easing.OutCubic } }
+
+        ColumnLayout {
+            id: col
+            anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }
+            spacing: 6
+
+            // 상태 줄: 누를 수 없는 표시 칸
+            RowLayout {
+                spacing: 6
+                // 아래 조명 줄과 같은 1/4 칸 (두 칸째까지 세로로 맞음)
+                readonly property real q: (col.width - 18) / 4
+                Tile { Layout.preferredWidth: parent.q; clickable: false; active: panel.net.wifi.on; icon: panel.net.wifi.icon; label: panel.net.wifi.label }
+                Tile { Layout.preferredWidth: parent.q; clickable: false; active: panel.net.wired.on; icon: panel.net.wired.icon; label: panel.net.wired.label }
+                Tile { Layout.fillWidth: true; clickable: false; active: panel.net.bt.on; icon: panel.net.bt.icon; label: panel.net.bt.label }
+            }
+
+            RowLayout {
+                spacing: 6
+                Tile {
+                    Layout.fillWidth: true; Layout.preferredWidth: 1
+                    icon: "devices"; label: "기기 연결"; fontSize: 13
+                    onClicked: { panel.hide(); panel.run([panel.home + "/.local/bin/device-settings"]) }
+                }
+                Tile {
+                    Layout.fillWidth: true; Layout.preferredWidth: 1
+                    icon: "do_not_disturb_on"; label: "방해 금지"; fontSize: 13
+                    active: Notifs.dnd
+                    onClicked: Notifs.dnd = !Notifs.dnd
+                }
+            }
+
+            SliderCard {
+                Layout.fillWidth: true
+                icon: !panel.sink || panel.sink.audio.muted ? "volume_off" : "volume_up"
+                iconClickable: true
+                value: panel.sink ? Math.min(1, panel.sink.audio.volume) : 0
+                onMoved: v => { if (panel.sink) panel.sink.audio.volume = v }
+                onIconClicked: if (panel.sink) panel.sink.audio.muted = !panel.sink.audio.muted
+            }
+
+            // ── 조명 ──
+            Rectangle { Layout.fillWidth: true; Layout.topMargin: 6; implicitHeight: 1; color: Theme.raised }
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.leftMargin: 4; Layout.rightMargin: 4
+                Text { text: "조명"; color: Theme.text; font.family: Theme.font; font.pixelSize: 13; font.weight: Font.Bold }
+                Item { Layout.fillWidth: true }
+                Rectangle {
+                    visible: panel.lightOn && panel.lightHex !== "transparent"
+                    width: 10; height: 10; radius: 5; color: panel.lightHex
+                }
+                Text { text: panel.lightStatus(); color: Theme.dim; font.family: Theme.font; font.pixelSize: 12 }
+            }
+            RowLayout {
+                spacing: 6
+                readonly property real q: (col.width - 18) / 4
+                Tile {
+                    Layout.preferredWidth: parent.q
+                    icon: "lightbulb"; label: panel.lightOn ? "켜짐" : "꺼짐"
+                    active: panel.lightOn
+                    enabled: panel.lightKnown
+                    onClicked: { panel.light = Object.assign({}, panel.light, { state: !panel.lightOn }); panel.lightAction([panel.lightOn ? "on" : "off"]) }
+                }
+                Tile {
+                    Layout.preferredWidth: parent.q
+                    icon: "wb_incandescent"; label: "따뜻하게"
+                    enabled: panel.lightOn
+                    onClicked: panel.lightAction(["warm"])
+                }
+                Tile {
+                    Layout.preferredWidth: parent.q
+                    icon: "light_mode"; label: "집중"
+                    enabled: panel.lightOn
+                    onClicked: panel.lightAction(["focus"])
+                }
+                Tile {
+                    Layout.fillWidth: true
+                    icon: "palette"; label: "색 선택"
+                    enabled: panel.lightOn
+                    active: panel.colorOpen
+                    onClicked: panel.colorOpen = !panel.colorOpen
+                }
+            }
+
+            // 색 팔레트 (색 선택을 누르면 펼쳐짐)
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: panel.colorOpen ? 44 : 0
+                clip: true
+                radius: 12
+                color: Theme.surface
+                visible: implicitHeight > 0
+                Behavior on implicitHeight { NumberAnimation { duration: Theme.base; easing.type: Easing.OutCubic } }
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 10
+                    Repeater {
+                        model: ["39C5BB", "E12885", "F38BA8", "FAB387", "F9E2AF", "A6E3A1", "89B4FA", "CBA6F7"]
+                        Rectangle {
+                            required property string modelData
+                            width: 26; height: 26; radius: 13
+                            color: "#" + modelData
+                            scale: sw.containsMouse ? 1.15 : 1
+                            Behavior on scale { NumberAnimation { duration: Theme.fast } }
+                            MouseArea {
+                                id: sw
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: panel.lightAction(["rgb", parent.modelData])
+                            }
+                        }
+                    }
+                    Rectangle {
+                        width: 26; height: 26; radius: 13
+                        color: more.containsMouse ? Theme.text : Theme.raised
+                        Icon { anchors.centerIn: parent; text: "colorize"; size: 16; color: more.containsMouse ? Theme.onLight : Theme.text }
+                        MouseArea {
+                            id: more
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: { panel.hide(); panel.run([panel.wiz, "color-pick"]) }
+                        }
+                    }
+                }
+            }
+
+            SliderCard {
+                id: bright
+                Layout.fillWidth: true
+                icon: "brightness_6"
+                onReleased: v => panel.lightAction(["set-brightness", String(Math.round(10 + v * 90))])
+            }
+
+            RowLayout {
+                Layout.topMargin: 6
+                spacing: 6
+                Tile { Layout.fillWidth: true; Layout.preferredWidth: 1; radius: 22; icon: "lock"; iconSize: 20
+                       onClicked: { panel.hide(); panel.run(["loginctl", "lock-session"]) } }
+                Tile { Layout.fillWidth: true; Layout.preferredWidth: 1; radius: 22; icon: "restart_alt"; iconSize: 20
+                       onClicked: { panel.hide(); panel.run([panel.home + "/.local/bin/power-confirm", "reboot"]) } }
+                Tile { Layout.fillWidth: true; Layout.preferredWidth: 1; radius: 22; icon: "power_settings_new"; iconSize: 20
+                       onClicked: { panel.hide(); panel.run([panel.home + "/.local/bin/power-confirm", "poweroff"]) } }
+            }
+
+            // 알림
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 10
+                Layout.leftMargin: 4
+                Text { text: "알림"; color: Theme.text; font.family: Theme.font; font.pixelSize: 14; font.weight: Font.Bold }
+                Item { Layout.fillWidth: true }
+                Rectangle {
+                    visible: Notifs.count > 0
+                    implicitWidth: clr.implicitWidth + 20; implicitHeight: 24; radius: 8
+                    color: clrMa.containsMouse ? Theme.raised : Theme.surface
+                    Text { id: clr; anchors.centerIn: parent; text: "모두 지우기"; color: Theme.text; font.family: Theme.font; font.pixelSize: 12 }
+                    MouseArea { id: clrMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Notifs.clearAll() }
+                }
+            }
+            Text {
+                visible: Notifs.count === 0
+                Layout.fillWidth: true
+                Layout.topMargin: 6; Layout.bottomMargin: 6
+                horizontalAlignment: Text.AlignHCenter
+                text: "알림 없음"
+                color: Theme.dim; font.family: Theme.font; font.pixelSize: 13
+            }
+            ListView {
+                id: notifList
+                visible: Notifs.count > 0
+                Layout.fillWidth: true
+                Layout.preferredHeight: Math.min(contentHeight, Math.max(160, (panel.screen ? panel.screen.height : 1080) - 700))
+                clip: true
+                spacing: 6
+                boundsBehavior: Flickable.StopAtBounds
+                model: Notifs.list.values.slice().reverse()
+                verticalLayoutDirection: ListView.TopToBottom
+                delegate: NotificationCard {
+                    required property var modelData
+                    notif: modelData
+                    now: tick.n
+                    width: notifList.width
+                }
+            }
+        }
+    }
+
+    IpcHandler {
+        target: "cc"
+        function toggle(): void { panel.toggle() }
+        function open(): void { panel.show() }
+        function close(): void { panel.hide() }
+    }
+
+    Component.onCompleted: {
+        if (Quickshell.env("MIKU_CC_OPEN") === "1") show();
+        if (Quickshell.env("MIKU_CC_COLOR") === "1") colorOpen = true;   // 시험용
+    }
+}

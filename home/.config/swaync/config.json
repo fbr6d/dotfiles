@@ -25,6 +25,9 @@
     "menubar#net",
     "buttons-grid",
     "volume",
+    "label#lighthead",
+    "menubar#light",
+    "slider#light",
     "buttons-grid#power",
     "title",
     "notifications"
@@ -84,7 +87,7 @@
         "position": "left",
         "actions": [
           {
-            "label": "󰖩  Wi-Fi",
+            "label": "󰖩  wormh…",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state wifi",
@@ -98,11 +101,50 @@
             "active": true
           },
           {
-            "label": "󰂯  Bluetooth",
+            "label": "󰂱  MX Master 3S",
             "type": "toggle",
             "command": "/home/leejaeik/.local/bin/cc-toggle show",
             "update-command": "/home/leejaeik/.local/bin/cc-toggle state bt",
             "active": true
+          }
+        ]
+      }
+    },
+    "slider#light": {
+      "label": "󰃠",
+      "cmd_setter": "/home/leejaeik/.local/bin/wiz-light set-brightness $value",
+      "cmd_getter": "/home/leejaeik/.local/bin/wiz-light get-brightness",
+      "min": 10,
+      "max": 100,
+      "min_limit": 10,
+      "max_limit": 100
+    },
+    "label#lighthead": {
+      "text": "󰌵  조명 · 켜짐 · 밝기 43% · 따뜻한 빛",
+      "max-lines": 1
+    },
+    "menubar#light": {
+      "buttons#light": {
+        "position": "left",
+        "actions": [
+          {
+            "label": "󰌵  켜짐",
+            "type": "toggle",
+            "command": "/home/leejaeik/.local/bin/wiz-light toggle",
+            "update-command": "/home/leejaeik/.local/bin/wiz-light state",
+            "active": true
+          },
+          {
+            "label": "󰖙  따뜻하게",
+            "command": "/home/leejaeik/.local/bin/wiz-light warm"
+          },
+          {
+            "label": "󰛨  집중",
+            "command": "/home/leejaeik/.local/bin/wiz-light focus"
+          },
+          {
+            "label": "󰏘  색 선택",
+            "command": "/home/leejaeik/.local/bin/wiz-light color"
           }
         ]
       }
