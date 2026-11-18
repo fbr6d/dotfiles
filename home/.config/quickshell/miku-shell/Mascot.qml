@@ -14,7 +14,7 @@ import QtQuick
 PanelWindow {
     id: win
     readonly property string dir: Quickshell.env("HOME") + "/Pictures/miku-mascot/"   // 공개 dotfiles 저장소에 안 올라가게 ~/.config 밖에 둠
-    readonly property real px: 1.5                    // 64px 그림을 1.5배로 → 96px (마스터 요청 '좀 더 작게')
+    readonly property real px: 1                      // 원본 64px 그대로 (마스터 지정, 가장 선명)
     readonly property string wantOutput: Quickshell.env("MIKU_CC_OUTPUT") || ""
     screen: {
         const name = wantOutput || (Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "");
@@ -43,7 +43,7 @@ PanelWindow {
     anchors { bottom: true; right: true }
     margins { bottom: 12; right: 16 }
     implicitWidth: 64 * px
-    implicitHeight: 64 * px + 18                      // 위로 뛰는 공간
+    implicitHeight: 64 * px + 12                      // 위로 뛰는 공간
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "miku-mascot"
@@ -65,7 +65,7 @@ PanelWindow {
         width: 64 * win.px
         height: 64 * win.px
         x: 0
-        y: 18 + lift
+        y: 12 + lift
         property real lift: 0
 
         // 음악 들을 때 살랑살랑 (재생이 아니면 첫 프레임에 멈춤)
@@ -96,7 +96,7 @@ PanelWindow {
         }
         SequentialAnimation {
             id: hopAnim
-            NumberAnimation { target: body; property: "lift"; to: -15; duration: 180; easing.type: Easing.OutQuad }
+            NumberAnimation { target: body; property: "lift"; to: -10; duration: 180; easing.type: Easing.OutQuad }
             NumberAnimation { target: body; property: "lift"; to: 0; duration: 220; easing.type: Easing.OutBounce }
             PauseAnimation { duration: 80 }
             ScriptAction { script: win.hopping = false }
