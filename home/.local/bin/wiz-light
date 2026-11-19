@@ -12,6 +12,11 @@
   wiz-light color            제어센터를 닫고 색 고르기 창을 띄워 그 색으로 바꿈 (켜져 있을 때만)
   wiz-light rgb RRGGBB       그 색으로 바꿈 (켜져 있을 때만)
   wiz-light status-json      전구 상태 JSON 한 줄 (swaync-status가 제어센터 표시용으로 읽음)
+  wiz-light status-all-json  모든 전구 상태 {"floor": {...}, "desk": {...}} (미쿠 셸 제어센터)
+
+전구 고르기: 맨 앞에 --lamp floor|desk|all 을 붙인다 (없으면 floor = 플로어등).
+  floor = 플로어등, desk = 제도등, all = 둘 다
+  예) wiz-light --lamp desk on / wiz-light --lamp all warm
 
 조명이 꺼져 있으면 warm / focus / color / rgb 는 아무것도 하지 않는다
 (제어센터 조명 줄의 오른쪽 세 버튼).
@@ -27,9 +32,13 @@ import socket
 import sys
 import time
 
-MAC = "9877d5e783c4"          # 방 WiZ 전구
+# 전구: 이름 → (MAC, IP 기억 파일)
+LAMPS = {
+    "floor": ("9877d5e783c4", os.path.expanduser("~/.cache/wiz-light/ip")),       # 플로어등
+    "desk": ("9877d5e74bb6", os.path.expanduser("~/.cache/wiz-light/ip-desk")),   # 제도등
+}
+MAC, CACHE = LAMPS["floor"]
 PORT = 38899
-CACHE = os.path.expanduser("~/.cache/wiz-light/ip")
 WARM_K, FOCUS_K = 2700, 5000
 
 
@@ -93,13 +102,63 @@ def call(method, params=None):
     return _ask(ip, method, params) if ip else None
 
 
+def use(lamp):
+    global MAC, CACHE
+    MAC, CACHE = LAMPS[lamp]
+
+
 def pilot():
     r = call("getPilot")
     return (r or {}).get("result") or {}
 
 
 def main():
-    cmd = sys.argv[1] if len(sys.argv) > 1 else "state"
+    argv = sys.argv[1:]
+    lamp = "floor"
+    if len(argv) >= 2 and argv[0] == "--lamp":
+        lamp, argv = argv[1], argv[2:]
+    if lamp != "all" and lamp not in LAMPS:
+        sys.exit("전구 이름은 floor / desk / all 중 하나예요")
+    cmd = argv[0] if argv else "state"
+    if cmd == "status-all-json":
+        # 전구마다 따로 프로세스로 물어봐 동시에 기다린다 (한 전구가 꺼져 있어도 느려지지 않게)
+        procs = {k: subprocess.Popen([sys.executable, os.path.abspath(__file__), "--lamp", k, "status-json"],
+                                     stdout=subprocess.PIPE, text=True) for k in LAMPS}
+        out = {}
+        for k, pr in procs.items():
+            try:
+                out[k] = json.loads(pr.communicate(timeout=6)[0] or "{}")
+            except (subprocess.TimeoutExpired, ValueError):
+                pr.kill()
+                out[k] = {"error": "no-reply"}
+        print(json.dumps(out))
+        return
+    if lamp == "all":
+        # 둘 다: 전구마다 같은 명령을 동시에 실행 (색 고르기 창은 한 번만)
+        if cmd == "color":
+            if not any(_on(k) for k in LAMPS):
+                return
+            subprocess.run(["qs", "-c", "miku-shell", "ipc", "call", "cc", "close"], capture_output=True)
+            subprocess.Popen([sys.executable, os.path.abspath(__file__), "--lamp", "all", "color-pick"],
+                             start_new_session=True, stdin=subprocess.DEVNULL,
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return
+        if cmd == "color-pick":
+            lit = [k for k in LAMPS if _on(k)]
+            if not lit:
+                return
+            use(lit[0])
+            hexv = _pick_color(pilot())
+            if hexv:
+                cmd, argv = "rgb", ["rgb", hexv]
+            else:
+                return
+        procs = [subprocess.Popen([sys.executable, os.path.abspath(__file__), "--lamp", k] + ([cmd] + argv[1:]))
+                 for k in LAMPS]
+        for pr in procs:
+            pr.wait()
+        return
+    use(lamp)
     if cmd == "state":
         print("true" if pilot().get("state") else "false")
     elif cmd == "toggle":
@@ -112,7 +171,7 @@ def main():
         print(int(pilot().get("dimming", 10)))
     elif cmd == "set-brightness":
         try:
-            v = int(float(sys.argv[2]))
+            v = int(float(argv[1]))
         except (IndexError, ValueError):
             sys.exit("밝기 값이 필요해요 (10~100)")
         call("setPilot", {"state": True, "dimming": max(10, min(100, v))})
@@ -125,22 +184,16 @@ def main():
         if not pilot().get("state"):
             return
         subprocess.run(["qs", "-c", "miku-shell", "ipc", "call", "cc", "close"], capture_output=True)
-        subprocess.Popen([sys.executable, os.path.abspath(__file__), "color-pick"],
+        subprocess.Popen([sys.executable, os.path.abspath(__file__), "--lamp", lamp, "color-pick"],
                          start_new_session=True, stdin=subprocess.DEVNULL,
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     elif cmd == "color-pick":
-        p = pilot()
-        args = ["zenity", "--color-selection", "--show-palette", "--title", "조명 색 고르기"]
-        if all(k in p for k in "rgb"):
-            args += ["--color", f"rgb({p['r']},{p['g']},{p['b']})"]
-        out = subprocess.run(args, capture_output=True, text=True).stdout
-        nums = re.findall(r"[\d.]+", out)
-        if len(nums) >= 3 and pilot().get("state"):
-            r, g, b = (max(0, min(255, round(float(x)))) for x in nums[:3])
-            call("setPilot", {"r": r, "g": g, "b": b})
+        hexv = _pick_color(pilot())
+        if hexv and pilot().get("state"):
+            call("setPilot", {"r": int(hexv[0:2], 16), "g": int(hexv[2:4], 16), "b": int(hexv[4:6], 16)})
     elif cmd == "rgb":
         try:
-            h = sys.argv[2].lstrip("#")
+            h = argv[1].lstrip("#")
             r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
         except (IndexError, ValueError):
             sys.exit("색 값이 필요해요 (예: 39C5BB)")
@@ -151,6 +204,23 @@ def main():
         print(json.dumps((r or {}).get("result") or {"error": "no-reply"}))
     else:
         sys.exit(__doc__)
+
+
+def _on(lamp):
+    use(lamp)
+    return bool(pilot().get("state"))
+
+
+def _pick_color(p):
+    """zenity 색 고르기 창 → 'RRGGBB' (취소하면 None)"""
+    args = ["zenity", "--color-selection", "--show-palette", "--title", "조명 색 고르기"]
+    if all(k in p for k in "rgb"):
+        args += ["--color", f"rgb({p['r']},{p['g']},{p['b']})"]
+    out = subprocess.run(args, capture_output=True, text=True).stdout
+    nums = re.findall(r"[\d.]+", out)
+    if len(nums) < 3:
+        return None
+    return "".join(f"{max(0, min(255, round(float(x)))):02X}" for x in nums[:3])
 
 
 if __name__ == "__main__":

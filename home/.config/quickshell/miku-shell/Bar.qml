@@ -27,6 +27,7 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "miku-bar"
 
+    property bool trayMenuOpen: false
     readonly property int gap: 7   // 알약 사이 간격 (마스터 지정: 모든 알약 사이 7px)
 
     // ================= 왼쪽 =================
@@ -249,12 +250,38 @@ PanelWindow {
                             NumberAnimation { to: 1; duration: 900; easing.type: Easing.InOutSine }
                         }
                     }
+                    // 경고만 보일 때: 경고 글자 한 줄
                     Text {
+                        visible: !(statusDrawer.open || !statusDrawer.alert)
                         anchors.verticalCenter: parent.verticalCenter
-                        text: statusDrawer.open || !statusDrawer.alert ? sys.detail : sys.alerts.map(a => a.text).join(" · ")
+                        text: sys.alerts.map(a => a.text).join(" · ")
                         color: Theme.text
                         font.family: Theme.font; font.pixelSize: 13; font.weight: Font.Bold
                         font.features: { "tnum": 1 }
+                    }
+                    // 펼쳤을 때: 온도는 단계별 색 (초록 정상 · 노랑 따뜻 · 주황 뜨거움 · 빨강 위험), 나머지는 흰 글자
+                    Repeater {
+                        model: statusDrawer.open || !statusDrawer.alert ? sys.parts : []
+                        Row {
+                            required property var modelData
+                            required property int index
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 0
+                            Text {
+                                visible: index > 0
+                                text: " · "
+                                color: Theme.dim
+                                font.family: Theme.font; font.pixelSize: 13; font.weight: Font.Bold
+                            }
+                            Text {
+                                text: modelData.text
+                                readonly property string lv: modelData.level || ""
+                                color: lv === "crit" ? "#f38ba8" : lv === "hot" ? "#fab387" : lv === "warm" ? "#f9e2af" : lv === "ok" ? "#a6e3a1" : Theme.text
+                                Behavior on color { ColorAnimation { duration: Theme.base } }
+                                font.family: Theme.font; font.pixelSize: 13; font.weight: Font.Bold
+                                font.features: { "tnum": 1 }
+                            }
+                        }
                     }
                 }
             }
@@ -265,7 +292,8 @@ PanelWindow {
             anchors.right: clock.left
             height: 32
             readonly property bool any: SystemTray.items.values.length > 0
-            width: (rightHover.hovered || Quickshell.env("MIKU_BAR_OPEN") === "1") && any ? trayPill.width + bar.gap : 0
+            // 트레이 메뉴가 열려 있는 동안에는 마우스가 메뉴로 옮겨 가도 서랍을 닫지 않는다
+            width: (rightHover.hovered || bar.trayMenuOpen || Quickshell.env("MIKU_BAR_OPEN") === "1") && any ? trayPill.width + bar.gap : 0
             clip: true
             Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
             Pill {
@@ -285,6 +313,17 @@ PanelWindow {
                             required property var modelData
                             source: modelData.icon
                             implicitSize: 16
+                            // 우클릭 메뉴: 아이콘 바로 아래에 붙여 연다 (열림/닫힘을 알아야 서랍을 붙잡아 둘 수 있어서 display() 대신 씀)
+                            QsMenuAnchor {
+                                id: menuAnchor
+                                menu: ti.modelData.menu
+                                anchor.item: ti
+                                anchor.edges: Edges.Bottom
+                                anchor.gravity: Edges.Bottom
+                                anchor.margins.top: 10
+                                onOpened: bar.trayMenuOpen = true
+                                onClosed: bar.trayMenuOpen = false
+                            }
                             MouseArea {
                                 anchors.fill: parent
                                 acceptedButtons: Qt.LeftButton | Qt.RightButton
@@ -292,10 +331,7 @@ PanelWindow {
                                 onClicked: mouse => {
                                     const m = ti.modelData;
                                     if (mouse.button === Qt.LeftButton && !m.onlyMenu) { m.activate(); return; }
-                                    if (m.hasMenu) {
-                                        const p = ti.mapToItem(bar.contentItem, 0, ti.height + 10);
-                                        m.display(bar, p.x, p.y);
-                                    }
+                                    if (m.hasMenu) menuAnchor.open();
                                 }
                             }
                         }
@@ -360,13 +396,14 @@ PanelWindow {
         id: sys
         property var alerts: []
         property string detail: ""
+        property var parts: []
     }
     Process {
         id: sysProc
         command: [bar.dir + "/scripts/sys-status"]
         stdout: StdioCollector {
             onStreamFinished: {
-                try { const j = JSON.parse(text); sys.alerts = j.alerts || []; sys.detail = j.detail || "" } catch (e) {}
+                try { const j = JSON.parse(text); sys.alerts = j.alerts || []; sys.detail = j.detail || ""; sys.parts = j.parts || [] } catch (e) {}
             }
         }
     }

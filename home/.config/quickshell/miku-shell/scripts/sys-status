@@ -89,9 +89,49 @@ elif bk["result"] == "실패":
 if ad is not None and ad <= AUTH_WARN_DAYS:
     alerts.append({"level": "yellow" if ad > 0 else "red", "text": f"iCloud 인증 D-{ad}" if ad > 0 else "iCloud 인증 만료"})
 
-detail = [f"CPU {cpu}°" if cpu is not None else "CPU ?",
-          f"GPU {gpu}°" if gpu is not None else "GPU 쉬는 중",
-          f"SSD {ssd}°" if ssd is not None else "SSD ?"]
+# 사용률(%): CPU는 지난 실행(약 15초 전)과의 /proc/stat 차이, GPU는 RX 6600(03:00.0) 사용률, RAM은 MemAvailable 기준
+def cpu_usage():
+    with open("/proc/stat") as f:
+        v = [int(x) for x in f.readline().split()[1:]]
+    idle, total = v[3] + v[4], sum(v)
+    state = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "miku-sys-status-cpu")
+    prev = None
+    try:
+        with open(state) as f:
+            prev = [int(x) for x in f.read().split()]
+    except (OSError, ValueError):
+        pass
+    try:
+        with open(state, "w") as f:
+            f.write(f"{idle} {total}")
+    except OSError:
+        pass
+    if not prev or total <= prev[1]:
+        return None
+    return round(100 * (1 - (idle - prev[0]) / (total - prev[1])))
+
+
+def gpu_usage():
+    try:
+        with open("/sys/bus/pci/devices/0000:03:00.0/gpu_busy_percent") as f:
+            return int(f.read())
+    except (OSError, ValueError):
+        return None
+
+
+def ram_usage():
+    m = {}
+    with open("/proc/meminfo") as f:
+        for line in f:
+            k, v = line.split(":")
+            m[k] = int(v.split()[0])
+    return round(100 * (1 - m["MemAvailable"] / m["MemTotal"]))
+
+
+cpu_u, gpu_u, ram_u = cpu_usage(), gpu_usage(), ram_usage()
+detail = [f"CPU {cpu_u}%" if cpu_u is not None else "CPU …",
+          f"GPU {gpu_u}%" if gpu_u is not None else "GPU ?",
+          f"RAM {ram_u}%"]
 if bk["running"]:
     detail.append(f"백업 {bk['pct']}%" if bk["pct"] is not None else "백업 중")
 elif bk["result"]:
@@ -99,4 +139,20 @@ elif bk["result"]:
 if ad is not None:
     detail.append(f"인증 D-{ad}")
 
-print(json.dumps({"alerts": alerts, "detail": " · ".join(detail)}, ensure_ascii=False))
+# 사용률 색 단계 (바에서 글자 색으로 씀): ok 초록 / warm 노랑 / hot 주황 / crit 빨강
+USE_STEPS = {"CPU": (50, 75, 90), "GPU": (50, 75, 90), "RAM": (50, 75, 90)}
+
+
+def level(name, v):
+    if v is None:
+        return ""
+    w, h, c = USE_STEPS[name]
+    return "crit" if v >= c else "hot" if v >= h else "warm" if v >= w else "ok"
+
+
+parts = [{"text": detail[0], "level": level("CPU", cpu_u)},
+         {"text": detail[1], "level": level("GPU", gpu_u)},
+         {"text": detail[2], "level": level("RAM", ram_u)}]
+parts += [{"text": d, "level": ""} for d in detail[3:]]
+
+print(json.dumps({"alerts": alerts, "detail": " · ".join(detail), "parts": parts}, ensure_ascii=False))

@@ -3,7 +3,7 @@
 //   상태 줄(Wi-Fi 1/4 · 유선 1/4 · 블루투스 1/2, 표시 전용)
 //   기기 연결 · 방해 금지 · 마스코트(보이기/숨기기)
 //   볼륨 · (화면 밝기: 노트북처럼 밝기 장치가 있을 때만)
-//   ── 조명 ── 머리글(실시간 상태), 켜기/끄기 · 따뜻하게 · 집중 · 색 선택(1/4씩), 색 팔레트, 밝기
+//   ── 조명 ── 머리글(전구 고르기 칩: 플로어등·제도등), 켜기/끄기 · 따뜻하게 · 집중 · 색 선택(1/4씩), 색 팔레트, 밝기
 //   잠금 · 재부팅 · 끄기 · (배터리: 배터리가 있을 때만)
 //   알림 목록 (모두 지우기)
 // 열고 닫기: qs -c miku-shell ipc call cc toggle
@@ -62,14 +62,34 @@ PanelWindow {
     property var net: ({ wifi: { on: false, icon: "wifi", label: "…" },
                          wired: { on: false, icon: "lan", label: "…" },
                          bt: { on: false, icon: "bluetooth", label: "…" } })
-    property var light: ({})
+    // 전구 두 개(floor 플로어등 · desk 제도등). lamp = 지금 조작할 대상
+    property var lights: ({})
+    property string lamp: "floor"
+    readonly property var lampNames: ({ floor: "플로어등", desk: "제도등" })
+    function lampTargets() { return [lamp] }
+    readonly property var light: {
+        const ps = lampTargets().map(k => lights[k]).filter(x => x && x.state !== undefined);
+        if (!ps.length) return ({});
+        const lit = ps.filter(x => x.state);
+        return Object.assign({}, lit[0] || ps[0], { state: lit.length > 0 });
+    }
+    onLightChanged: {
+        if (!bright.pressed && light.dimming !== undefined) bright.value = (light.dimming - 10) / 90;
+        if (light.state === false) colorOpen = false;
+    }
+    // 머리글 칩의 작은 점: 켜진 전구의 빛 색 (꺼져 있으면 숨김)
+    function lampDot(p) {
+        if (!p || !p.state) return "transparent";
+        if (p.r !== undefined && !p.temp) return Qt.rgba(p.r / 255, p.g / 255, p.b / 255, 1);
+        return p.temp <= 3500 ? "#f9e2af" : Theme.text;
+    }
     readonly property bool lightKnown: light.state !== undefined
     readonly property bool lightOn: light.state === true
     property bool colorOpen: false
 
     function refreshAll() { netProc.running = true; refreshLight(); refreshCal(); tick.n++ }
     function refreshLight() { if (!lightProc.running) lightProc.running = true }
-    function lightAction(args) { run([wiz].concat(args)); lightSoon.restart() }
+    function lightAction(args) { run([wiz, "--lamp", lamp].concat(args)); lightSoon.restart() }
 
     Process {
         id: netProc
@@ -78,15 +98,14 @@ PanelWindow {
     }
     Process {
         id: lightProc
-        command: [panel.wiz, "status-json"]
+        command: [panel.wiz, "status-all-json"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
-                    const p = JSON.parse(text);
-                    panel.light = p.error ? ({}) : p;
-                    if (!bright.pressed && p.dimming !== undefined) bright.value = (p.dimming - 10) / 90;
-                    if (p.state === false) panel.colorOpen = false;
-                } catch (e) { panel.light = ({}) }
+                    const all = JSON.parse(text), out = {};
+                    for (const k in all) out[k] = all[k].error ? ({}) : all[k];
+                    panel.lights = out;
+                } catch (e) { panel.lights = ({}) }
             }
         }
     }
@@ -288,11 +307,41 @@ PanelWindow {
                 Layout.leftMargin: 4; Layout.rightMargin: 4
                 Text { text: "조명"; color: Theme.text; font.family: Theme.font; font.pixelSize: 13; font.weight: Font.Bold }
                 Item { Layout.fillWidth: true }
-                Rectangle {
-                    visible: panel.lightOn && panel.lightHex !== "transparent"
-                    width: 10; height: 10; radius: 5; color: panel.lightHex
+                // 조작할 전구 고르기: 플로어등 · 제도등 (고른 칩 = 흰 알약, 점 = 그 전구가 켜진 빛 색)
+                Row {
+                    spacing: 4
+                    Repeater {
+                        model: ["floor", "desk"]
+                        Rectangle {
+                            id: chip
+                            required property string modelData
+                            readonly property bool sel: panel.lamp === modelData
+                            readonly property var st: panel.lights[modelData]
+                            readonly property bool reach: st !== undefined && st.state !== undefined
+                            readonly property color dot: panel.lampDot(st)
+                            implicitWidth: chipRow.implicitWidth + 20; implicitHeight: 24; radius: 12
+                            color: sel ? Theme.text : chipMa.containsMouse ? Theme.raised : Theme.surface
+                            Behavior on color { ColorAnimation { duration: Theme.fast } }
+                            Row {
+                                id: chipRow
+                                anchors.centerIn: parent
+                                spacing: 5
+                                Rectangle {
+                                    visible: chip.dot !== Qt.color("transparent")
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width: 7; height: 7; radius: 3.5; color: chip.dot
+                                }
+                                Text {
+                                    text: panel.lampNames[chip.modelData]
+                                    color: chip.sel ? Theme.onLight : chip.reach ? Theme.text : Theme.dim
+                                    font.family: Theme.font; font.pixelSize: 12; font.weight: chip.sel ? Font.Bold : Font.Normal
+                                }
+                            }
+                            MouseArea { id: chipMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                        onClicked: panel.lamp = chip.modelData }
+                        }
+                    }
                 }
-                Text { text: panel.lightStatus(); color: Theme.dim; font.family: Theme.font; font.pixelSize: 12 }
             }
             RowLayout {
                 spacing: 6
@@ -302,7 +351,12 @@ PanelWindow {
                     icon: "lightbulb"; label: panel.lightOn ? "켜짐" : "꺼짐"
                     active: panel.lightOn
                     enabled: panel.lightKnown
-                    onClicked: { panel.light = Object.assign({}, panel.light, { state: !panel.lightOn }); panel.lightAction([panel.lightOn ? "on" : "off"]) }
+                    onClicked: {
+                        const want = !panel.lightOn, l = Object.assign({}, panel.lights);
+                        for (const k of panel.lampTargets()) if (l[k] && l[k].state !== undefined) l[k] = Object.assign({}, l[k], { state: want });
+                        panel.lights = l;   // 누르자마자 바뀐 것처럼 보이게 (곧 실제 상태로 다시 읽음)
+                        panel.lightAction([want ? "on" : "off"]);
+                    }
                 }
                 Tile {
                     Layout.preferredWidth: parent.q
