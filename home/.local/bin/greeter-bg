@@ -2,13 +2,13 @@
 # greeter-bg: make the login screen (ReGreet) background look like the lock
 # screen (hyprlock): the current wallpaper, blurred and darkened to 55%.
 # Writes /var/lib/greeter-bg/background.jpg, which /etc/greetd/regreet.toml uses.
-# Run by waypaper after every wallpaper change (post_command) and at login.
+# Run after every wallpaper change (waytrogen executable_script, wallpaper-slideshow) and at login.
 OUT_DIR=/var/lib/greeter-bg
 OUT=$OUT_DIR/background.jpg
 STAMP=$OUT_DIR/source
 
 img=$(awww query 2>/dev/null | sed -n 's/.*currently displaying: image: //p' | head -1)
-[ -f "$img" ] || img=$(sed -n 's/^wallpaper = //p' "$HOME/.config/waypaper/config.ini" | sed "s|^~|$HOME|")
+[ -f "$img" ] || img=$(jq -r '.saved_wallpapers[0].path // empty' "$HOME/.config/waytrogen/config.json" 2>/dev/null)
 [ -f "$img" ] && [ -w "$OUT_DIR" ] || exit 0
 
 # Render at the current monitor's pixel size so the login screen isn't stretched

@@ -1,0 +1,130 @@
+// 미쿠 TUI 사용량 줄 (2026-11-19, 마스터 요청 A안)
+// 맨 아래 상태 줄 바로 위에 한 줄로: 추론 강도 · Claude 5시간 사용량 · 주간 사용량
+// - 추론 강도: 지금 대화(state.db sessions.model_config.reasoning_config) → 없으면 config.yaml agent.reasoning_effort
+// - 사용량: `hermes usage --provider anthropic --json` (5분마다, 읽기 전용)
+// 끄기/켜기: /miku-usage   다시 읽기: /widgets-reload
+import { execFile } from 'node:child_process'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+const HOME = process.env.HERMES_HOME || join(process.env.HOME || '', '.hermes/profiles/miku')
+const HERMES = join(process.env.HOME || '', '.hermes/hermes-agent/.hermes/bin/hermes')
+const USAGE_MS = 5 * 60 * 1000
+const EFFORT_MS = 3000
+
+let DatabaseSync = null
+try {
+  ;({ DatabaseSync } = await import('node:sqlite'))
+} catch {}
+
+function configEffort() {
+  try {
+    const text = readFileSync(join(HOME, 'config.yaml'), 'utf8')
+    const m = text.match(/^ {2}reasoning_effort:\s*["']?([A-Za-z-]*)["']?\s*$/m)
+    return m && m[1] ? m[1] : 'medium'
+  } catch {
+    return '?'
+  }
+}
+
+function sessionEffort() {
+  if (!DatabaseSync) return null
+  try {
+    const file = process.env.HERMES_TUI_ACTIVE_SESSION_FILE
+    if (!file) return null
+    const sid = JSON.parse(readFileSync(file, 'utf8')).session_id
+    if (!sid) return null
+    const db = new DatabaseSync(join(HOME, 'state.db'), { readOnly: true })
+    try {
+      const row = db.prepare('SELECT model_config FROM sessions WHERE id = ?').get(sid)
+      const rc = row && row.model_config ? JSON.parse(row.model_config).reasoning_config : null
+      if (!rc || typeof rc !== 'object') return null
+      if (rc.enabled === false) return 'none'
+      return rc.effort ? String(rc.effort) : 'medium'
+    } finally {
+      db.close()
+    }
+  } catch {
+    return null
+  }
+}
+
+const readEffort = () => sessionEffort() || configEffort()
+
+function fetchUsage() {
+  return new Promise(resolve => {
+    execFile(HERMES, ['usage', '--provider', 'anthropic', '--json'], { timeout: 60000, env: process.env }, (err, out) => {
+      if (err) return resolve({ error: '사용량 못 읽음' })
+      try {
+        const j = JSON.parse(out)
+        if (j.unavailable_reason) return resolve({ error: '사용량 없음' })
+        const win = label => (j.windows || []).find(w => w.label === label)
+        resolve({ five: win('Current session'), week: win('Current week') })
+      } catch {
+        resolve({ error: '사용량 해석 실패' })
+      }
+    })
+  })
+}
+
+const pad = n => String(n).padStart(2, '0')
+const fmtTime = iso => {
+  const d = new Date(iso)
+  return isNaN(d) ? '' : `${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+const fmtDay = iso => {
+  const d = new Date(iso)
+  return isNaN(d) ? '' : `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+export default function register(sdk) {
+  const { Box, Text, React, defineWidgetApp, h, openWidget } = sdk
+
+  function Line({ t }) {
+    const [effort, setEffort] = React.useState(readEffort)
+    const [usage, setUsage] = React.useState(null)
+
+    React.useEffect(() => {
+      let alive = true
+      const load = () => fetchUsage().then(u => alive && setUsage(u))
+      load()
+      const a = setInterval(load, USAGE_MS)
+      const b = setInterval(() => setEffort(readEffort()), EFFORT_MS)
+      return () => {
+        alive = false
+        clearInterval(a)
+        clearInterval(b)
+      }
+    }, [])
+
+    const tone = p => (p >= 90 ? t.color.error : p >= 70 ? t.color.warn : t.color.ok)
+    const sep = h(Text, { color: t.color.muted }, ' │ ')
+    const win = (name, w, fmt) =>
+      w
+        ? [
+            h(Text, { color: t.color.muted, key: name + 'l' }, `${name} `),
+            h(Text, { color: tone(w.used_percent), key: name + 'p' }, `${Math.round(w.used_percent)}%`),
+            h(Text, { color: t.color.muted, key: name + 'r' }, w.resets_at ? ` (${fmt(w.resets_at)})` : '')
+          ]
+        : [h(Text, { color: t.color.muted, key: name }, `${name} -`)]
+
+    const parts = [h(Text, { color: t.color.muted, key: 'el' }, '추론 '), h(Text, { color: t.color.label, key: 'ev' }, effort), h(React.Fragment, { key: 's1' }, sep)]
+    if (!usage) parts.push(h(Text, { color: t.color.muted, key: 'ld' }, '사용량 불러오는 중…'))
+    else if (usage.error) parts.push(h(Text, { color: t.color.warn, key: 'er' }, usage.error))
+    else parts.push(...win('5시간', usage.five, fmtTime), h(React.Fragment, { key: 's2' }, sep), ...win('주간', usage.week, fmtDay))
+
+    return h(Box, { flexDirection: 'row' }, ...parts)
+  }
+
+  const app = defineWidgetApp({
+    id: 'miku-usage',
+    help: '추론 강도와 Claude 5시간/주간 사용량 한 줄 (켜기/끄기)',
+    mode: 'ambient',
+    zone: 'dock-bottom',
+    init: () => ({}),
+    reduce: state => state,
+    render: ({ t }) => h(Line, { t })
+  })
+
+  openWidget(app, app.init(''))
+}

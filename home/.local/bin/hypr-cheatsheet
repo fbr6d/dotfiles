@@ -42,6 +42,7 @@ SECTIONS = [
         ("SUPER + T", "플로팅 터미널"),
         ("SUPER + Space", "런처"),
         ("SUPER + E", "파일 관리자"),
+        ("SUPER + B", "Zen 브라우저"),
         ("SUPER + Q", "창 닫기"),
         ("SUPER + CTRL + Q", "잠금"),
         ("SUPER + SHIFT + E", "종료"),

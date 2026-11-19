@@ -1,11 +1,14 @@
 #!/bin/sh
-# Waybar click handler: open a settings app as a popup, or close it if open.
+# Bar click handler: open a settings app as a popup, or close it if open.
 # Usage: popup-toggle <window-class> <command...>
-class="$1"; shift
+#        popup-toggle title:<exact window title> <command...>   (apps with no class, e.g. waytrogen)
+match="$1"; shift
 addr=$(hyprctl clients -j | python3 -c "
 import json, sys
-print(next((c['address'] for c in json.load(sys.stdin) if c['class'] == sys.argv[1]), ''))
-" "$class")
+m = sys.argv[1]
+key, val = ('title', m[6:]) if m.startswith('title:') else ('class', m)
+print(next((c['address'] for c in json.load(sys.stdin) if c[key] == val), ''))
+" "$match")
 if [ -n "$addr" ]; then
     hyprctl dispatch "hl.dsp.window.close({ window = \"address:$addr\" })" >/dev/null
 else

@@ -77,7 +77,7 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd("swayosd-server")   -- volume/brightness popups (keys work on the lock screen)
   hl.exec_cmd("hypridle")         -- lock after 10 min idle (~/.config/hypr/hypridle.conf)
   hl.exec_cmd("awww-daemon")       -- wallpaper renderer
-  hl.exec_cmd("~/.local/bin/wallpaper-restore")  -- last wallpaper (same as the login screen); slideshow starts after one interval
+  hl.exec_cmd("~/.local/bin/wallpaper-restore")  -- last wallpaper (same as the login screen), then wallpaper-slideshow (first change after one interval)
 end)
 
 -- Switch fcitx5 to English whenever a terminal (or yazi, which runs in its own kitty window) gets focus
@@ -372,6 +372,7 @@ local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 hl.bind(mainMod .. " + Return",    hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Q",         hl.dsp.window.close())
 hl.bind(mainMod .. " + E",         hl.dsp.exec_cmd(fileManager))
+hl.bind(mainMod .. " + B",         hl.dsp.exec_cmd("zen-browser"))   -- web browser (Zen)
 hl.bind(mainMod .. " + space",     hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
 
@@ -542,7 +543,7 @@ hl.window_rule({
 -- and close as soon as focus moves to another window
 -- class -> where the popup opens (just under the pill that opened it)
 local popupClasses = {
-    ["waypaper"]               = "monitor_w*0.5-window_w*0.5 48",         -- island, top center
+    -- (waypaper used to be here; the wallpaper picker is now waytrogen, see popupTitles)
 }
 for class, move in pairs(popupClasses) do
     hl.window_rule({
@@ -555,13 +556,36 @@ for class, move in pairs(popupClasses) do
         no_shadow   = true,
     })
 end
+-- same, for apps that set no class (matched by exact title instead)
+-- waytrogen (iced) leaves app_id empty, so its title is the only handle
+local popupTitles = {
+    ["Waytrogen - Iced"]       = { move = "monitor_w*0.5-window_w*0.5 48",  -- island, top center
+                                   size = "monitor_w*0.5 monitor_h*0.6" },
+}
+for title, opt in pairs(popupTitles) do
+    hl.window_rule({
+        name  = "popup-title-" .. title:gsub("%W", ""),
+        match = { title = "^" .. title:gsub("([%.%-%+%*%?%(%)%[%]%^%$])", "\\%1") .. "$" },
+
+        float       = true,
+        size        = opt.size,
+        move        = opt.move,
+        border_size = 1,
+        no_shadow   = true,
+    })
+end
 hl.on("window.active", function (window)
-  if window and popupClasses[window.class] then
+  if window and (popupClasses[window.class] or popupTitles[window.title]) then
     return
   end
   for class in pairs(popupClasses) do
     for _, popup in ipairs(hl.get_windows({ class = class })) do
       hl.dispatch(hl.dsp.window.close({ window = "address:" .. popup.address }))
+    end
+  end
+  for _, w in ipairs(hl.get_windows({})) do
+    if popupTitles[w.title] then
+      hl.dispatch(hl.dsp.window.close({ window = "address:" .. w.address }))
     end
   end
 end)

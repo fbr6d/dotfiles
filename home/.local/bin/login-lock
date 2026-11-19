@@ -30,7 +30,7 @@ if [ -f "$BG" ]; then
         sleep 0.6
     fi
 else   # no prepared image yet: the plain wallpaper with hyprlock's own blur
-    img=$(sed -n 's/^wallpaper = //p' "$HOME/.config/waypaper/config.ini" | sed "s|^~|$HOME|")
+    img=$(jq -r '.saved_wallpapers[0].path // empty' "$HOME/.config/waytrogen/config.json" 2>/dev/null)
     sed -e "s|^\(\s*path = \)screenshot|\1$img|" "$CONF" > "$OUT"
 fi
 

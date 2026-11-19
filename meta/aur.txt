@@ -9,7 +9,7 @@ rasdaemon
 realesrgan-ncnn-vulkan-bin
 unigine-heaven
 ventoy-bin
-waypaper
+waytrogen-bin
 yay-bin
 yay-bin-debug
 zen-browser-bin

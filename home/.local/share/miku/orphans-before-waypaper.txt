@@ -1,0 +1,7 @@
+clipse-debug
+hyprshell-bin-debug
+overskride-bin-debug
+paru-bin-debug
+rasdaemon-debug
+unigine-heaven-debug
+ventoy-bin-debug

@@ -137,10 +137,15 @@ PanelWindow {
                             spacing: 24
                             anchors.verticalCenter: parent.verticalCenter
                             readonly property bool scroll: infoText.implicitWidth > 170
-                            Text { id: infoText; text: lyrics.info; color: Theme.dim; font.family: Theme.font; font.pixelSize: 12; font.weight: Font.DemiBold }
+                            // 흐름이 멈추거나 제목이 바뀌면 처음 위치로 (안 하면 긴 제목→짧은 제목 때 칸 밖에 멈춰 안 보임)
+                            property bool resetting: false
+                            function rewind() { resetting = true; x = 0; resetting = false }
+                            onScrollChanged: rewind()
+                            Text { id: infoText; text: lyrics.info; color: Theme.dim; font.family: Theme.font; font.pixelSize: 12; font.weight: Font.DemiBold
+                                   onTextChanged: marquee.rewind() }
                             Text { visible: marquee.scroll; text: lyrics.info; color: Theme.dim; font.family: Theme.font; font.pixelSize: 12; font.weight: Font.DemiBold }
                             NumberAnimation on x {
-                                running: marquee.scroll && lyricPill.visible
+                                running: marquee.scroll && lyricPill.visible && !marquee.resetting
                                 loops: Animation.Infinite
                                 from: 0
                                 to: -(infoText.implicitWidth + 24)
@@ -184,7 +189,7 @@ PanelWindow {
         // 작업공간이 하나일 때 시계 알약과 같은 너비 (waybar 때와 같음)
         width: dots.implicitWidth + clock.width - 24
         Behavior on width { NumberAnimation { duration: Theme.base; easing.type: Easing.OutCubic } }
-        onClicked: bar.run([bar.home + "/.local/bin/popup-toggle", "waypaper", "waypaper"])
+        onClicked: bar.run([bar.home + "/.local/bin/popup-toggle", "title:Waytrogen - Iced", "waytrogen"])
         readonly property int active: Hyprland.focusedMonitor && Hyprland.focusedMonitor.activeWorkspace
                                       ? Hyprland.focusedMonitor.activeWorkspace.id : -1
         Row {

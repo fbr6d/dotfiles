@@ -1,0 +1,108 @@
+#!/usr/bin/env python3
+"""wallpaper-slideshow: waypaperd 대신 쓰는 배경화면 슬라이드쇼 (2026-11-19).
+
+waytrogen 설정(~/.config/waytrogen/config.json)의 그림 폴더와 awww 전환 효과를 읽어
+무작위 그림을 `awww img`로 직접 띄운다. `waytrogen --random/--next`는 실행할 때마다
+awww-daemon을 pkill -9로 껐다 켜서(배경이 사라짐) 쓰지 않는다.
+
+  wallpaper-slideshow once        지금 한 번 바꾸기
+  wallpaper-slideshow loop <분>   <분>마다 바꾸기 (처음엔 <분> 기다린 뒤 시작)
+
+바꾼 뒤 waytrogen 설정의 saved_wallpapers 경로를 갱신하고(창을 열면 같은 그림이 선택됨),
+executable_script(greeter-bg, 로그인 화면 배경)를 실행한다.
+"""
+import fcntl, json, os, random, subprocess, sys, time
+
+HOME = os.path.expanduser("~")
+CFG = f"{HOME}/.config/waytrogen/config.json"
+LOCK = f"{os.environ.get('XDG_RUNTIME_DIR', '/tmp')}/wallpaper-slideshow.lock"
+EXTS = {"jpg", "jpeg", "png", "gif", "pnm", "tga", "tiff", "webp", "bmp", "ff"}
+
+
+def current_image():
+    try:
+        out = subprocess.run(["awww", "query"], capture_output=True, text=True, timeout=5).stdout
+        for line in out.splitlines():
+            if "currently displaying: image: " in line:
+                return line.split("currently displaying: image: ", 1)[1].strip()
+    except Exception:
+        pass
+    return ""
+
+
+def awww_args(cfg):
+    ch = (cfg.get("changer") or {}).get("Awww") or {}
+    def g(key, top_key, default):
+        v = ch.get(key)
+        if v is None:
+            v = cfg.get(top_key)
+        return default if v is None else v
+    fill = str(g("fill_color", "awww_fill_color", "262624")).lstrip("#")[:6]
+    pos = ch.get("transition_position") or {}
+    pos = pos.get("position", "center") if isinstance(pos, dict) else str(pos or "center")
+    bz = ch.get("transition_bezier") or {}
+    args = [
+        "--resize", str(g("resize_mode", "awww_resize", "Crop")).lower(),
+        "--fill-color", fill,
+        "--filter", str(g("scalling_filter", "awww_scaling_filter", "Lanczos3")),
+        "--transition-type", str(g("transition_type", "awww_transition_type", "Grow")).lower(),
+        "--transition-step", str(g("transition_step", "awww_transition_step", 90)),
+        "--transition-duration", str(g("transition_duration", "awww_transition_duration", 1)),
+        "--transition-fps", str(g("transition_fps", "awww_transition_fps", 60)),
+        "--transition-angle", str(g("transition_angle", "awww_transition_angle", 0)),
+        "--transition-pos", pos,
+    ]
+    if bz:
+        args += ["--transition-bezier", f"{bz.get('p0', .54)},{bz.get('p1', 0)},{bz.get('p2', .34)},{bz.get('p3', .99)}"]
+    return args
+
+
+def change_once():
+    with open(LOCK, "w") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        cfg = json.load(open(CFG))
+        folder = cfg.get("wallpaper_folder") or f"{HOME}/Pictures/Wallpapers/ultrawide"
+        files = sorted(os.path.join(folder, f) for f in os.listdir(folder)
+                       if f.rsplit(".", 1)[-1].lower() in EXTS and os.path.isfile(os.path.join(folder, f)))
+        if not files:
+            print(f"no images in {folder}", file=sys.stderr)
+            return 1
+        cur = current_image()
+        choices = [f for f in files if f != cur] or files
+        img = random.choice(choices)
+        r = subprocess.run(["awww", "img", img, *awww_args(cfg)])
+        if r.returncode != 0:
+            return r.returncode
+        # waytrogen 창이 같은 그림을 가리키게 경로만 갱신 (창이 열려 있으면 닫을 때 창이 다시 저장한다)
+        cfg = json.load(open(CFG))
+        for w in cfg.get("saved_wallpapers") or []:
+            w["path"] = img
+        tmp = CFG + ".tmp-slideshow"
+        with open(tmp, "w") as f:
+            json.dump(cfg, f, indent=2, ensure_ascii=False)
+        os.replace(tmp, CFG)
+        script = cfg.get("executable_script") or ""
+        if script and os.access(script, os.X_OK):
+            subprocess.run([script, "All", img], timeout=120)
+        print(img)
+        return 0
+
+
+def main():
+    mode = sys.argv[1] if len(sys.argv) > 1 else "once"
+    if mode == "once":
+        return change_once()
+    if mode == "loop":
+        minutes = float(sys.argv[2]) if len(sys.argv) > 2 else 10
+        while True:
+            time.sleep(minutes * 60)
+            try:
+                change_once()
+            except Exception as e:
+                print(f"slideshow error: {e}", file=sys.stderr)
+    print(__doc__)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

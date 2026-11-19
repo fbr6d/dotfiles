@@ -1,0 +1,28 @@
+#!/bin/sh
+# greeter-bg: make the login screen (ReGreet) background look like the lock
+# screen (hyprlock): the current wallpaper, blurred and darkened to 55%.
+# Writes /var/lib/greeter-bg/background.jpg, which /etc/greetd/regreet.toml uses.
+# Run by waypaper after every wallpaper change (post_command) and at login.
+OUT_DIR=/var/lib/greeter-bg
+OUT=$OUT_DIR/background.jpg
+STAMP=$OUT_DIR/source
+
+img=$(awww query 2>/dev/null | sed -n 's/.*currently displaying: image: //p' | head -1)
+[ -f "$img" ] || img=$(sed -n 's/^wallpaper = //p' "$HOME/.config/waypaper/config.ini" | sed "s|^~|$HOME|")
+[ -f "$img" ] && [ -w "$OUT_DIR" ] || exit 0
+
+# Render at the current monitor's pixel size so the login screen isn't stretched
+# (the monitor can change: 16:10 laptop, 16:9, 21:9 ultrawide).
+size=$(hyprctl -j monitors 2>/dev/null | jq -r 'first | "\(.width)x\(.height)"' 2>/dev/null)
+case "$size" in *[0-9]x[0-9]*) ;; *) size=2560x1600 ;; esac
+w=${size%x*} h=${size#*x}
+[ "$(cat "$STAMP" 2>/dev/null)" = "$img $size" ] && [ -f "$OUT" ] && exit 0   # already done
+
+# same look as hyprlock: brightness 0.55
+tmp=$OUT_DIR/.background.jpg.tmp
+# heavy blur like hyprlock's (blur_passes 4, blur_size 12): blurred at a quarter
+# size and scaled back up, which is also much faster than blurring at full size
+qw=$((w / 4)) qh=$((h / 4))
+magick "$img" -resize "${qw}x${qh}^" -gravity center -extent "${qw}x${qh}" \
+    -blur 0x10 -resize "${w}x${h}!" -modulate 55 -quality 92 "$tmp" &&
+    chmod 644 "$tmp" && mv -f "$tmp" "$OUT" && printf '%s\n' "$img $size" > "$STAMP"

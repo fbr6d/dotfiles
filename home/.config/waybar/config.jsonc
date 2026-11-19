@@ -30,7 +30,7 @@
         "exec": "~/.local/bin/waybar-island",
         "return-type": "json",
         "restart-interval": 2,
-        "on-click": "~/.local/bin/popup-toggle waypaper waypaper"
+        "on-click": "~/.local/bin/popup-toggle 'title:Waytrogen - Iced' waytrogen"
     },
 
     // (old, clickable) dynamic-island dots, kept for reference
