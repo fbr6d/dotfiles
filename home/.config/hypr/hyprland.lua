@@ -181,7 +181,7 @@ hl.config({
 
         -- Darken unfocused windows so the active one stands out
         dim_inactive = true,
-        dim_strength = 0.2,
+        dim_strength = 0.35,   -- 2026-11-19 master: darker (was 0.2, backup hyprland.lua.bak-dim-20261119)
         dim_around   = 0.7,   -- backdrop of the window overview
 
         shadow = {
@@ -292,6 +292,67 @@ hl.config({
         focus_fit_method         = 0,          -- center the focused column
     },
 })
+
+-- Auto column widths (2026-11-19, master request; backup hyprland.lua.bak-autocol-20261119):
+--   one tiled column on the workspace -> keeps its width (2/3), centered (focus_fit_method 0)
+--   two or more columns               -> every column half the monitor, scrolled so two
+--                                        halves fill the screen side by side (focus_fit_method 1)
+-- Widths are only reset when the column count changes, so SUPER+CTRL+left/right
+-- manual widths stay until a window is opened, closed or moved.
+local autoColLast = {}   -- workspace id -> column count seen last time
+
+local function autoColCount(ws)
+    local seen, n = {}, 0
+    for _, w in ipairs(hl.get_workspace_windows(ws.id)) do
+        local col = type(w.layout) == "table" and w.layout.column or nil
+        if w.mapped and not w.floating and not w.hidden and col and col.index ~= nil and not seen[col.index] then
+            seen[col.index] = true
+            n = n + 1
+        end
+    end
+    return n
+end
+
+local function autoColApply()
+    local ws = hl.get_active_workspace()
+    if not ws or ws.special or ws.id == nil or ws.tiled_layout ~= "scrolling" then return end
+    local n    = autoColCount(ws)
+    local prev = autoColLast[ws.id]
+    autoColLast[ws.id] = n
+    hl.config({ scrolling = { focus_fit_method = (n >= 2) and 1 or 0 } })
+    if n >= 2 and prev ~= n then
+        hl.dispatch(hl.dsp.layout("colresize all 0.5"))
+        -- the tape keeps its old scroll after the resize; touch the neighbouring column
+        -- and come back so the focused half and its neighbour fill the screen
+        local act = hl.get_active_window()
+        local col = act and type(act.layout) == "table" and act.layout.column or nil
+        if col and col.index ~= nil and not act.floating then
+            local want = (col.index > 0) and (col.index - 1) or (col.index + 1)
+            for _, w in ipairs(hl.get_workspace_windows(ws.id)) do
+                local c = type(w.layout) == "table" and w.layout.column or nil
+                if c and c.index == want and not w.floating then
+                    hl.dispatch(hl.dsp.focus({ window = "address:" .. w.address }))
+                    hl.dispatch(hl.dsp.focus({ window = "address:" .. act.address }))
+                    break
+                end
+            end
+        end
+    elseif n == 1 and prev ~= nil and prev >= 2 then
+        hl.dispatch(hl.dsp.layout("colresize 0.667"))
+    end
+    if n == 1 then hl.dispatch(hl.dsp.layout("center")) end
+end
+
+-- run a moment after the event so the layout already knows about the change
+local function autoColSoon()
+    hl.timer(autoColApply, { timeout = 60, type = "oneshot" })
+end
+for _, ev in ipairs({ "window.open", "window.close", "window.destroy",
+                      "window.move_to_workspace", "window.update_state", "workspace.active" }) do
+    hl.on(ev, autoColSoon)
+end
+-- a config reload resets focus_fit_method to the value above; recount right away
+autoColSoon()
 
 ----------------
 ----  MISC  ----

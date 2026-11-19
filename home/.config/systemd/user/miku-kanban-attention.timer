@@ -1,0 +1,10 @@
+[Unit]
+Description=5분마다 KSAT 칸반 '마스터 결정 필요' 감시
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

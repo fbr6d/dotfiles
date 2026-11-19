@@ -10,3 +10,4 @@ pipewire-pulse.socket
 pipewire.socket
 dotfiles-backup-prompt.timer
 miku-backup.timer
+miku-kanban-attention.timer
