@@ -1,3 +1,4 @@
+//@ pragma UseQApplication
 //@ pragma IconTheme breeze-dark
 // (트레이·알림 아이콘 테마: GTK 처럼 색을 바꿔 주지 않으므로 어두운 바탕용 밝은 아이콘 테마를 쓴다)
 // 미쿠 셸 (Quickshell): waybar·swaync 를 대신하는 데스크톱 셸.
