@@ -8,7 +8,7 @@ StartLimitIntervalSec=0
 Type=simple
 ExecStart="/home/leejaeik/.hermes/hermes-agent/.hermes/bin/hermes" "gateway" "run"
 WorkingDirectory=/home/leejaeik/.hermes
-Environment="PATH=/home/leejaeik/.hermes/hermes-agent/node_modules/.bin:/home/leejaeik/.hermes/tools/node-26.12.1-linux-x64/bin:/home/leejaeik/.hermes/tools/npm-12.0.2-linux-x64/bin:/home/leejaeik/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="PATH=/home/leejaeik/.hermes/hermes-agent/node_modules/.bin:/home/leejaeik/.hermes/tools/node-26.12.1-linux-x64/bin:/home/leejaeik/.hermes/tools/npm-12.2.2-linux-x64/bin:/home/leejaeik/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 Environment="HERMES_HOME=/home/leejaeik/.hermes"
 Environment="HERMES_SUPERVISED_CHILD=1"
