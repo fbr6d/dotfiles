@@ -1,0 +1,7 @@
+[Unit]
+Description=KSAT 실시간 현황 디스코드 메시지 고쳐 쓰기 (AI 사용 없음, 미쿠)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/.hermes/profiles/miku/scripts/ksat_live_board.py
+Nice=10

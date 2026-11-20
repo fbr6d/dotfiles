@@ -12,3 +12,4 @@ pipewire.socket
 dotfiles-backup-prompt.timer
 miku-backup.timer
 miku-kanban-attention.timer
+miku-ksat-live.timer
