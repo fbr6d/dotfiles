@@ -1,0 +1,70 @@
+*filter
+:ufw6-user-input - [0:0]
+:ufw6-user-output - [0:0]
+:ufw6-user-forward - [0:0]
+:ufw6-before-logging-input - [0:0]
+:ufw6-before-logging-output - [0:0]
+:ufw6-before-logging-forward - [0:0]
+:ufw6-user-logging-input - [0:0]
+:ufw6-user-logging-output - [0:0]
+:ufw6-user-logging-forward - [0:0]
+:ufw6-after-logging-input - [0:0]
+:ufw6-after-logging-output - [0:0]
+:ufw6-after-logging-forward - [0:0]
+:ufw6-logging-deny - [0:0]
+:ufw6-logging-allow - [0:0]
+:ufw6-user-limit - [0:0]
+:ufw6-user-limit-accept - [0:0]
+### RULES ###
+
+### tuple ### allow tcp 51826 ::/0 any fe80::/10 in comment=486f6d6562726964676520484150
+-A ufw6-user-input -p tcp --dport 51826 -s fe80::/10 -j ACCEPT
+
+### tuple ### allow tcp 8581 ::/0 any fe80::/10 in comment=486f6d65627269646765205549
+-A ufw6-user-input -p tcp --dport 8581 -s fe80::/10 -j ACCEPT
+
+### tuple ### allow udp 5353 ::/0 any fe80::/10 in comment=6d444e53
+-A ufw6-user-input -p udp --dport 5353 -s fe80::/10 -j ACCEPT
+
+### tuple ### allow any 53317 ::/0 any fe80::/10 in comment=4c6f63616c53656e64
+-A ufw6-user-input -p tcp --dport 53317 -s fe80::/10 -j ACCEPT
+-A ufw6-user-input -p udp --dport 53317 -s fe80::/10 -j ACCEPT
+
+### tuple ### allow any 57621 ::/0 any fe80::/10 in comment=53706f7469667920436f6e6e656374
+-A ufw6-user-input -p tcp --dport 57621 -s fe80::/10 -j ACCEPT
+-A ufw6-user-input -p udp --dport 57621 -s fe80::/10 -j ACCEPT
+
+### tuple ### allow udp 1900 ::/0 any fe80::/10 in comment=53706f746966792053534450
+-A ufw6-user-input -p udp --dport 1900 -s fe80::/10 -j ACCEPT
+
+### tuple ### allow tcp 47984,47989,47990,48010 ::/0 any fe80::/10 in comment=53756e7368696e6520544350
+-A ufw6-user-input -p tcp -m multiport --dports 47984,47989,47990,48010 -s fe80::/10 -j ACCEPT
+
+### tuple ### allow udp 47998:48010 ::/0 any fe80::/10 in comment=53756e7368696e6520554450
+-A ufw6-user-input -p udp -m multiport --dports 47998:48010 -s fe80::/10 -j ACCEPT
+
+### tuple ### allow tcp 47984,47989,47990,48010 ::/0 any ::/0 in_tailscale0 comment=53756e7368696e6520766961205461696c7363616c65
+-A ufw6-user-input -i tailscale0 -p tcp -m multiport --dports 47984,47989,47990,48010 -j ACCEPT
+
+### tuple ### allow udp 47998:48010 ::/0 any ::/0 in_tailscale0 comment=53756e7368696e6520766961205461696c7363616c65
+-A ufw6-user-input -i tailscale0 -p udp -m multiport --dports 47998:48010 -j ACCEPT
+
+### tuple ### allow udp 41641 ::/0 any ::/0 in comment=5461696c7363616c6520646972656374
+-A ufw6-user-input -p udp --dport 41641 -j ACCEPT
+
+### END RULES ###
+
+### LOGGING ###
+-A ufw6-after-logging-input -j LOG --log-prefix "[UFW BLOCK] " -m limit --limit 3/min --limit-burst 10
+-A ufw6-after-logging-forward -j LOG --log-prefix "[UFW BLOCK] " -m limit --limit 3/min --limit-burst 10
+-I ufw6-logging-deny -m conntrack --ctstate INVALID -j RETURN -m limit --limit 3/min --limit-burst 10
+-A ufw6-logging-deny -j LOG --log-prefix "[UFW BLOCK] " -m limit --limit 3/min --limit-burst 10
+-A ufw6-logging-allow -j LOG --log-prefix "[UFW ALLOW] " -m limit --limit 3/min --limit-burst 10
+### END LOGGING ###
+
+### RATE LIMITING ###
+-A ufw6-user-limit -m limit --limit 3/minute -j LOG --log-prefix "[UFW LIMIT BLOCK] "
+-A ufw6-user-limit -j REJECT
+-A ufw6-user-limit-accept -j ACCEPT
+### END RATE LIMITING ###
+COMMIT

@@ -1,3 +1,4 @@
+app-dev.lizardbyte.app.Sunshine.service
 hermes-gateway.service
 homebridge.service
 openrgb-server.service

@@ -45,6 +45,7 @@ CONFIG_DENY = {
     "Codex", "Cursor", "1Password", "Bitwarden", "keepassxc", "rclone", "session",
     "libvirt", "unity3d", "JetBrains", "Electron", "kdeconnect",
     "mcp-icloud-caldav",  # Apple ID + app-specific password (secret scan cannot recognize it)
+    "sunshine",  # Sunshine remote desktop: TLS private key, paired-device certs, admin login (2026-11-20)
 }
 # Children of ~/.local/share that are never copied.
 SHARE_DENY = {
