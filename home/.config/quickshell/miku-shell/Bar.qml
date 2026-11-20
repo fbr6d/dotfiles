@@ -188,10 +188,39 @@ PanelWindow {
         anchors.centerIn: parent
         // 작업공간이 하나일 때 시계 알약과 같은 너비 (waybar 때와 같음)
         width: dots.implicitWidth + clock.width - 24
-        Behavior on width { NumberAnimation { duration: Theme.base; easing.type: Easing.OutCubic } }
+        // 2026-11-20 마스터 요청 '더 역동적으로': 창 애니메이션처럼 통통 튀는 스프링 (이전판 ~/.local/share/backups/miku-shell-anim-20261120/)
+        Behavior on width { SpringAnimation { spring: 4.5; damping: 0.3; epsilon: 0.25 } }
         onClicked: bar.run([bar.home + "/.local/bin/popup-toggle", "title:Waytrogen - Iced", "waytrogen"])
         readonly property int active: Hyprland.focusedMonitor && Hyprland.focusedMonitor.activeWorkspace
                                       ? Hyprland.focusedMonitor.activeWorkspace.id : -1
+        // 창이 열리고 닫히고 옮겨질 때 창 목록(위치·떠 있음)을 다시 읽는다
+        property int winTick: 0
+        // 2026-11-20 마스터: 선택한 창 막대만 그 프로그램 대표색 (알약·점 테마는 고정). 모르는 앱은 기본 진한 회색.
+        readonly property var appColors: ({
+            "discord": "#5865f2", "vesktop": "#5865f2",
+            "zen": "#f76f53", "firefox": "#ff7139",
+            "kitty": "#e0a458", "yazi": "#e0c068",
+            "miku-tui": "#39c5bb", "miku-greeter": "#39c5bb",
+            "com.anthropic.claude": "#d97757",
+            "spotify": "#1db954",
+            "obsidian": "#7c3aed",
+            "org.gnome.nautilus": "#4a86cf", "org.gnome.papers": "#c64600",
+            "1password": "#1a8cff", "localsend": "#008080",
+            "code": "#23a9f2", "codium": "#23a9f2"
+        })
+        function appColor(t) {
+            const c = t && t.lastIpcObject ? String(t.lastIpcObject["class"] || "").toLowerCase() : "";
+            return appColors[c] || Theme.onLight;
+        }
+        Connections {
+            target: Hyprland
+            function onRawEvent(ev) {
+                if (["openwindow", "closewindow", "movewindow", "movewindowv2", "changefloatingmode",
+                     "activewindowv2", "workspacev2"].includes(ev.name)) refreshWins.restart();
+            }
+        }
+        Timer { id: refreshWins; interval: 120; onTriggered: { Hyprland.refreshToplevels(); island.winTick++ } }
+        Component.onCompleted: refreshWins.restart()
         Row {
             id: dots
             anchors.centerIn: parent
@@ -202,12 +231,48 @@ PanelWindow {
                 Rectangle {
                     required property var modelData
                     readonly property bool on: modelData.id === island.active
-                    width: on ? 24 : 8
-                    height: 8
-                    radius: 4
+                    // 2026-11-20 마스터: 지금 층 알약을 키우고, 안에 그 층의 창 수만큼 작은 점 + 선택한 창 위치
+                    // (검은 섬 알약 높이 32는 그대로). 창 순서는 왼쪽→오른쪽 x 좌표, 떠 있는 창은 뺀다.
+                    readonly property var wins: {
+                        island.winTick;
+                        return Hyprland.toplevels.values
+                            .filter(t => t.workspace && t.workspace.id === modelData.id
+                                         && t.lastIpcObject && t.lastIpcObject.floating === false)
+                            .sort((a, b) => (a.lastIpcObject.at || [0])[0] - (b.lastIpcObject.at || [0])[0]);
+                    }
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: on ? Math.max(28, winDots.implicitWidth + 14) : 8
+                    height: on ? 16 : 8
+                    radius: height / 2
                     color: on ? Theme.text : "#5a5a56"
-                    Behavior on width { NumberAnimation { duration: Theme.base; easing.type: Easing.OutCubic } }
-                    Behavior on color { ColorAnimation { duration: Theme.base } }
+                    Behavior on height { SpringAnimation { spring: 5; damping: 0.25; epsilon: 0.25 } }
+                    Row {
+                        id: winDots
+                        anchors.centerIn: parent
+                        spacing: 4
+                        opacity: parent.on ? 1 : 0
+                        Behavior on opacity { NumberAnimation { duration: Theme.fast } }
+                        Repeater {
+                            model: parent.parent.on ? parent.parent.wins : []
+                            Rectangle {
+                                required property var modelData
+                                readonly property bool sel: Hyprland.activeToplevel === modelData
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: sel ? 12 : 6
+                                height: 6
+                                radius: 3
+                                color: sel ? island.appColor(modelData) : "#a3a199"
+                                Behavior on width { SpringAnimation { spring: 5; damping: 0.25; epsilon: 0.25 } }
+                                Behavior on color { ColorAnimation { duration: Theme.fast } }
+                            }
+                        }
+                    }
+                    // 지금 층 막대가 쭉 늘어났다가 살짝 되돌아오는 스프링, 새 층 점은 톡 튀어나옴
+                    scale: 0
+                    Component.onCompleted: scale = 1
+                    Behavior on scale { NumberAnimation { duration: 380; easing.type: Easing.OutBack; easing.overshoot: 2.2 } }
+                    Behavior on width { SpringAnimation { spring: 5; damping: 0.25; epsilon: 0.25 } }
+                    Behavior on color { ColorAnimation { duration: Theme.fast } }
                 }
             }
         }

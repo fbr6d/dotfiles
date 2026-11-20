@@ -17,4 +17,5 @@ run udiskie                                         # USB drives mount automatic
 # (2026-11-16) old miku-boot greeting removed; backup in ~/.local/share/backups/miku-greeting-20261116
 run "$HOME/.local/bin/miku-boot"                      # Hermes (miku) greeting terminal, first login after boot only
 run "sleep 2; $HOME/.local/bin/reboot-keep restore" # windows saved by a reboot-keep reboot
+run "sleep 4; spotify-launcher"                    # (2026-11-20) Spotify hidden on workspace 99 (hyprland.lua rule spotify-start-hidden); bar pill shows it
 run "sleep 3; $HOME/.local/bin/greeter-bg"          # login-screen background = blurred wallpaper

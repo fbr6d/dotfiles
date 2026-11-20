@@ -158,7 +158,10 @@ hl.config({
         border_size = 3,
 
         col = {
-            active_border   = "rgb(" .. theme.border .. ")",
+            -- 2026-11-20 master: white, switches instantly (border animation off; gradient/spin/
+            -- spread/fade effects tried and removed, backups in
+            -- ~/.local/share/backups/border-once-20261120/). Old: "rgb(" .. theme.border .. ")"
+            active_border   = "rgb(ffffff)",
             inactive_border = "rgb(" .. theme.surface .. ")",
         },
 
@@ -234,7 +237,7 @@ hl.curve("quick",          { type = "bezier", points = { {0.15, 0},    {0.1, 1} 
 hl.curve("easy",           { type = "spring", mass = 1, stiffness = 238.1191, damping = 24.21279333 })
 
 hl.animation({ leaf = "global",        enabled = true,  speed = 10,   bezier = "default" })
-hl.animation({ leaf = "border",        enabled = true,  speed = 5.39, bezier = "easeOutQuint" })
+hl.animation({ leaf = "border",        enabled = false, speed = 5.39, bezier = "easeOutQuint" })  -- 2026-11-20 master: no border fade, color switches instantly
 hl.animation({ leaf = "windows",       enabled = true,  speed = 4.79, spring = "easy" })
 hl.animation({ leaf = "windowsIn",     enabled = true,  speed = 4.1,  spring = "easy",         style = "popin 87%" })
 hl.animation({ leaf = "windowsOut",    enabled = true,  speed = 1.49, bezier = "linear",       style = "popin 87%" })
@@ -246,9 +249,11 @@ hl.animation({ leaf = "layersIn",      enabled = true,  speed = 4,    bezier = "
 hl.animation({ leaf = "layersOut",     enabled = true,  speed = 1.5,  bezier = "linear",       style = "fade" })
 hl.animation({ leaf = "fadeLayersIn",  enabled = true,  speed = 1.79, bezier = "almostLinear" })
 hl.animation({ leaf = "fadeLayersOut", enabled = true,  speed = 1.39, bezier = "almostLinear" })
-hl.animation({ leaf = "workspaces",    enabled = true,  speed = 1.94, bezier = "almostLinear", style = "fade" })
-hl.animation({ leaf = "workspacesIn",  enabled = true,  speed = 1.21, bezier = "almostLinear", style = "fade" })
-hl.animation({ leaf = "workspacesOut", enabled = true,  speed = 1.94, bezier = "almostLinear", style = "fade" })
+-- 2026-11-20 master: workspaces are "floors" stacked vertically (SUPER+up/down), sliding with the
+-- same spring as windows. Old fade lines in ~/.local/share/backups/layers-save-20261120/
+hl.animation({ leaf = "workspaces",    enabled = true,  speed = 4.79, spring = "easy", style = "slidevert" })
+hl.animation({ leaf = "workspacesIn",  enabled = true,  speed = 4.79, spring = "easy", style = "slidevert" })
+hl.animation({ leaf = "workspacesOut", enabled = true,  speed = 4.79, spring = "easy", style = "slidevert" })
 hl.animation({ leaf = "zoomFactor",    enabled = true,  speed = 7,    bezier = "quick" })
 
 -- Ref https://wiki.hypr.land/configuring/core/rules/workspace-rules/
@@ -439,7 +444,18 @@ hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("command -v hyprshutdown >/de
 
 -- Window state
 hl.bind(mainMod .. " + F",         hl.dsp.window.fullscreen({ mode = "fullscreen" }))
-hl.bind(mainMod .. " + M",         hl.dsp.window.fullscreen({ mode = "maximized" }))
+-- 2026-11-20 master: SUPER+M toggles the column between full monitor width and half
+local function toggleFullHalf()
+    local w = hl.get_active_window()
+    if not w or w.floating then return end
+    local mw = w.monitor and w.monitor.width or 0
+    if mw > 0 and w.size.x >= mw * 0.9 then
+        hl.dispatch(hl.dsp.layout("colresize 0.5"))
+    else
+        hl.dispatch(hl.dsp.layout("colresize 1.0"))
+    end
+end
+hl.bind(mainMod .. " + M",         toggleFullHalf)
 hl.bind(mainMod .. " + V",         hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("kitty --class clipse -e clipse"))   -- clipboard history
 hl.bind(mainMod .. " + P",         hl.dsp.window.pseudo())
@@ -464,11 +480,10 @@ hl.bind(mainMod .. " + slash",     hl.dsp.exec_cmd("~/.local/bin/hypr-cheatsheet
 
 -- Scrolling layout, with arrows or vim keys:
 --   SUPER + left/right        focus the neighbouring column (tape scrolls to it)
---   SUPER + up/down           focus the window above/below in the same column
+--   SUPER + up/down           go to the floor (workspace) above/below
 --   SUPER+SHIFT + left/right  swap the column with its neighbour
---   SUPER+SHIFT + up/down     move the window up/down within its column
+--   SUPER+SHIFT + up/down     carry the window to the floor above/below
 --   SUPER+CTRL + left/right   cycle the column width (1/2, 2/3, full)
---   SUPER+CTRL + up/down      resize the window's height
 for _, k in ipairs({ { "left", "h", "l" }, { "right", "l", "r" } }) do
     local dir, vim, lr = k[1], k[2], k[3]
     local width = (lr == "r") and "+conf" or "-conf"
@@ -478,17 +493,30 @@ for _, k in ipairs({ { "left", "h", "l" }, { "right", "l", "r" } }) do
         hl.bind(mainMod .. " + CTRL + " .. key,  hl.dsp.layout("colresize " .. width))
     end
 end
-for _, k in ipairs({ { "up", "k", -40 }, { "down", "j", 40 } }) do
-    local dir, vim, dy = k[1], k[2], k[3]
-    for _, key in ipairs({ dir, vim }) do
-        hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ direction = dir }))
-        hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ direction = dir }))
-        hl.bind(mainMod .. " + CTRL + " .. key,  hl.dsp.window.resize({ x = 0, y = dy, relative = true }), { repeating = true })
+-- 2026-11-20 master: up/down = "floors" (the workspace above/below, empty ones included);
+-- windows always keep the full height. Stacking (SUPER+,/.) and height keys removed.
+-- Going down from an EMPTY floor to another empty one is blocked (no stack of empty floors);
+-- going down into a floor that already has windows is still allowed.
+local function wsWindows(id)
+    local n = 0
+    for _, w in ipairs(hl.get_workspace_windows(id) or {}) do
+        if w.mapped then n = n + 1 end
+    end
+    return n
+end
+local function floorDown()
+    local ws = hl.get_active_workspace()
+    if ws and ws.id and ws.id > 0 and wsWindows(ws.id) == 0 and wsWindows(ws.id + 1) == 0 then
+        return
+    end
+    hl.dispatch(hl.dsp.focus({ workspace = "r+1" }))
+end
+for _, k in ipairs({ { "up", "k", "r-1" }, { "down", "j", "r+1" } }) do
+    for _, key in ipairs({ k[1], k[2] }) do
+        hl.bind(mainMod .. " + " .. key,         k[3] == "r+1" and floorDown or hl.dsp.focus({ workspace = k[3] }))
+        hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = k[3] }))
     end
 end
--- Stack the window into the neighbouring column, or pop it out into its own
-hl.bind(mainMod .. " + comma",  hl.dsp.layout("consume_or_expel prev"))
-hl.bind(mainMod .. " + period", hl.dsp.layout("consume_or_expel next"))
 
 -- Switch workspaces with mainMod + [0-9]
 -- Move active window to a workspace with mainMod + SHIFT + [0-9]
@@ -600,6 +628,15 @@ hl.window_rule({
     float = true,
 })
 
+-- 2026-11-20 master: Spotify is born on the hidden workspace 99, so the autostart at
+-- login never flashes on screen. spotify-popup (bar pill) brings it out as a popup.
+-- Backup: ~/.local/share/backups/spotify-autostart-20261120/
+hl.window_rule({
+    name      = "spotify-start-hidden",
+    match     = { class = "^[Ss]potify$" },
+    workspace = "99 silent",
+})
+
 -- Popups opened from waybar: float under the bar at the top right,
 -- and close as soon as focus moves to another window
 -- class -> where the popup opens (just under the pill that opened it)
@@ -621,7 +658,8 @@ end
 -- waytrogen (iced) leaves app_id empty, so its title is the only handle
 local popupTitles = {
     ["Waytrogen - Iced"]       = { move = "monitor_w*0.5-window_w*0.5 48",  -- island, top center
-                                   size = "monitor_w*0.5 monitor_h*0.6" },
+                                   size = "monitor_w*0.5 monitor_h*0.6",
+                                   scroll = 0.3 },  -- 2026-11-20 master: one wheel notch jumped a whole row
 }
 for title, opt in pairs(popupTitles) do
     hl.window_rule({
@@ -631,6 +669,7 @@ for title, opt in pairs(popupTitles) do
         float       = true,
         size        = opt.size,
         move        = opt.move,
+        scroll_mouse = opt.scroll,
         border_size = 1,
         no_shadow   = true,
     })
