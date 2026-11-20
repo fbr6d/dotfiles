@@ -7,10 +7,10 @@
   "saved_wallpapers": [
     {
       "monitor": "All",
-      "path": "/home/leejaeik/Pictures/Wallpapers/ultrawide/149114499_p0_uw.png",
+      "path": "/home/leejaeik/Pictures/Wallpapers/ultrawide/wallhaven-8g9172_uw.jpg",
       "changer": {
         "Awww": {
-          "resize_mode": "Stretch",
+          "resize_mode": "Fit",
           "fill_color": "262624ff",
           "scalling_filter": "Lanczos3",
           "transition_type": "Grow",
