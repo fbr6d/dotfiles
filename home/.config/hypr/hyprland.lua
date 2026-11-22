@@ -307,12 +307,12 @@ hl.config({
         fullscreen_on_one_column = false,      -- a lone window keeps its column width
         column_width             = 0.6,        -- new columns: 60% of the screen (2026-11-22 ultrawide, was 0.667)
         explicit_column_widths   = "0.33333333, 0.5, 0.6, 1.0",   -- SUPER+CTRL+left/right cycles these
-        focus_fit_method         = 0,          -- center the focused column
+        focus_fit_method         = 1,          -- fit (scroll as little as possible); a lone column is centered by autoColApply (2026-11-23: method 0 dragged a newly opened 2nd window to the middle)
     },
 })
 
 -- Auto column widths (2026-11-19, master request; backup hyprland.lua.bak-autocol-20261119):
---   one tiled column on the workspace -> keeps its width (0.6), centered (focus_fit_method 0)
+--   one tiled column on the workspace -> keeps its width (0.6), centered (explicit layout "center")
 --   two columns                       -> every column half the monitor, side by side (focus_fit_method 1)
 --   three or more columns             -> every column a third of the monitor (2026-11-22 ultrawide,
 --                                        master: 3 splits instead of 2)
@@ -338,7 +338,9 @@ local function autoColApply()
     local n    = autoColCount(ws)
     local prev = autoColLast[ws.id]
     autoColLast[ws.id] = n
-    hl.config({ scrolling = { focus_fit_method = (n >= 2) and 1 or 0 } })
+    -- always "fit": with 0 (center) a newly opened window was first pulled to the middle
+    -- before the widths below were applied (2026-11-23, master: open new windows beside)
+    hl.config({ scrolling = { focus_fit_method = 1 } })
     if n >= 2 and prev ~= n then
         -- exact thirds: 0.333 left ~3px of the tape uncovered, so focusing another column
         -- nudged the whole row by a few pixels (2026-11-22)
