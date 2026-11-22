@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=VOCALOID7 Authorizer
+Exec=env "WINEPREFIX=/home/leejaeik/Games/vocaloid" wine "C:\\\\users\\\\leejaeik\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\Start Menu\\\\Programs\\\\VOCALOID7\\\\VOCALOID7 Authorizer.lnk"
+Type=Application
+StartupNotify=true
+Icon=F071_VOCALOID7 Authorizer.0
+StartupWMClass=vocaloid7 authorizer.exe

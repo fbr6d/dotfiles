@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=VOCALOID7
+MimeType=application/x-wine-extension-vpr;
+Exec=env "WINEPREFIX=/home/leejaeik/Games/vocaloid" wine start /ProgIDOpen "VOCALOID7.vpr" %f
+NoDisplay=true
+StartupNotify=true
+Icon=588E_VOCALOID7.0
