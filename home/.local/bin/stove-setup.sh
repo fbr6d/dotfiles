@@ -9,6 +9,9 @@ export WINEPREFIX=$HOME/Games/stove
 export GAMEID=umu-stove
 export PROTONPATH=GE-Proton
 export STORE=none
+# STOVE's popups (ads/notices) are WebView2; under Wine the GPU path sometimes paints them
+# solid black. Software rendering fixes that (2026-11-22).
+export WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS="--disable-gpu --disable-gpu-compositing"
 LOG=$HOME/Games/stove-setup/$1.log
 mkdir -p "$WINEPREFIX" "$(dirname "$LOG")"
 echo "START $1 $(date '+%F %T')" > "$LOG"

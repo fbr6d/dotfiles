@@ -857,9 +857,17 @@ hl.on("window.open", function (w)
         -- the overlay may have restacked itself.
         local sz = w.size
         local wd = sz and (sz.x or sz[1]) or 9999
-        local big = 0
-        for _, x in ipairs(hl.get_workspace_windows(w.workspace and w.workspace.id or hl.get_active_workspace().id)) do
-            if x.class == "steam_app_stove" and x.size then big = math.max(big, x.size.x or x.size[1] or 0) end
+        -- find STOVE's main (largest) window on any floor; its overlay/popups opened while
+        -- master looked at another floor landed THERE and greyed it out, so send them home
+        local big, home = 0, nil
+        for _, x in ipairs(hl.get_windows()) do
+            if x.class == "steam_app_stove" and x.address ~= w.address and x.size then
+                local xw = x.size.x or x.size[1] or 0
+                if xw > big then big = xw; home = x.workspace and x.workspace.id end
+            end
+        end
+        if home and w.workspace and w.workspace.id ~= home and wd < big + 50 then
+            hl.dispatch(hl.dsp.window.move({ workspace = home, window = addr, follow = false }))
         end
         if wd < big - 100 then
             hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top", window = addr }))
