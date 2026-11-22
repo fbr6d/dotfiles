@@ -1,0 +1,7 @@
+[Unit]
+Description=KSAT 검수 봇 Claude 로그인 열쇠 미리 갱신 (미쿠, 2026-11-22)
+
+[Service]
+Type=oneshot
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin
+ExecStart=%h/.local/bin/ksat-review-auth-keepfresh

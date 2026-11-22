@@ -1,0 +1,10 @@
+[Unit]
+Description=30분마다 KSAT 검수 봇 로그인 열쇠 남은 시간 확인
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

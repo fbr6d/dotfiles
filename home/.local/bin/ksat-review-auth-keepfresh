@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+"""KSAT 검수 봇(ksat-review) Claude 로그인 열쇠 미리 갱신 (2026-11-22 마스터 승인).
+
+Hermes는 실행 도중 OAuth access token(8시간)이 만료되면 새로 받지 않고 401로 실패한다.
+그래서 30분마다(systemd 사용자 타이머 ksat-review-auth-keepfresh.timer) 남은 시간을 보고,
+2시간 미만이면 `hermes -p ksat-review auth refresh anthropic` 으로 미리 새 열쇠를 받는다.
+실패하면 마스터에게 DM. 토큰 값은 절대 출력하지 않는다.
+"""
+import json, os, subprocess, sys, time
+from pathlib import Path
+
+AUTH = Path.home() / ".hermes/profiles/ksat-review/auth.json"
+LOG = Path.home() / ".local/share/miku/ksat-review-auth-keepfresh.log"
+THRESHOLD_S = 2 * 3600
+DM = Path.home() / ".hermes/profiles/miku/scripts/notify_dm.py"
+
+
+def log(msg):
+    LOG.parent.mkdir(parents=True, exist_ok=True)
+    with LOG.open("a", encoding="utf-8") as f:
+        f.write(time.strftime("%Y-%m-%d %H:%M:%S ") + msg + "\n")
+
+
+def expiry():
+    d = json.loads(AUTH.read_text(encoding="utf-8"))
+    ent = d["credential_pool"]["anthropic"][0]
+    return ent.get("expires_at_ms", 0) / 1000
+
+
+def dm(text):
+    subprocess.run([sys.executable, str(DM), text], capture_output=True, timeout=60)
+
+
+def main():
+    force = "--force" in sys.argv
+    try:
+        left = expiry() - time.time()
+    except Exception as e:
+        log(f"열쇠 정보 읽기 실패: {e}")
+        dm(f"⚠ 검수 봇 로그인 확인 실패: auth.json을 못 읽었어요 ({e})")
+        return 1
+    if left >= THRESHOLD_S and not force:
+        log(f"남은 시간 {left/3600:.1f}시간 — 그대로 둠")
+        return 0
+    r = subprocess.run([str(Path.home() / ".hermes/hermes-agent/.hermes/bin/hermes"), "-p", "ksat-review", "auth", "refresh", "anthropic"],
+                       capture_output=True, text=True, timeout=120)
+    try:
+        new_left = expiry() - time.time()
+    except Exception:
+        new_left = -1
+    ok = r.returncode == 0 and new_left > max(left, 0) + 600 or (r.returncode == 0 and new_left > 7 * 3600)
+    log(f"갱신 {'성공' if ok else '실패'}: 전 {left/3600:.1f}h → 후 {new_left/3600:.1f}h, exit {r.returncode}, "
+        f"{(r.stdout + r.stderr).strip().splitlines()[-1][:200] if (r.stdout + r.stderr).strip() else ''}")
+    if not ok:
+        dm(f"⚠ 검수 봇 Claude 로그인 미리 갱신 실패 (남은 시간 {max(left,0)/60:.0f}분). "
+           f"미쿠에게 확인을 부탁해 주세요. 기록: {LOG}")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

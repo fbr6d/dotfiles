@@ -10,6 +10,7 @@ p11-kit-server.socket
 pipewire-pulse.socket
 pipewire.socket
 dotfiles-backup-prompt.timer
+ksat-review-auth-keepfresh.timer
 miku-backup.timer
 miku-kanban-attention.timer
 miku-ksat-live.timer
