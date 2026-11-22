@@ -10,6 +10,7 @@ import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Services.Mpris
 import QtQuick
+import QtQuick.Effects
 
 PanelWindow {
     id: win
@@ -67,6 +68,12 @@ PanelWindow {
         x: 0
         y: 12 + lift
         property real lift: 0
+
+        // 2026-11-22 마스터: 채도 조금 낮추기 (그림 파일은 그대로, 그릴 때만 효과)
+        //   -1 = 흑백, 0 = 원본. 더 줄이려면 값을 더 작게. 백업 Mascot.qml.bak-saturation
+        layer.enabled: true
+        layer.smooth: false
+        layer.effect: MultiEffect { saturation: -0.55 }
 
         // 음악 들을 때 살랑살랑 (재생이 아니면 첫 프레임에 멈춤)
         AnimatedSprite {

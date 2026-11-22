@@ -38,6 +38,19 @@ hl.monitor({
     scale    = 1,
 })
 
+-- 2026-11-22 master: LG 34" ultrawide (DP) with VRR on
+-- (backup ~/.local/share/backups/ultrawide-20261122/hyprland.lua.bak).
+-- HDR was tried and turned off by master (SDR looked washed out); the HDR version
+-- (cm = "hdr", bitdepth = 10, sdr_eotf = "gamma22", sdr_min_luminance = 0.005)
+-- is in hyprland.lua.bak-before-hdroff in the same backup folder.
+hl.monitor({
+    output   = "desc:LG Electronics LG ULTRAWIDE 610BOBD2F477",
+    mode     = "3440x1440@119.99",
+    position = "auto",
+    scale    = 1,
+    vrr      = 1,        -- 0 off, 1 always, 2 fullscreen only, 3 fullscreen games/video
+})
+
 
 ---------------------
 ---- MY PROGRAMS ----
@@ -292,16 +305,17 @@ hl.config({
 hl.config({
     scrolling = {
         fullscreen_on_one_column = false,      -- a lone window keeps its column width
-        column_width             = 0.667,      -- new columns: 2/3 of the screen (small display)
-        explicit_column_widths   = "0.5, 0.667, 1.0",   -- SUPER+CTRL+left/right cycles these
+        column_width             = 0.6,        -- new columns: 60% of the screen (2026-11-22 ultrawide, was 0.667)
+        explicit_column_widths   = "0.333, 0.5, 0.6, 1.0",   -- SUPER+CTRL+left/right cycles these
         focus_fit_method         = 0,          -- center the focused column
     },
 })
 
 -- Auto column widths (2026-11-19, master request; backup hyprland.lua.bak-autocol-20261119):
---   one tiled column on the workspace -> keeps its width (2/3), centered (focus_fit_method 0)
---   two or more columns               -> every column half the monitor, scrolled so two
---                                        halves fill the screen side by side (focus_fit_method 1)
+--   one tiled column on the workspace -> keeps its width (0.6), centered (focus_fit_method 0)
+--   two columns                       -> every column half the monitor, side by side (focus_fit_method 1)
+--   three or more columns             -> every column a third of the monitor (2026-11-22 ultrawide,
+--                                        master: 3 splits instead of 2)
 -- Widths are only reset when the column count changes, so SUPER+CTRL+left/right
 -- manual widths stay until a window is opened, closed or moved.
 local autoColLast = {}   -- workspace id -> column count seen last time
@@ -326,7 +340,7 @@ local function autoColApply()
     autoColLast[ws.id] = n
     hl.config({ scrolling = { focus_fit_method = (n >= 2) and 1 or 0 } })
     if n >= 2 and prev ~= n then
-        hl.dispatch(hl.dsp.layout("colresize all 0.5"))
+        hl.dispatch(hl.dsp.layout((n >= 3) and "colresize all 0.333" or "colresize all 0.5"))
         -- the tape keeps its old scroll after the resize; touch the neighbouring column
         -- and come back so the focused half and its neighbour fill the screen
         local act = hl.get_active_window()
@@ -343,7 +357,7 @@ local function autoColApply()
             end
         end
     elseif n == 1 and prev ~= nil and prev >= 2 then
-        hl.dispatch(hl.dsp.layout("colresize 0.667"))
+        hl.dispatch(hl.dsp.layout("colresize 0.6"))
     end
     if n == 1 then hl.dispatch(hl.dsp.layout("center")) end
 end
