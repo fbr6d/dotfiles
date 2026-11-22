@@ -141,6 +141,7 @@ ttf-nerd-fonts-symbols
 ttf-nerd-fonts-symbols-mono
 udiskie
 ufw
+umu-launcher
 unzip
 vim
 vkmark

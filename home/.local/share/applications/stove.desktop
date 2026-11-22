@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=STOVE
+Name[ko]=스토브 (STOVE)
+Comment=Smilegate STOVE launcher via umu/Proton (마작일번가)
+Comment[ko]=스마일게이트 스토브 런처 · 마작일번가 (umu·Proton)
+Exec=/home/leejaeik/.local/bin/stove-setup.sh run
+Icon=applications-games
+Terminal=false
+Categories=Game;
+StartupWMClass=steam_app_stove

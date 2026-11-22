@@ -1,12 +1,11 @@
-
 [Default Applications]
 inode/directory=yazi-kitty.desktop
-text/html=html-view.desktop
-x-scheme-handler/http=link-open.desktop
-x-scheme-handler/https=link-open.desktop
+text/html=zen.desktop
+x-scheme-handler/http=zen.desktop
+x-scheme-handler/https=zen.desktop
 x-scheme-handler/about=zen.desktop
 x-scheme-handler/unknown=zen.desktop
-application/xhtml+xml=html-view.desktop
+application/xhtml+xml=zen.desktop
 application/pdf=org.gnome.Papers.desktop
 text/plain=nvim-kitty.desktop
 text/markdown=nvim-kitty.desktop
@@ -312,3 +311,21 @@ model/stl=f3d.desktop
 model/vnd.usda=f3d.desktop
 model/vnd.usdz+zip=f3d.desktop
 model/vrml=f3d.desktop
+x-scheme-handler/chrome=zen.desktop
+application/x-extension-htm=zen.desktop
+application/x-extension-html=zen.desktop
+application/x-extension-shtml=zen.desktop
+application/x-extension-xhtml=zen.desktop
+application/x-extension-xht=zen.desktop
+
+[Added Associations]
+x-scheme-handler/http=zen.desktop;
+x-scheme-handler/https=zen.desktop;
+x-scheme-handler/chrome=zen.desktop;
+text/html=zen.desktop;
+application/x-extension-htm=zen.desktop;
+application/x-extension-html=zen.desktop;
+application/x-extension-shtml=zen.desktop;
+application/xhtml+xml=zen.desktop;
+application/x-extension-xhtml=zen.desktop;
+application/x-extension-xht=zen.desktop;

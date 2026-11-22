@@ -306,7 +306,7 @@ hl.config({
     scrolling = {
         fullscreen_on_one_column = false,      -- a lone window keeps its column width
         column_width             = 0.6,        -- new columns: 60% of the screen (2026-11-22 ultrawide, was 0.667)
-        explicit_column_widths   = "0.333, 0.5, 0.6, 1.0",   -- SUPER+CTRL+left/right cycles these
+        explicit_column_widths   = "0.33333333, 0.5, 0.6, 1.0",   -- SUPER+CTRL+left/right cycles these
         focus_fit_method         = 0,          -- center the focused column
     },
 })
@@ -340,7 +340,9 @@ local function autoColApply()
     autoColLast[ws.id] = n
     hl.config({ scrolling = { focus_fit_method = (n >= 2) and 1 or 0 } })
     if n >= 2 and prev ~= n then
-        hl.dispatch(hl.dsp.layout((n >= 3) and "colresize all 0.333" or "colresize all 0.5"))
+        -- exact thirds: 0.333 left ~3px of the tape uncovered, so focusing another column
+        -- nudged the whole row by a few pixels (2026-11-22)
+        hl.dispatch(hl.dsp.layout((n >= 3) and "colresize all 0.33333333" or "colresize all 0.5"))
         -- the tape keeps its old scroll after the resize; touch the neighbouring column
         -- and come back so the focused half and its neighbour fill the screen
         local act = hl.get_active_window()
@@ -370,6 +372,13 @@ for _, ev in ipairs({ "window.open", "window.close", "window.destroy",
                       "window.move_to_workspace", "window.update_state", "workspace.active" }) do
     hl.on(ev, autoColSoon)
 end
+-- leaving fullscreen can leave that column a little wider than the others (seen: 0.3365
+-- next to 0.333), so after a fullscreen change make every column equal again (2026-11-22)
+hl.on("window.fullscreen", function ()
+    local ws = hl.get_active_workspace()
+    if ws and ws.id then autoColLast[ws.id] = nil end
+    autoColSoon()
+end)
 -- a config reload resets focus_fit_method to the value above; recount right away
 autoColSoon()
 
@@ -820,6 +829,46 @@ hl.window_rule({
     size   = "1000 720",
     center = true,
 })
+
+-- STOVE launcher (Wine/umu, ~/.local/bin/stove-setup.sh run; 2026-11-22 master '1번'):
+-- float at its own size, centered. Tiled, the main window was resized into a column but
+-- STOVE's dim overlay for dialogs kept the original size and greyed out other columns.
+-- The Riichi City game window has another class, so the Steam-game rule still handles it.
+hl.window_rule({
+    name  = "stove-float",
+    match = { class = "^steam_app_stove$" },
+
+    float  = true,
+    center = true,
+    no_blur = true,  -- STOVE's dark overlay can sit above its dialog; with blur the dialog turned to mush
+    no_dim = true,   -- dialog + STOVE's own dark overlay + our 35% inactive dim = unreadable fog
+})
+
+-- STOVE dialogs: STOVE draws a translucent dark overlay window for each dialog and under
+-- Wine the overlay can end up stacked ABOVE the dialog (dialog looked dark and foggy).
+-- When a small STOVE window opens, put it on top (2026-11-22).
+hl.on("window.open", function (w)
+    if not w or w.class ~= "steam_app_stove" then return end
+    local addr = "address:" .. w.address
+    hl.timer(function ()
+        -- STOVE's dark overlay is (main window - ~8px); anything clearly smaller is a
+        -- dialog/popup. A 1050x882 popup stayed under the overlay and looked black, so the
+        -- old "< 1000px" cut was too small (2026-11-22). Raise twice: once now, once after
+        -- the overlay may have restacked itself.
+        local sz = w.size
+        local wd = sz and (sz.x or sz[1]) or 9999
+        local big = 0
+        for _, x in ipairs(hl.get_workspace_windows(w.workspace and w.workspace.id or hl.get_active_workspace().id)) do
+            if x.class == "steam_app_stove" and x.size then big = math.max(big, x.size.x or x.size[1] or 0) end
+        end
+        if wd < big - 100 then
+            hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top", window = addr }))
+            hl.timer(function ()
+                hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top", window = addr }))
+            end, { timeout = 700, type = "oneshot" })
+        end
+    end, { timeout = 300, type = "oneshot" })
+end)
 
 -- clipse (clipboard history, SUPER+SHIFT+V): floating, centered
 hl.window_rule({
