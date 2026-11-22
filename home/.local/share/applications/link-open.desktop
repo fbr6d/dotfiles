@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Link opener
+Name[ko]=링크 열기
+Comment=PDF links open in Papers, other links in Zen
+Comment[ko]=PDF 링크는 Papers로, 다른 링크는 Zen으로 열기
+Exec=/home/leejaeik/.local/bin/link-open %U
+Icon=zen-browser
+Terminal=false
+NoDisplay=true
+MimeType=x-scheme-handler/http;x-scheme-handler/https;
+Categories=Network;
