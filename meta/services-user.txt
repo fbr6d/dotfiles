@@ -12,5 +12,6 @@ pipewire.socket
 dotfiles-backup-prompt.timer
 ksat-review-auth-keepfresh.timer
 miku-backup.timer
+miku-hourly.timer
 miku-kanban-attention.timer
 miku-ksat-live.timer

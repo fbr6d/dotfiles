@@ -1,0 +1,10 @@
+[Unit]
+Description=미쿠 정각 멘트 — 매시 58분 30초에 준비 시작, 정각에 재생
+
+[Timer]
+OnCalendar=*-*-* *:58:30
+AccuracySec=1s
+Persistent=false
+
+[Install]
+WantedBy=timers.target

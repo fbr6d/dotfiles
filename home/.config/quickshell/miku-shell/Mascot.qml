@@ -3,6 +3,7 @@
 //   알림이 오면 jump.png 4프레임을 한 번 재생 + 위로 폴짝 (방해 금지 중에는 안 함)
 //   왼쪽 클릭 = 폴짝, 오른쪽 클릭 = 숨기기 (제어센터 「마스코트」 버튼으로 다시 보이기)
 //   다시 보이기·숨기기: qs -c miku-shell ipc call mascot toggle   (시험: ... ipc call mascot hop)
+//   말풍선: qs -c miku-shell ipc call mascot speak "할 말" <보일 ms>   (정각 멘트 miku_hourly.py가 부름, 2026-11-23)
 // 창은 마스코트 크기만 하고 클릭도 마스코트에서만 받는다(아래 창을 가리지 않게).
 import Quickshell
 import Quickshell.Io
@@ -31,6 +32,29 @@ PanelWindow {
     readonly property bool hidden: !MascotState.shown
     property bool hopping: false
 
+    // 말풍선 (2026-11-23 마스터: 정각 멘트를 PC로 재생할 때 마스코트에 말풍선)
+    property string sayText: ""
+    readonly property bool saying: sayText !== ""
+    // 창 크기는 고정(말풍선 자리까지 미리 잡음). 크기가 바뀌면 Hyprland가 창을 옮기는 애니로 마스코트가 튀었음
+    readonly property int roomW: 480
+    readonly property int roomH: 230
+    property bool tempShown: false                    // 숨겨 둔 상태에서 말하느라 잠깐 보인 것
+    function speak(t, ms) {
+        if (!MascotState.shown) { MascotState.shown = true; tempShown = true; }
+        sayText = t;
+        sayTimer.interval = Math.max(1500, ms);
+        sayTimer.restart();
+        if (tempShown) hopLater.restart(); else hop();   // 방금 나타났으면 창이 그려진 뒤에 폴짝
+    }
+    Timer { id: hopLater; interval: 400; onTriggered: win.hop() }
+    Timer {
+        id: sayTimer
+        onTriggered: {
+            win.sayText = "";
+            if (win.tempShown) { win.tempShown = false; MascotState.shown = false; }   // 원래 숨김이었으면 다시 숨김
+        }
+    }
+
     function hop() {
         if (hidden || hopping) return;
         hopping = true;
@@ -43,8 +67,8 @@ PanelWindow {
     color: "transparent"
     anchors { bottom: true; right: true }
     margins { bottom: 12; right: 16 }
-    implicitWidth: 64 * px
-    implicitHeight: 64 * px + 12                      // 위로 뛰는 공간
+    implicitWidth: roomW
+    implicitHeight: roomH                             // 위로 뛰는 공간 + 말풍선 자리 (클릭은 mask로 마스코트만)
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "miku-mascot"
@@ -61,12 +85,41 @@ PanelWindow {
         }
     }
 
+    Rectangle {
+        id: bubble
+        visible: win.saying
+        x: win.width - width
+        y: win.height - 64 * win.px - 10 - height
+        width: sayLabel.width + 36
+        height: sayLabel.height + 24
+        radius: 18
+        color: Theme.bg
+        Text {
+            id: sayLabel
+            anchors.centerIn: parent
+            width: Math.min(implicitWidth, 440)
+            text: win.sayText
+            color: Theme.text
+            font.family: Theme.font
+            font.pixelSize: 18
+            wrapMode: Text.WordWrap
+            lineHeight: 1.15
+        }
+        Rectangle {                                    // 꼬리 (마스코트 쪽)
+            width: 13; height: 13; rotation: 45
+            color: Theme.bg
+            x: parent.width - 32 - width / 2
+            y: parent.height - height / 2 - 1
+            z: -1
+        }
+    }
+
     Item {
         id: body
         width: 64 * win.px
         height: 64 * win.px
-        x: 0
-        y: 12 + lift
+        x: win.width - width
+        y: win.height - height + lift
         property real lift: 0
 
         // 2026-11-22 마스터: 채도 조금 낮추기 (그림 파일은 그대로, 그릴 때만 효과)
@@ -118,5 +171,6 @@ PanelWindow {
         target: "mascot"
         function toggle(): void { MascotState.shown = !MascotState.shown }
         function hop(): void { win.hop() }
+        function speak(text: string, ms: int): void { win.speak(text, ms) }
     }
 }

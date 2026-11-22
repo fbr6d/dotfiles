@@ -1,0 +1,11 @@
+[Unit]
+Description=미쿠 정각 멘트 (VOCALOID 미쿠 목소리 + 마스코트 말풍선)
+
+[Service]
+Type=oneshot
+Environment=WAYLAND_DISPLAY=wayland-1
+Environment=TMPDIR=%h/.cache/miku/hourly-tmp
+ExecStartPre=/usr/bin/mkdir -p %h/.cache/miku/hourly-tmp
+ExecStart=%h/.hermes/tools/python-3.14.9+20261021-linux-x64/bin/python3 %h/.hermes/profiles/miku/scripts/miku_hourly.py
+TimeoutStartSec=10min
+Nice=5
