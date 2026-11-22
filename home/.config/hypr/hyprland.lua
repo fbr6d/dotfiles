@@ -651,6 +651,57 @@ hl.window_rule({
     workspace = "99 silent",
 })
 
+-- 2026-11-22 master: Steam games open on a new workspace (a new floor at the bottom),
+-- maximized. A game is any window whose process has SteamAppId/SteamGameId in its
+-- environment (Steam sets it for native and Proton games; the Steam client itself has none).
+-- More windows of the same game (launcher -> game) go to that game's workspace.
+-- Backup: ~/.local/share/backups/ultrawide-20261122/hyprland.lua.bak-before-steamgames
+local steamGameWs = {}   -- app id -> workspace id
+
+local function steamAppId(pid)
+    if not pid or pid <= 0 then return nil end
+    local f = io.open("/proc/" .. pid .. "/environ", "rb")
+    if not f then return nil end
+    local env = f:read("*a") or ""
+    f:close()
+    for kv in env:gmatch("[^%z]+") do
+        local k, v = kv:match("^(Steam[AG][pa][pm]e?Id)=(%d+)$")
+        if (k == "SteamAppId" or k == "SteamGameId") and v ~= "0" then return v end
+    end
+    return nil
+end
+
+local function newFloorId()
+    local top = 0
+    for _, ws in ipairs(hl.get_workspaces()) do
+        if ws.id and ws.id > 0 and ws.id < 90 and ws.id > top then top = ws.id end   -- 99 = Spotify
+    end
+    return top + 1
+end
+
+hl.on("window.open", function (w)
+    if not w or not w.class or w.class:match("^[Ss]team$") or w.class == "steamwebhelper" then return end
+    local app = steamAppId(w.pid)
+    if not app then return end
+    local addr = "address:" .. w.address
+    hl.timer(function ()
+        local ws = steamGameWs[app]
+        local alive = false
+        if ws then
+            for _, x in ipairs(hl.get_workspace_windows(ws)) do
+                if x.mapped and x.address ~= w.address then alive = true break end
+            end
+        end
+        if not alive then ws = newFloorId(); steamGameWs[app] = ws end
+        hl.dispatch(hl.dsp.window.move({ workspace = ws, window = addr }))
+        hl.dispatch(hl.dsp.focus({ window = addr }))
+        local a = hl.get_active_window()
+        if a and a.address == w.address and not a.floating and (a.fullscreen or 0) == 0 then
+            hl.dispatch(hl.dsp.window.fullscreen({ mode = "maximized" }))
+        end
+    end, { timeout = 150, type = "oneshot" })
+end)
+
 -- Popups opened from waybar: float under the bar at the top right,
 -- and close as soon as focus moves to another window
 -- class -> where the popup opens (just under the pill that opened it)

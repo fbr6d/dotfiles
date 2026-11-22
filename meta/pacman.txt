@@ -124,6 +124,7 @@ rustup
 smartmontools
 spotify-launcher
 starship
+steam
 stress-ng
 swaync
 swayosd

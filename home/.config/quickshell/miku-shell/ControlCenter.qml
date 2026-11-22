@@ -31,7 +31,8 @@ PanelWindow {
         return Quickshell.screens[0];
     }
 
-    onOpenChanged: { Notifs.ccOpen = open; if (open) blProc.running = true }
+    onOpenChanged: { Notifs.ccOpen = open; if (open) blProc.running = true; else outOpen = false }
+    property bool outOpen: false   // 소리 출력 드롭다운 펼침
     function show() { open = true; refreshAll() }
     function hide() { open = false }
     function toggle() { open ? hide() : show() }
@@ -173,6 +174,20 @@ PanelWindow {
     readonly property var sink: Pipewire.defaultAudioSink
     PwObjectTracker { objects: [panel.sink] }
 
+    // 출력 장치 고르기 (2026-11-22 마스터 요청). 진짜 출력 장치만: 앱 소리 줄기·Sunshine 가상 출력 제외
+    readonly property var sinks: Pipewire.nodes.values.filter(n =>
+        n.isSink && !n.isStream && n.audio && !(n.name || "").startsWith("sink-sunshine"))
+    function sinkLabel(n) {
+        const d = (n.description || n.nickname || n.name || "?").replace(/_/g, " ");
+        let suf = "";
+        if (/Digital Stereo \(IEC958\)/.test(d)) suf = " 광출력";
+        else if (/HDMI|DisplayPort/i.test(d) && /Digital/.test(d)) suf = " HDMI";
+        if (/USB-C to 3\.5mm/i.test(d)) return "USB-C 이어폰";
+        if (/Ryzen HD Audio/i.test(d)) return "본체" + suf;
+        if (/Navi|Radeon|HDMI\/DP/i.test(d)) return "모니터" + suf;
+        return d.replace(/ (Analog|Digital) Stereo.*$/, "");
+    }
+
     // ---------------- 화면 ----------------
     Rectangle {
         id: box
@@ -289,6 +304,93 @@ PanelWindow {
                 value: panel.sink ? Math.min(1, panel.sink.audio.volume) : 0
                 onMoved: v => { if (panel.sink) panel.sink.audio.volume = v }
                 onIconClicked: if (panel.sink) panel.sink.audio.muted = !panel.sink.audio.muted
+            }
+
+            // ── 소리 출력 장치 드롭다운 (2026-11-22 마스터: 칩 대신 드롭다운) ──
+            //   버튼 = 지금 출력 장치, 누르면 아래로 목록이 펼쳐지고 고르면 접힘
+            Rectangle {
+                id: outBtn
+                Layout.fillWidth: true
+                implicitHeight: 32; radius: 16
+                color: outBtnMa.containsMouse || panel.outOpen ? Theme.raised : Theme.surface
+                Behavior on color { ColorAnimation { duration: Theme.fast } }
+                Icon {
+                    id: outBtnIc
+                    anchors { left: parent.left; leftMargin: 14; verticalCenter: parent.verticalCenter }
+                    size: 16
+                    text: panel.sink && /이어폰|Headphone|Headset/i.test(panel.sinkLabel(panel.sink)) ? "headphones" : "speaker"
+                    color: Theme.dim
+                }
+                Text {
+                    anchors { left: outBtnIc.right; leftMargin: 10; right: outArrow.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                    text: panel.sink ? panel.sinkLabel(panel.sink) : "출력 장치 없음"
+                    elide: Text.ElideRight
+                    color: Theme.text
+                    font.family: Theme.font; font.pixelSize: 12
+                }
+                Icon {
+                    id: outArrow
+                    anchors { right: parent.right; rightMargin: 12; verticalCenter: parent.verticalCenter }
+                    size: 18
+                    text: "expand_more"
+                    color: Theme.dim
+                    rotation: panel.outOpen ? 180 : 0
+                    Behavior on rotation { NumberAnimation { duration: Theme.base; easing.type: Easing.OutCubic } }
+                }
+                MouseArea { id: outBtnMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                            onClicked: panel.outOpen = !panel.outOpen }
+            }
+            Rectangle {
+                id: outList
+                Layout.fillWidth: true
+                implicitHeight: panel.outOpen ? outCol.implicitHeight + 8 : 0
+                visible: implicitHeight > 0
+                clip: true
+                radius: 12
+                color: Theme.surface
+                Behavior on implicitHeight { NumberAnimation { duration: Theme.base; easing.type: Easing.OutCubic } }
+                Column {
+                    id: outCol
+                    anchors { left: parent.left; right: parent.right; top: parent.top; margins: 4 }
+                    spacing: 2
+                    Repeater {
+                        model: panel.sinks
+                        Rectangle {
+                            id: outItem
+                            required property var modelData
+                            readonly property bool sel: panel.sink === modelData
+                            width: outCol.width
+                            height: 30; radius: 10
+                            color: outItemMa.containsMouse ? Theme.raised : "transparent"
+                            Behavior on color { ColorAnimation { duration: Theme.fast } }
+                            Icon {
+                                id: outItemIc
+                                anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+                                size: 16
+                                text: /이어폰|Headphone|Headset/i.test(outItemLabel.text) ? "headphones" : "speaker"
+                                color: outItem.sel ? Theme.text : Theme.dim
+                            }
+                            Text {
+                                id: outItemLabel
+                                anchors { left: outItemIc.right; leftMargin: 10; right: outCheck.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                                text: panel.sinkLabel(outItem.modelData)
+                                elide: Text.ElideRight
+                                color: outItem.sel ? Theme.text : Theme.muted
+                                font.family: Theme.font; font.pixelSize: 12; font.weight: outItem.sel ? Font.Bold : Font.Normal
+                            }
+                            Icon {
+                                id: outCheck
+                                anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+                                size: 16
+                                text: "check"
+                                color: Theme.text
+                                opacity: outItem.sel ? 1 : 0
+                            }
+                            MouseArea { id: outItemMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                        onClicked: { Pipewire.preferredDefaultAudioSink = outItem.modelData; panel.outOpen = false } }
+                        }
+                    }
+                }
             }
 
             SliderCard {
@@ -558,6 +660,7 @@ PanelWindow {
 
     Component.onCompleted: {
         if (Quickshell.env("MIKU_CC_OPEN") === "1") show();
+        if (Quickshell.env("MIKU_OUT_OPEN") === "1") outOpen = true;   // 시험: 출력 드롭다운 펼친 채로
         if (Quickshell.env("MIKU_CC_COLOR") === "1") colorOpen = true;   // 시험용
     }
 }
