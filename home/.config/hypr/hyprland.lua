@@ -551,7 +551,7 @@ end
 
 -- Example special workspace (scratchpad)
 hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"))
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("~/.local/bin/screenshot-region"))   -- (2026-11-22) region screenshot -> satty editor; was: move window to special:magic
 
 -- Scroll through existing workspaces with mainMod + scroll
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
@@ -842,6 +842,18 @@ hl.window_rule({
     center = true,
     no_blur = true,  -- STOVE's dark overlay can sit above its dialog; with blur the dialog turned to mush
     no_dim = true,   -- dialog + STOVE's own dark overlay + our 35% inactive dim = unreadable fog
+})
+
+-- Satty screenshot editor (SUPER+SHIFT+S -> ~/.local/bin/screenshot-region, 2026-11-22).
+-- Float it in the middle so it never gets tiled into a column (the Flameshot problem).
+hl.window_rule({
+    name  = "satty",
+    match = { class = "^com\\.gabm\\.satty$" },
+
+    float  = true,
+    center = true,
+    size   = "monitor_w*0.7 monitor_h*0.8",
+    no_dim = true,
 })
 
 -- STOVE dialogs: STOVE draws a translucent dark overlay window for each dialog and under

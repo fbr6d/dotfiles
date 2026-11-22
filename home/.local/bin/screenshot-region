@@ -1,0 +1,9 @@
+#!/bin/bash
+# SUPER+SHIFT+S (2026-11-22, miku): pick a region with slurp -> grim -> edit in satty.
+# Esc while picking = cancel (nothing opens).
+pgrep -x slurp >/dev/null && exit 0          # already picking
+pgrep -x satty >/dev/null && exit 0          # editor already open
+geom=$(slurp -d -b 14141366 -c ffffffff -w 2) || exit 0
+[ -n "$geom" ] || exit 0
+sleep 0.05                                    # let slurp's overlay vanish before grabbing
+grim -g "$geom" - | satty --filename -

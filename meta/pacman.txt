@@ -36,7 +36,6 @@ ffmpeg
 ffmpegthumbnailer
 fio
 fish
-flameshot
 fzf
 ghidra
 ghostty
@@ -121,6 +120,8 @@ ripgrep
 rofi
 rsync
 rustup
+satty
+slurp
 smartmontools
 spotify-launcher
 starship

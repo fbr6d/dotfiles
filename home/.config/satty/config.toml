@@ -1,0 +1,17 @@
+# Satty (2026-11-22, miku): SUPER+SHIFT+S -> ~/.local/bin/screenshot-region
+[general]
+fullscreen = false
+resize = { mode = "smart" }
+floating-hack = true
+early-exit = ["all"]           # close after copy / save
+corner-roundness = 12
+initial-tool = "arrow"
+copy-command = "wl-copy"
+annotation-size-factor = 1.5
+output-filename = "~/Pictures/Screenshots/screenshot-%Y%m%d-%H%M%S.png"
+save-after-copy = false
+actions-on-enter = ["save-to-clipboard"]
+actions-on-escape = ["exit"]
+no-window-decoration = true
+app-id = "com.gabm.satty"      # hyprland.lua rule "satty" matches this
+title = "Satty"
