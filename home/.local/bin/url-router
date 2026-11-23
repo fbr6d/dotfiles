@@ -1,0 +1,83 @@
+#!/usr/bin/python3
+"""링크 분배기 (미쿠, 2026-11-23 마스터 '디스코드에서 PDF 파일 클릭하면 Papers로 바로 열리게').
+
+x-scheme-handler/http·https 기본 앱(url-router.desktop)이 이걸 부른다.
+- 디스코드 첨부 PDF 링크(cdn.discordapp.com / media.discordapp.net 의 …/attachments/…/이름.pdf)
+  → ~/Downloads/디스코드-PDF/ 에 내려받아 Papers로 연다(같은 이름·같은 크기면 다시 받지 않음).
+- 그 밖의 링크, 그리고 내려받기에 실패하면 → 예전처럼 Zen 브라우저로 그대로 넘긴다.
+되돌리기: ~/.config/mimeapps.list 의 http/https 를 zen.desktop 으로 (백업 mimeapps.list.bak-url-router-20261123)
+기록: ~/.cache/url-router.log
+"""
+import os
+import re
+import subprocess
+import sys
+import time
+import urllib.parse
+import urllib.request
+
+ZEN = ["/opt/zen-browser-bin/zen-bin"]
+PDF_RE = re.compile(r"^https://(cdn\.discordapp\.com|media\.discordapp\.net)/(ephemeral-)?attachments/[^?#]+\.pdf(\?|#|$)", re.I)
+DEST = os.path.join(os.path.expanduser("~/Downloads"), "디스코드-PDF")
+LOG = os.path.expanduser("~/.cache/url-router.log")
+
+
+def log(msg):
+    try:
+        with open(LOG, "a") as f:
+            f.write(time.strftime("%m-%d %H:%M:%S ") + msg + "\n")
+    except OSError:
+        pass
+
+
+def detach(cmd):
+    subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     start_new_session=True)
+
+
+def open_pdf(url):
+    name = urllib.parse.unquote(os.path.basename(urllib.parse.urlsplit(url).path)) or "discord.pdf"
+    name = name.replace("/", "_")
+    os.makedirs(DEST, exist_ok=True)
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (url-router)"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        size = int(r.headers.get("Content-Length") or 0)
+        path = os.path.join(DEST, name)
+        if os.path.exists(path) and size and os.path.getsize(path) == size:
+            log(f"이미 있음 → Papers: {path}")
+        else:
+            base, ext = os.path.splitext(path)
+            n = 2
+            while os.path.exists(path):
+                path = f"{base} ({n}){ext}"
+                n += 1
+            tmp = path + ".part"
+            with open(tmp, "wb") as f:
+                while True:
+                    chunk = r.read(1 << 16)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+            with open(tmp, "rb") as f:
+                if f.read(5) != b"%PDF-":
+                    os.unlink(tmp)
+                    raise ValueError("PDF가 아님")
+            os.replace(tmp, path)
+            log(f"받음 {os.path.getsize(path)}바이트 → Papers: {path}")
+    detach(["papers", path])
+
+
+def main():
+    args = sys.argv[1:]
+    urls = [a for a in args if not a.startswith("-")]
+    if len(urls) == 1 and PDF_RE.match(urls[0]):
+        try:
+            open_pdf(urls[0])
+            return
+        except Exception as e:  # 받기 실패 → 브라우저로
+            log(f"PDF 받기 실패({type(e).__name__}: {e}) → Zen: {urls[0][:120]}")
+    os.execv(ZEN[0], ZEN + args)
+
+
+if __name__ == "__main__":
+    main()

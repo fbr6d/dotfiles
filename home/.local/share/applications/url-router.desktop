@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=링크 분배기
+Comment=디스코드 첨부 PDF는 Papers로, 나머지 링크는 Zen으로 (미쿠, 2026-11-23)
+Exec=/home/leejaeik/.local/bin/url-router %u
+Icon=zen-browser
+MimeType=x-scheme-handler/http;x-scheme-handler/https;
+NoDisplay=true
+Terminal=false

@@ -314,8 +314,8 @@ hl.config({
 -- Auto column widths (2026-11-19, master request; backup hyprland.lua.bak-autocol-20261119):
 --   one tiled column on the workspace -> keeps its width (0.6), centered (explicit layout "center")
 --   two columns                       -> every column half the monitor, side by side (focus_fit_method 1)
---   three or more columns             -> every column a third of the monitor (2026-11-22 ultrawide,
---                                        master: 3 splits instead of 2)
+--   three or more columns             -> also half the monitor each; the tape scrolls sideways to the rest
+--                                        (2026-11-23 master: back to 2 splits; 2026-11-22 thirds = .bak-2split-20261123)
 -- Widths are only reset when the column count changes, so SUPER+CTRL+left/right
 -- manual widths stay until a window is opened, closed or moved.
 local autoColLast = {}   -- workspace id -> column count seen last time
@@ -344,7 +344,7 @@ local function autoColApply()
     if n >= 2 and prev ~= n then
         -- exact thirds: 0.333 left ~3px of the tape uncovered, so focusing another column
         -- nudged the whole row by a few pixels (2026-11-22)
-        hl.dispatch(hl.dsp.layout((n >= 3) and "colresize all 0.33333333" or "colresize all 0.5"))
+        hl.dispatch(hl.dsp.layout("colresize all 0.5"))   -- 2026-11-23 master: always 2 splits (was thirds at 3+)
         -- the tape keeps its old scroll after the resize; touch the neighbouring column
         -- and come back so the focused half and its neighbour fill the screen
         local act = hl.get_active_window()
