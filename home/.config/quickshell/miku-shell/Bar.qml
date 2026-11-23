@@ -1,5 +1,6 @@
 // 상단 바 (waybar 대체). 바 자체는 투명하고 알약들이 떠 있다.
-//   왼쪽: 음악 시각화(cava) ─ hover 하면 Spotify 이전·재생·다음 서랍 ─ 가사
+//   왼쪽: 음악 시각화(cava) ─ hover 하면 음악 앱(MusicState: Spotify 또는 유튜브 뮤직) 이전·재생·다음 서랍 ─ 가사
+//         알약을 누르면 고른 앱 창이 팝업으로 뜨고 그 위에 탭 줄(MusicTabs.qml)이 나와 앱을 바꿀 수 있다 (2026-11-24)
 //   가운데: 작업공간 섬 (회색 점, 지금 작업공간은 흰 알약, 누르면 바탕화면 고르기)
 //   오른쪽: 시계(누르면 제어센터) ─ hover 하면 왼쪽으로 트레이 서랍 ─ 그 왼쪽에 시스템 상태 알약
 //           (평소엔 숨음. CPU 85° 이상·백업 중/실패·iCloud 인증 7일 이내면 나타남, hover 하면 자세히)
@@ -31,11 +32,8 @@ PanelWindow {
     readonly property int gap: 7   // 알약 사이 간격 (마스터 지정: 모든 알약 사이 7px)
 
     // ================= 왼쪽 =================
-    readonly property var spotify: {
-        for (const p of Mpris.players.values)
-            if ((p.dbusName || "").toLowerCase().includes("spotify")) return p;
-        return null;
-    }
+    // 이름은 옛날 그대로 spotify 지만, 지금 고른 음악 앱의 재생기다 (MusicState.qml)
+    readonly property var spotify: MusicState.player
     readonly property bool hasTrack: spotify !== null && (spotify.trackTitle || "") !== ""
 
     Row {
@@ -54,7 +52,7 @@ PanelWindow {
             Pill {
                 id: cavaPill
                 width: 101   // 알약 너비 고정 (막대 10개 시절 너비 그대로)
-                onClicked: bar.run([bar.home + "/.local/bin/spotify-popup"])
+                onClicked: MusicState.toggle()
                 // 둥근 막대 20개(알약 크기는 10개 시절 그대로, 막대만 가늘게). 소리 없는 칸은 회색 점, 소리 나는 칸은 Catppuccin 색이 천천히 흐름
                 Row {
                     id: cavaRow
@@ -115,7 +113,7 @@ PanelWindow {
             readonly property real maxW: Math.max(120, island.x - left.x - mediaGroup.width - bar.gap * 2 - 14)
             width: Math.min(maxW, lyricRow.implicitWidth + 32)
             Behavior on width { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
-            onClicked: bar.run([bar.home + "/.local/bin/spotify-popup"])
+            onClicked: MusicState.toggle()
             Item {
                 anchors.fill: parent
                 anchors.leftMargin: 16
@@ -202,7 +200,7 @@ PanelWindow {
             "kitty": "#e0a458", "yazi": "#e0c068",
             "miku-tui": "#39c5bb", "miku-greeter": "#39c5bb",
             "com.anthropic.claude": "#d97757",
-            "spotify": "#1db954",
+            "spotify": "#1db954", "com.github.th-ch.youtube-music": "#ff0033",
             "obsidian": "#7c3aed",
             "org.gnome.nautilus": "#4a86cf", "org.gnome.papers": "#c64600",
             "1password": "#1a8cff", "localsend": "#008080",
@@ -480,6 +478,7 @@ PanelWindow {
     Timer { interval: 15000; repeat: true; running: true; triggeredOnStart: true; onTriggered: if (!sysProc.running) sysProc.running = true }
 
     // 가사 (scripts/lyrics-feed. 시험할 때는 MIKU_LYRICS_CMD 로 바꿀 수 있음)
+    //   고른 음악 앱(music-app player)의 곡을 따라간다 (2026-11-24)
     QtObject {
         id: lyrics
         property bool show: false

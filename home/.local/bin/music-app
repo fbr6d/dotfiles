@@ -1,0 +1,186 @@
+#!/usr/bin/python3
+"""음악 앱 고르기: Spotify ↔ 유튜브 뮤직(Pear Desktop). 2026-11-24 미쿠 (마스터 요청).
+
+  music-app get             지금 고른 앱 이름 (spotify | youtube-music)
+  music-app set <앱>        앱 고르기. 다른 앱이 재생 중이면 일시정지하고,
+                            팝업이 떠 있었으면 고른 앱 창으로 바꿔 띄운다.
+  music-app toggle          고른 앱 창을 바 아래 팝업으로 보이기/숨기기
+                            (탭 줄은 Quickshell MusicTabs.qml 이 창을 보고 따라 뜬다)
+  music-app player [앱]     그 앱의 playerctl 이름 (재생기가 없으면 빈 줄 + 종료 1)
+  music-app autostart       로그인 때: 고른 앱을 숨긴 채(작업공간 99) 켠다
+
+상태 파일: ~/.local/state/miku/music-app (한 줄). 숨김은 popup-window 와 같은 작업공간 99.
+"""
+import json
+import os
+import subprocess
+import sys
+import time
+
+STATE = os.path.expanduser("~/.local/state/miku/music-app")
+HIDDEN = 99
+GEOM = (8, 87, 900, 601)   # 탭 줄(y 48, 높이 32) 바로 아래, 간격 7px
+APPS = {
+    "spotify": {"label": "Spotify", "class": "spotify", "cmd": ["spotify-launcher"]},
+    "youtube-music": {"label": "YouTube Music", "class": "com.github.th-ch.youtube-music",
+                      "cmd": ["youtube-music"]},
+}
+DEFAULT = "spotify"
+
+
+def get_app():
+    try:
+        with open(STATE) as f:
+            a = f.read().strip()
+        return a if a in APPS else DEFAULT
+    except OSError:
+        return DEFAULT
+
+
+def save_app(a):
+    os.makedirs(os.path.dirname(STATE), exist_ok=True)
+    tmp = STATE + ".tmp"
+    with open(tmp, "w") as f:
+        f.write(a + "\n")
+    os.replace(tmp, STATE)
+
+
+# ---------- 재생기(MPRIS) ----------
+def _is_pear_pid(pid):
+    try:
+        return "YouTube Music" in os.readlink(f"/proc/{pid}/exe")
+    except OSError:
+        return False
+
+
+def player_name(app):
+    """playerctl 이 쓰는 이름. Pear 는 단축키 플러그인을 켜면 'YoutubeMusic',
+    끄면 Chromium 기본 'chromium.instance<PID>' 로 나온다."""
+    r = subprocess.run(["playerctl", "-l"], capture_output=True, text=True)
+    for name in r.stdout.split():
+        low = name.lower()
+        if app == "spotify" and low.startswith("spotify"):
+            return name
+        if app == "youtube-music":
+            if low.startswith(("youtubemusic", "youtube-music")):   # 단축키 플러그인: 'YoutubeMusic'
+                return name
+            if low.startswith("chromium.instance") and _is_pear_pid(low[len("chromium.instance"):]):
+                return name
+    return ""
+
+
+def pause(app):
+    name = player_name(app)
+    if name:
+        subprocess.run(["playerctl", "-p", name, "pause"], capture_output=True)
+
+
+# ---------- 창 (popup-window 와 같은 방식) ----------
+def hypr(*args):
+    return subprocess.run(["hyprctl", *args], capture_output=True, text=True).stdout
+
+
+def dispatch(lua):
+    hypr("dispatch", lua)
+
+
+def find(app):
+    cls = APPS[app]["class"]
+    try:
+        clients = json.loads(hypr("-j", "clients"))
+    except ValueError:
+        return None
+    for c in clients:
+        if c["class"].lower() == cls:
+            return c
+    return None
+
+
+def active_ws():
+    return json.loads(hypr("-j", "activeworkspace"))
+
+
+def is_shown(c):
+    return c is not None and c["workspace"]["name"] == active_ws()["name"]
+
+
+def show(c):
+    win = f'"address:{c["address"]}"'
+    ws = active_ws()["id"]
+    x, y, w, h = GEOM
+    dispatch(f"hl.dsp.window.move({{ window = {win}, workspace = {ws}, follow = false }})")
+    dispatch(f'hl.dsp.window.float({{ window = {win}, action = "enable" }})')
+    dispatch(f"hl.dsp.window.resize({{ window = {win}, x = {w}, y = {h} }})")
+    dispatch(f"hl.dsp.window.move({{ window = {win}, x = {x}, y = {y} }})")
+    dispatch(f"hl.dsp.focus({{ window = {win} }})")
+    dispatch(f'hl.dsp.window.alter_zorder({{ window = {win}, mode = "top" }})')
+
+
+def park(c):
+    if c:
+        dispatch(f'hl.dsp.window.move({{ window = "address:{c["address"]}", '
+                 f'workspace = {HIDDEN}, follow = false }})')
+
+
+def launch(app, then_show):
+    """앱을 켜고 창이 생기면 보이거나(then_show) 숨긴다. 창 규칙이 처음엔 99 에 둔다."""
+    subprocess.Popen(APPS[app]["cmd"], start_new_session=True,
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for _ in range(150):   # Spotify 는 class 를 늦게 붙인다
+        time.sleep(0.2)
+        c = find(app)
+        if c:
+            show(c) if then_show else park(c)
+            return True
+    return False
+
+
+def bring(app):
+    c = find(app)
+    if c:
+        show(c)
+    else:
+        launch(app, True)
+
+
+def main():
+    args = sys.argv[1:]
+    cmd = args[0] if args else "get"
+    app = get_app()
+    if cmd == "get":
+        print(app)
+    elif cmd == "player":
+        name = player_name(args[1] if len(args) > 1 and args[1] in APPS else app)
+        print(name)
+        sys.exit(0 if name else 1)
+    elif cmd == "set":
+        new = args[1] if len(args) > 1 else ""
+        if new not in APPS:
+            sys.exit("music-app set spotify|youtube-music")
+        if new == app:
+            return
+        old_c = find(app)
+        was_open = is_shown(old_c)
+        pause(app)
+        save_app(new)
+        if was_open:
+            park(old_c)
+            bring(new)
+    elif cmd == "toggle":
+        c = find(app)
+        if is_shown(c):
+            park(c)
+            return
+        for other in APPS:            # 다른 앱 팝업(떠 있는 창)이 보이면 같이 숨긴다. 마스터가 타일로 둔 창은 그대로
+            if other != app and is_shown(oc := find(other)) and oc.get("floating"):
+                park(oc)
+        bring(app)
+    elif cmd == "autostart":
+        if not find(app):
+            launch(app, False)
+    else:
+        sys.exit(__doc__)
+
+
+if __name__ == "__main__":
+    main()

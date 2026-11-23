@@ -662,6 +662,14 @@ hl.window_rule({
     workspace = "99 silent",
 })
 
+-- 2026-11-24 master: YouTube Music (Pear Desktop) too, so it can be the chosen music app
+-- (~/.local/bin/music-app, bar music pill + tab strip). Backup: hyprland.lua.bak-musicapp-20261124
+hl.window_rule({
+    name      = "ytmusic-start-hidden",
+    match     = { class = "^com\\.github\\.th-ch\\.youtube-music$" },
+    workspace = "99 silent",
+})
+
 -- 2026-11-22 master: Steam games open on a new workspace (a new floor at the bottom),
 -- maximized. A game is any window whose process has SteamAppId/SteamGameId in its
 -- environment (Steam sets it for native and Proton games; the Steam client itself has none).

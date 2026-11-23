@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""상단 바 가사 칸용: Spotify 곡 정보와 지금 가사 줄을 JSON 한 줄씩 출력 (바뀔 때만).
+"""상단 바 가사 칸용: 고른 음악 앱(Spotify 또는 유튜브 뮤직) 곡 정보와 지금 가사 줄을 JSON 한 줄씩 출력 (바뀔 때만).
   {"show": bool, "info": "제목 · 아티스트", "line": "가사 줄" 또는 "", "lyrics": 가사 있음 여부}
 가사는 LRCLIB(lrclib.net)에서 받아 ~/.cache/waybar-lyrics 에 곡마다 저장한다 (예전 waybar-lyrics 와 같은 캐시).
 글자 폭 재기·자르기·폭 애니메이션·흐르는 제목은 전부 Quickshell(Bar.qml)이 그린다."""
@@ -22,8 +22,27 @@ FMT = "{{status}}\t{{xesam:artist}}\t{{xesam:title}}\t{{xesam:album}}\t{{mpris:l
 TIMESTAMP = re.compile(r"\[(\d+):(\d+(?:\.\d+)?)\]")
 
 
+_player = {"name": "", "at": 0.0}
+
+
+def player_name():
+    """마스터가 고른 음악 앱의 playerctl 이름 (~/.local/bin/music-app, 2초마다 다시 확인). 2026-11-24"""
+    now = time.monotonic()
+    if now - _player["at"] > 2:
+        _player["at"] = now
+        try:
+            _player["name"] = subprocess.run([os.path.expanduser("~/.local/bin/music-app"), "player"],
+                                             capture_output=True, text=True, timeout=3).stdout.strip()
+        except Exception:
+            _player["name"] = ""
+    return _player["name"]
+
+
 def player_state():
-    r = subprocess.run(["playerctl", "--player=spotify", "metadata", "--format", FMT],
+    name = player_name()
+    if not name:
+        return None
+    r = subprocess.run(["playerctl", "--player=" + name, "metadata", "--format", FMT],
                        capture_output=True, text=True)
     f = r.stdout.rstrip("\n").split("\t")
     if r.returncode != 0 or len(f) != 6:

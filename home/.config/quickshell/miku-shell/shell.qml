@@ -12,6 +12,7 @@ ShellRoot {
     ControlCenter { id: cc }
     Popups {}
     TrackCard {}
+    MusicTabs {}          // 음악 앱 탭 줄 (Spotify ↔ 유튜브 뮤직, 2026-11-24)
     Mascot {}
     Variants {
         model: {

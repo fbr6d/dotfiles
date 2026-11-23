@@ -1,5 +1,5 @@
 // 화면 오른쪽 아래 마스코트 (그림: ~/Pictures/miku-mascot/*.png, 마스터가 준 파일 그대로. 출처 같은 폴더 CREDITS.txt)
-//   음악(Spotify)이 재생 중이면 sway.png 4프레임을 천천히 돌려 살랑살랑
+//   음악(고른 음악 앱: Spotify 또는 유튜브 뮤직, MusicState)이 재생 중이면 sway.png 4프레임을 천천히 돌려 살랑살랑
 //   알림이 오면 jump.png 4프레임을 한 번 재생 + 위로 폴짝 (방해 금지 중에는 안 함)
 //   왼쪽 클릭 = 폴짝 + 말로 묻기(2026-11-23: miku_listen.py가 듣고 → 글자로 → miku_ask.py)
 //   오른쪽 클릭 = 폴짝 + 질문 입력창 열기/닫기(엔터 → miku_ask.py가 답을 목소리+말풍선으로, Esc = 닫기)
@@ -26,11 +26,7 @@ PanelWindow {
         return Quickshell.screens[0];
     }
 
-    readonly property bool playing: {
-        for (const p of Mpris.players.values)
-            if ((p.dbusName || "").toLowerCase().includes("spotify")) return p.isPlaying;
-        return false;
-    }
+    readonly property bool playing: MusicState.player !== null && MusicState.player.isPlaying
     readonly property bool hidden: !MascotState.shown
     property bool hopping: false
 

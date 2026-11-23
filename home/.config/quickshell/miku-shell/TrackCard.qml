@@ -1,4 +1,4 @@
-// 곡 전환 카드: Spotify 곡이 바뀌면 왼쪽 위(음악 알약 바로 아래)에 카드가 스르륵 내려왔다가
+// 곡 전환 카드: 고른 음악 앱(MusicState, Spotify 또는 유튜브 뮤직) 곡이 바뀌면 왼쪽 위(음악 알약 바로 아래)에 카드가 스르륵 내려왔다가
 // 4초 뒤 올라가며 사라진다. 마우스를 올려 두면 사라지지 않고 기다린다.
 //   시험: qs -c miku-shell ipc call track pop
 import Quickshell
@@ -18,11 +18,7 @@ PanelWindow {
         return Quickshell.screens[0];
     }
 
-    readonly property var player: {
-        for (const p of Mpris.players.values)
-            if ((p.dbusName || "").toLowerCase().includes("spotify")) return p;
-        return null;
-    }
+    readonly property var player: MusicState.player
     readonly property string key: player ? (player.trackTitle || "") + "\u0001" + (player.trackArtist || "") : ""
     property string lastKey: ""
     property bool armed: false        // 셸이 막 켜졌을 때는 띄우지 않는다
@@ -32,6 +28,7 @@ PanelWindow {
 
     function pop() {
         if (!player || (player.trackTitle || "") === "") return;
+        if (MusicState.popupOpen) return;      // 음악 창과 탭 줄이 떠 있으면 카드가 탭을 가리지 않게
         shown = true;
         hideTimer.restart();
     }
@@ -72,7 +69,7 @@ PanelWindow {
                     height: 1; color: Qt.rgba(0, 0, 0, 0.55) }
 
         HoverHandler { id: hover; cursorShape: Qt.PointingHandCursor }
-        TapHandler { onTapped: Quickshell.execDetached([Quickshell.env("HOME") + "/.local/bin/spotify-popup"]) }
+        TapHandler { onTapped: MusicState.toggle() }
 
         ClippingRectangle {
             id: art
