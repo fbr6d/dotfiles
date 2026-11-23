@@ -13,19 +13,18 @@ Singleton {
     readonly property string tool: home + "/.local/bin/music-app"
     readonly property var apps: [
         { id: "spotify", label: "Spotify", cls: "spotify" },
-        { id: "youtube-music", label: "YouTube Music", cls: "com.github.th-ch.youtube-music" }
+        { id: "youtube-music", label: "YouTube Music", cls: "chrome-music.youtube.com__-default" }
     ]
     property string app: "spotify"
     property bool popupOpen: false        // MusicTabs 가 채움 (탭 줄이 떠 있는 동안 곡 카드는 안 띄움)
 
-    // Pear 는 단축키 플러그인이 켜지면 dbus 이름 YoutubeMusic (2026-11-24 켬), 꺼져 있으면 Chromium 기본(identity YouTube Music)
+    // 유튜브 뮤직 = Chromium 웹앱(전용 프로필). 어느 chromium.instance<PID> 인지는 music-app 이 /proc 로 가려
+    // 3초마다 알려 준다 (QML 에서는 PID 의 프로필을 볼 수 없어서). 2026-11-24 Pear → 웹앱
+    property string ytName: ""
     function isApp(p, id) {
         const dbus = (p.dbusName || "").toLowerCase();
         if (id === "spotify") return dbus.includes("spotify");
-        const ident = (p.identity || "").toLowerCase();
-        const desk = (p.desktopEntry || "").toLowerCase();
-        return dbus.includes("youtubemusic") || dbus.includes("youtube-music") || ident.includes("youtube music")
-               || desk.includes("youtube-music");
+        return ytName !== "" && dbus.endsWith("." + ytName.toLowerCase());
     }
     function playerOf(id) {
         for (const p of Mpris.players.values)
@@ -41,6 +40,14 @@ Singleton {
     function run(args) { Quickshell.execDetached([tool].concat(args)) }
     function toggle() { run(["toggle"]) }
     function choose(id) { if (id !== app) { app = id; run(["set", id]) } }
+
+    Process {
+        id: ytProc
+        command: [root.tool, "player", "youtube-music"]
+        stdout: StdioCollector { onStreamFinished: root.ytName = text.trim() }
+    }
+    Timer { interval: 3000; repeat: true; running: true; triggeredOnStart: true
+            onTriggered: if (!ytProc.running) ytProc.running = true }
 
     FileView {
         id: stateFile

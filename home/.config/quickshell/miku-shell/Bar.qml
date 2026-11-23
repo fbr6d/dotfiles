@@ -200,7 +200,7 @@ PanelWindow {
             "kitty": "#e0a458", "yazi": "#e0c068",
             "miku-tui": "#39c5bb", "miku-greeter": "#39c5bb",
             "com.anthropic.claude": "#d97757",
-            "spotify": "#1db954", "com.github.th-ch.youtube-music": "#ff0033",
+            "spotify": "#1db954", "com.github.th-ch.youtube-music": "#ff0033", "chrome-music.youtube.com__-default": "#ff0033",
             "obsidian": "#7c3aed",
             "org.gnome.nautilus": "#4a86cf", "org.gnome.papers": "#c64600",
             "1password": "#1a8cff", "localsend": "#008080",

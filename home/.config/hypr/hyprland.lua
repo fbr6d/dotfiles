@@ -662,11 +662,17 @@ hl.window_rule({
     workspace = "99 silent",
 })
 
--- 2026-11-24 master: YouTube Music (Pear Desktop) too, so it can be the chosen music app
+-- 2026-11-24 master: YouTube Music (Chromium web app, own profile ~/.local/share/miku/ytmusic-web; was Pear Desktop) too, so it can be the chosen music app
 -- (~/.local/bin/music-app, bar music pill + tab strip). Backup: hyprland.lua.bak-musicapp-20261124
+-- 2026-11-24 master: no slide when the bar pill / tab strip pops a music app out
+hl.window_rule({
+    name    = "music-popup-no-anim",
+    match   = { class = "^([Ss]potify|chrome-music\\.youtube\\.com__-Default)$" },
+    no_anim = true,
+})
 hl.window_rule({
     name      = "ytmusic-start-hidden",
-    match     = { class = "^com\\.github\\.th-ch\\.youtube-music$" },
+    match     = { class = "^chrome-music\\.youtube\\.com__-Default$" },
     workspace = "99 silent",
 })
 

@@ -5,7 +5,6 @@ clipse
 hyprshell-bin
 localsend-bin
 paru-bin
-pear-desktop-bin
 rasdaemon
 realesrgan-ncnn-vulkan-bin
 sunshine-bin
