@@ -1,0 +1,12 @@
+[Unit]
+Description=Miku local speech recognition server (faster-whisper large-v3-turbo, for mascot voice input)
+
+[Service]
+Type=simple
+ExecStart=%h/.local/share/miku/stt/venv/bin/python %h/.local/share/miku/stt/stt_server.py
+Restart=on-failure
+RestartSec=3
+Nice=5
+
+[Install]
+WantedBy=default.target

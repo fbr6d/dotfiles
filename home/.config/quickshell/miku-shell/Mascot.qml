@@ -1,8 +1,9 @@
 // 화면 오른쪽 아래 마스코트 (그림: ~/Pictures/miku-mascot/*.png, 마스터가 준 파일 그대로. 출처 같은 폴더 CREDITS.txt)
 //   음악(Spotify)이 재생 중이면 sway.png 4프레임을 천천히 돌려 살랑살랑
 //   알림이 오면 jump.png 4프레임을 한 번 재생 + 위로 폴짝 (방해 금지 중에는 안 함)
-//   왼쪽 클릭 = 폴짝 + 질문 입력창 열기/닫기(2026-11-23: 엔터 → miku_ask.py가 답을 목소리+말풍선으로, Esc = 닫기)
-//   오른쪽 클릭 = 숨기기 (제어센터 「미쿠」 버튼으로 다시 보이기)
+//   왼쪽 클릭 = 폴짝 + 말로 묻기(2026-11-23: miku_listen.py가 듣고 → 글자로 → miku_ask.py)
+//   오른쪽 클릭 = 폴짝 + 질문 입력창 열기/닫기(엔터 → miku_ask.py가 답을 목소리+말풍선으로, Esc = 닫기)
+//   가운데(휠) 클릭 = 숨기기 (제어센터 「미쿠」 버튼으로 다시 보이기)
 //   다시 보이기·숨기기: qs -c miku-shell ipc call mascot toggle   (시험: ... ipc call mascot hop)
 //   말풍선: qs -c miku-shell ipc call mascot speak "할 말" <보일 ms>   (정각 멘트 miku_hourly.py가 부름, 2026-11-23)
 // 창은 마스코트 크기만 하고 클릭도 마스코트에서만 받는다(아래 창을 가리지 않게).
@@ -45,6 +46,28 @@ PanelWindow {
         if (q.length > 0) Quickshell.execDetached([askPy, askScript, q]);
     }
     Timer { id: askFocus; interval: 60; onTriggered: askInput.forceActiveFocus() }
+    // 말로 묻기 (2026-11-23 마스터): 녹음·인식·대답은 miku_listen.py가 (말풍선 '듣고 있어요…'도 거기서 띄움)
+    readonly property string listenPy: Quickshell.env("HOME") + "/.local/share/miku/stt/venv/bin/python"
+    readonly property string listenScript: Quickshell.env("HOME") + "/.hermes/profiles/miku/scripts/miku_listen.py"
+    function listen() { Quickshell.execDetached([listenPy, listenScript]) }
+    // 클릭 → 먼저 멈춤 검사. 종료 코드 0 = 하던 걸 멈춤(그걸로 끝), 1 = 한가함 → 원래 동작
+    property string afterStop: ""
+    Process {
+        id: stopProc
+        command: ["/usr/bin/python3", Quickshell.env("HOME") + "/.hermes/profiles/miku/scripts/miku_stop.py"]
+        onExited: (code, status) => {
+            if (code !== 0) {
+                if (win.afterStop === "listen") win.listen();
+                else if (win.afterStop === "ask") win.openAsk();
+            }
+            win.afterStop = "";
+        }
+    }
+    function stopOr(what) {
+        if (stopProc.running) return;      // 연타 무시
+        afterStop = what;
+        stopProc.running = true;
+    }
 
     // 말풍선 (2026-11-23 마스터: 정각 멘트를 PC로 재생할 때 마스코트에 말풍선)
     property string sayText: ""
@@ -220,8 +243,11 @@ PanelWindow {
         }
 
         HoverHandler { cursorShape: Qt.PointingHandCursor }
-        TapHandler { acceptedButtons: Qt.LeftButton; onTapped: { win.hop(); if (win.asking) win.closeAsk(); else win.openAsk(); } }
-        TapHandler { acceptedButtons: Qt.RightButton; onTapped: MascotState.shown = false }
+        // 2026-11-23 마스터 1번: 왼쪽 = 말로 묻기(miku_listen.py), 오른쪽 = 글자 입력창, 가운데(휠) = 숨기기 (이전판 .bak-voice)
+        // 2026-11-23 마스터 '실행 중에 클릭하면 강제 멈춤': 왼쪽·오른쪽 클릭은 먼저 miku_stop.py → 듣기·생각·말하기 중이면 멈추고 끝 (이전판 .bak-before-stop)
+        TapHandler { acceptedButtons: Qt.LeftButton; onTapped: { win.hop(); if (win.asking) win.closeAsk(); win.stopOr("listen"); } }
+        TapHandler { acceptedButtons: Qt.RightButton; onTapped: { win.hop(); if (win.asking) win.closeAsk(); else win.stopOr("ask"); } }
+        TapHandler { acceptedButtons: Qt.MiddleButton; onTapped: MascotState.shown = false }
     }
 
     IpcHandler {
@@ -230,6 +256,8 @@ PanelWindow {
         function hop(): void { win.hop() }
         function speak(text: string, ms: int): void { win.speak(text, ms) }
         function ask(): void { win.openAsk() }
+        function listen(): void { win.listen() }
+        function tap(what: string): void { win.stopOr(what === "voice" ? "listen" : what) }   // 클릭과 같은 길 시험용(qs가 인자 'listen'을 하위 명령으로 착각해서 'voice'로)
         function closeAsk(): void { win.closeAsk() }
     }
 }
