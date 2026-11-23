@@ -1,0 +1,12 @@
+[Unit]
+Description=Miku local TTS server (Supertonic 3, for VOCALOID pitch reference)
+
+[Service]
+Type=simple
+ExecStart=%h/.local/share/miku/supertonic/venv/bin/python %h/.local/share/miku/supertonic/tts_server.py
+Restart=on-failure
+RestartSec=3
+Nice=5
+
+[Install]
+WantedBy=default.target

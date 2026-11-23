@@ -1,0 +1,8 @@
+[Unit]
+Description=Miku calendar cache for mascot schedule questions (iCloud, read-only)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.hermes/profiles/miku/scripts/calendar_cache.sh
+TimeoutStartSec=90
+Nice=10

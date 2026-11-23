@@ -1,6 +1,7 @@
 app-dev.lizardbyte.app.Sunshine.service
 hermes-gateway.service
 homebridge.service
+miku-tts.service
 openrgb-server.service
 rgb-notify-flash.service
 wireplumber.service
@@ -12,6 +13,7 @@ pipewire.socket
 dotfiles-backup-prompt.timer
 ksat-review-auth-keepfresh.timer
 miku-backup.timer
+miku-calendar-cache.timer
 miku-hourly.timer
 miku-kanban-attention.timer
 miku-ksat-live.timer

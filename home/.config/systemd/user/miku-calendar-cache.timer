@@ -1,0 +1,11 @@
+[Unit]
+Description=Read iCloud calendar every 10 minutes for Miku mascot
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=10min
+AccuracySec=30s
+Persistent=false
+
+[Install]
+WantedBy=timers.target

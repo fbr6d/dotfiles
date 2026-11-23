@@ -155,7 +155,7 @@ PanelWindow {
             Text {                                     // 안내 글
                 anchors.verticalCenter: parent.verticalCenter
                 visible: askInput.text.length === 0 && !askInput.preeditText
-                text: "미쿠에게 물어보기… (예: 지금 날씨 알려줘)"
+                text: "미쿠에게 물어보기…"
                 color: Theme.text
                 opacity: 0.45
                 font: askInput.font

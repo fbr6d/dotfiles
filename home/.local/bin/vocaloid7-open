@@ -1,0 +1,53 @@
+#!/bin/bash
+# 마스터가 VOCALOID7을 켤 때 쓰는 실행기 (미쿠, 2026-11-23 마스터 '하기').
+# 미쿠 목소리용으로 숨은 화면(Xvfb :97)에 켜 둔 VOCALOID7이 있으면 먼저 끄고,
+# 그다음 원래 명령(wine <인자들>)으로 마스터의 VOCALOID7을 켠다.
+# VOCALOID7은 한 번에 하나만 켜져서, 숨은 쪽이 켜져 있으면 'Preventing double start' 오류가 났다.
+# 바로가기 3개가 이걸 부른다:
+#   ~/.local/share/applications/wine/Programs/VOCALOID7/VOCALOID7 Editor.desktop
+#   ~/.local/share/applications/wine-extension-vprx.desktop / wine-extension-vpr.desktop
+# (원래 판: ~/.local/share/backups/vocaloid-open-20261123/)
+# 주의: Wine(winemenubuilder)이 이 바로가기들을 다시 만들면 원래대로 돌아간다.
+set -u
+export WINEPREFIX=$HOME/Games/vocaloid
+S=$HOME/.cache/miku/vocserver
+XD=:97
+LOG=$S/open.log
+mkdir -p "$S"
+log() { echo "$(date '+%m-%d %H:%M:%S') $*" >> "$LOG"; }
+
+hidden_voc() {   # 숨은 화면의 VOCALOID7 PID들
+  for p in $(pgrep -x VOCALOID7.exe); do
+    tr '\0' '\n' 2>/dev/null < /proc/$p/environ | grep -qx "DISPLAY=$XD" && echo "$p"
+  done
+}
+master_voc() {   # 마스터 화면의 VOCALOID7이 떠 있나
+  for p in $(pgrep -x VOCALOID7.exe); do
+    tr '\0' '\n' 2>/dev/null < /proc/$p/environ | grep -qx "DISPLAY=$XD" || return 0
+  done
+  return 1
+}
+
+# 미쿠가 목소리를 만드는 중이면 끝날 때까지(최대 20초) 기다린 뒤 잠근다.
+# 잠금은 마스터의 VOCALOID7이 뜰 때까지 쥐고 있어서, 그 사이에 숨은 쪽이 다시 켜지지 않게 한다.
+exec 9>"$S/render.lock"
+flock -w 20 9 || log "렌더 잠금 20초 기다려도 안 풀림 → 그냥 진행"
+
+if [ -n "$(hidden_voc)" ] || { [ -s "$S/daemon.pid" ] && kill -0 "$(cat "$S/daemon.pid")" 2>/dev/null; }; then
+  log "숨은 VOCALOID 끄기 (마스터가 VOCALOID7을 켬)"
+  [ -s "$S/daemon.pid" ] && kill "$(cat "$S/daemon.pid")" 2>/dev/null
+  for i in $(seq 1 30); do [ -z "$(hidden_voc)" ] && break; sleep 0.5; done
+  if [ -n "$(hidden_voc)" ]; then          # 관리자가 못 껐으면 정확한 PID로 직접
+    for p in $(hidden_voc); do kill "$p" 2>/dev/null; done
+    for i in $(seq 1 10); do [ -z "$(hidden_voc)" ] && break; sleep 0.5; done
+  fi
+  [ -z "$(hidden_voc)" ] && log "숨은 VOCALOID 꺼짐" || log "숨은 VOCALOID가 안 꺼짐"
+fi
+
+log "마스터 VOCALOID7 켜기: wine $*"
+wine "$@" >/dev/null 2>&1 &
+
+# 마스터 VOCALOID7이 뜰 때까지(최대 40초) 잠금 유지
+for i in $(seq 1 80); do master_voc && break; sleep 0.5; done
+exec 9>&-
+wait

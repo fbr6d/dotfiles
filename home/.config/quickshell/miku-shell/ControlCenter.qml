@@ -183,7 +183,7 @@ PanelWindow {
         if (/Digital Stereo \(IEC958\)/.test(d)) suf = " 광출력";
         else if (/HDMI|DisplayPort/i.test(d) && /Digital/.test(d)) suf = " HDMI";
         if (/USB-C to 3\.5mm/i.test(d)) return "USB-C 이어폰";
-        if (/Ryzen HD Audio/i.test(d)) return "본체" + suf;
+        if (/Ryzen HD Audio/i.test(d)) return "LG 사운드바" + suf;   // 2026-11-23 마스터: 본체 라인 출력에 LG 사운드바(LAS260B)가 연결됨 (예전 "본체", 백업 .bak-soundbar-label)
         if (/Navi|Radeon|HDMI\/DP/i.test(d)) return "모니터" + suf;
         return d.replace(/ (Analog|Digital) Stereo.*$/, "");
     }

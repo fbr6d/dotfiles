@@ -2,7 +2,7 @@
 Type=Application
 Name=VOCALOID7
 MimeType=application/x-wine-extension-vprx;
-Exec=env "WINEPREFIX=/home/leejaeik/Games/vocaloid" wine start /ProgIDOpen "VOCALOID7.vprx" %f
+Exec=/home/leejaeik/.local/bin/vocaloid7-open start /ProgIDOpen "VOCALOID7.vprx" %f
 NoDisplay=true
 StartupNotify=true
 Icon=588E_VOCALOID7.0
