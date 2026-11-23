@@ -1,7 +1,7 @@
 // 제어센터 (swaync 제어센터 대체)
 //   일정: iCloud 캘린더 오늘·내일 (읽기 전용, scripts/cal-feed, 열 때 1분 넘었으면 + 10분마다)
 //   상태 줄(Wi-Fi 1/4 · 유선 1/4 · 블루투스 1/2, 표시 전용)
-//   기기 연결 · 방해 금지 · 마스코트(보이기/숨기기)
+//   기기 연결 · 방해 금지 · 미쿠(마스코트 보이기/숨기기)
 //   볼륨 · (화면 밝기: 노트북처럼 밝기 장치가 있을 때만)
 //   ── 조명 ── 머리글(전구 고르기 칩: 플로어등·제도등), 켜기/끄기 · 따뜻하게 · 집중 · 색 선택(1/4씩), 색 팔레트, 밝기
 //   잠금 · 재부팅 · 끄기 · (배터리: 배터리가 있을 때만)
@@ -291,7 +291,9 @@ PanelWindow {
                 }
                 Tile {
                     Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: "face_retouching_natural"; label: "마스코트"; fontSize: 13
+                    badge: "01"; label: "미쿠"; fontSize: 13
+                    glyph: "M13,0 H31 A13,13 0 0 1 44,13 V47 A13,13 0 0 1 31,60 H13 A13,13 0 0 1 0,47 V13 A13,13 0 0 1 13,0 Z M18,13 H26 A5,5 0 0 1 31,18 V42 A5,5 0 0 1 26,47 H18 A5,5 0 0 1 13,42 V18 A5,5 0 0 1 18,13 Z M20,0 H24 V13 H20 Z M20,47 H24 V60 H20 Z M58,0 H71 V60 H58 V16 L47,24 V11 Z"; glyphW: 71; glyphH: 60   // 미쿠 문신 01 (icons/miku-01.svg)
+                    glyphSize: 17; glyphColor: MascotState.shown ? "#E04A5F" : "transparent"; badgeBorder: false   // 테두리 없이, 크게, 켜지면 문신색 / 꺼지면 흰색(fg)
                     active: MascotState.shown
                     onClicked: MascotState.shown = !MascotState.shown
                 }

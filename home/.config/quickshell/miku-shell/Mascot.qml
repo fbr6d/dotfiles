@@ -1,7 +1,7 @@
 // 화면 오른쪽 아래 마스코트 (그림: ~/Pictures/miku-mascot/*.png, 마스터가 준 파일 그대로. 출처 같은 폴더 CREDITS.txt)
 //   음악(Spotify)이 재생 중이면 sway.png 4프레임을 천천히 돌려 살랑살랑
 //   알림이 오면 jump.png 4프레임을 한 번 재생 + 위로 폴짝 (방해 금지 중에는 안 함)
-//   왼쪽 클릭 = 폴짝, 오른쪽 클릭 = 숨기기 (제어센터 「마스코트」 버튼으로 다시 보이기)
+//   왼쪽 클릭 = 폴짝, 오른쪽 클릭 = 숨기기 (제어센터 「미쿠」 버튼으로 다시 보이기)
 //   다시 보이기·숨기기: qs -c miku-shell ipc call mascot toggle   (시험: ... ipc call mascot hop)
 //   말풍선: qs -c miku-shell ipc call mascot speak "할 말" <보일 ms>   (정각 멘트 miku_hourly.py가 부름, 2026-11-23)
 // 창은 마스코트 크기만 하고 클릭도 마스코트에서만 받는다(아래 창을 가리지 않게).
