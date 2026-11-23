@@ -23,6 +23,7 @@ Word Wrap Marker=false
 1280x800 screen: Window-Maximized=true
 2048x1280 screen: Window-Maximized=true
 2560x1440 screen: Window-Maximized=true
+3440x1440 screen: Window-Maximized=true
 
 [filetree]
 editShade=183,220,246
