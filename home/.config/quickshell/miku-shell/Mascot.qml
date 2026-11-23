@@ -132,6 +132,9 @@ PanelWindow {
         height: sayLabel.height + 24
         radius: 18
         color: Theme.bg
+        // 2026-11-23 마스터 '말풍선에 어두운 회색 계열 테두리': Theme.raised(#4a4a47) 2px (이전판 .bak-bubble-border)
+        border.width: 2
+        border.color: Theme.raised
         Text {
             id: sayLabel
             anchors.centerIn: parent
@@ -143,12 +146,20 @@ PanelWindow {
             wrapMode: Text.WordWrap
             lineHeight: 1.15
         }
-        Rectangle {                                    // 꼬리 (마스코트 쪽)
+        Rectangle {                                    // 꼬리 (마스코트 쪽) — 바깥 두 변에도 같은 테두리
             width: 13; height: 13; rotation: 45
             color: Theme.bg
+            border.width: 2
+            border.color: Theme.raised
             x: parent.width - 32 - width / 2
             y: parent.height - height / 2 - 1
             z: -1
+        }
+        Rectangle {                                    // 꼬리가 붙는 자리의 말풍선 아래 테두리를 바탕색으로 덮어 이어지게
+            width: 11; height: 2
+            color: Theme.bg
+            x: parent.width - 32 - width / 2
+            y: parent.height - 2
         }
     }
 
