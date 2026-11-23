@@ -1,7 +1,8 @@
 // 화면 오른쪽 아래 마스코트 (그림: ~/Pictures/miku-mascot/*.png, 마스터가 준 파일 그대로. 출처 같은 폴더 CREDITS.txt)
 //   음악(Spotify)이 재생 중이면 sway.png 4프레임을 천천히 돌려 살랑살랑
 //   알림이 오면 jump.png 4프레임을 한 번 재생 + 위로 폴짝 (방해 금지 중에는 안 함)
-//   왼쪽 클릭 = 폴짝, 오른쪽 클릭 = 숨기기 (제어센터 「미쿠」 버튼으로 다시 보이기)
+//   왼쪽 클릭 = 폴짝 + 질문 입력창 열기/닫기(2026-11-23: 엔터 → miku_ask.py가 답을 목소리+말풍선으로, Esc = 닫기)
+//   오른쪽 클릭 = 숨기기 (제어센터 「미쿠」 버튼으로 다시 보이기)
 //   다시 보이기·숨기기: qs -c miku-shell ipc call mascot toggle   (시험: ... ipc call mascot hop)
 //   말풍선: qs -c miku-shell ipc call mascot speak "할 말" <보일 ms>   (정각 멘트 miku_hourly.py가 부름, 2026-11-23)
 // 창은 마스코트 크기만 하고 클릭도 마스코트에서만 받는다(아래 창을 가리지 않게).
@@ -31,6 +32,19 @@ PanelWindow {
     }
     readonly property bool hidden: !MascotState.shown
     property bool hopping: false
+
+    // 질문 입력창 (2026-11-23 마스터: 클릭해서 짧게 묻고 말로 대답 듣기)
+    property bool asking: false
+    readonly property string askPy: Quickshell.env("HOME") + "/.hermes/tools/python-3.14.9+20261021-linux-x64/bin/python3"
+    readonly property string askScript: Quickshell.env("HOME") + "/.hermes/profiles/miku/scripts/miku_ask.py"
+    function openAsk() { sayText = ""; asking = true; askInput.text = ""; askFocus.restart() }
+    function closeAsk() { asking = false; askInput.text = "" }
+    function sendAsk() {
+        const q = askInput.text.trim();
+        closeAsk();
+        if (q.length > 0) Quickshell.execDetached([askPy, askScript, q]);
+    }
+    Timer { id: askFocus; interval: 60; onTriggered: askInput.forceActiveFocus() }
 
     // 말풍선 (2026-11-23 마스터: 정각 멘트를 PC로 재생할 때 마스코트에 말풍선)
     property string sayText: ""
@@ -72,7 +86,8 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "miku-mascot"
-    mask: Region { item: body }
+    mask: Region { item: body; Region { item: askBox } }
+    WlrLayershell.keyboardFocus: asking ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     // 알림이 새로 뜨면 폴짝
     property int lastPopups: 0
@@ -87,7 +102,7 @@ PanelWindow {
 
     Rectangle {
         id: bubble
-        visible: win.saying
+        visible: win.saying && !win.asking
         x: win.width - width
         y: win.height - 64 * win.px - 10 - height
         width: sayLabel.width + 36
@@ -108,6 +123,48 @@ PanelWindow {
         Rectangle {                                    // 꼬리 (마스코트 쪽)
             width: 13; height: 13; rotation: 45
             color: Theme.bg
+            x: parent.width - 32 - width / 2
+            y: parent.height - height / 2 - 1
+            z: -1
+        }
+    }
+
+    Rectangle {
+        id: askBox
+        visible: win.asking
+        width: win.asking ? 400 : 0
+        height: win.asking ? 52 : 0
+        x: win.width - width
+        y: win.height - 64 * win.px - 10 - height
+        radius: 18
+        color: Theme.bg
+        border.width: 2
+        border.color: "#39C5BB"
+        TextInput {
+            id: askInput
+            anchors.fill: parent
+            anchors.leftMargin: 18; anchors.rightMargin: 18
+            verticalAlignment: TextInput.AlignVCenter
+            color: Theme.text
+            font.family: Theme.font
+            font.pixelSize: 18
+            clip: true
+            selectByMouse: true
+            onAccepted: win.sendAsk()
+            Keys.onEscapePressed: win.closeAsk()
+            Text {                                     // 안내 글
+                anchors.verticalCenter: parent.verticalCenter
+                visible: askInput.text.length === 0 && !askInput.preeditText
+                text: "미쿠에게 물어보기… (예: 지금 날씨 알려줘)"
+                color: Theme.text
+                opacity: 0.45
+                font: askInput.font
+            }
+        }
+        Rectangle {                                    // 꼬리
+            width: 13; height: 13; rotation: 45
+            color: Theme.bg
+            border.width: 0
             x: parent.width - 32 - width / 2
             y: parent.height - height / 2 - 1
             z: -1
@@ -163,7 +220,7 @@ PanelWindow {
         }
 
         HoverHandler { cursorShape: Qt.PointingHandCursor }
-        TapHandler { acceptedButtons: Qt.LeftButton; onTapped: win.hop() }
+        TapHandler { acceptedButtons: Qt.LeftButton; onTapped: { win.hop(); if (win.asking) win.closeAsk(); else win.openAsk(); } }
         TapHandler { acceptedButtons: Qt.RightButton; onTapped: MascotState.shown = false }
     }
 
@@ -172,5 +229,7 @@ PanelWindow {
         function toggle(): void { MascotState.shown = !MascotState.shown }
         function hop(): void { win.hop() }
         function speak(text: string, ms: int): void { win.speak(text, ms) }
+        function ask(): void { win.openAsk() }
+        function closeAsk(): void { win.closeAsk() }
     }
 }
