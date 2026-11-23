@@ -113,6 +113,8 @@ pipewire-zeroconf
 plymouth
 python-gobject
 python-pillow
+python-pymupdf
+python-pypdf
 qemu-desktop
 quickshell
 rclone
