@@ -1,0 +1,10 @@
+[Unit]
+Description=KSAT 칸반 완료 카드 그래프 서버 (127.0.0.1:8742, kanban.db 읽기 전용)
+
+[Service]
+ExecStart=/usr/bin/python3 %h/.local/share/miku/ksat-chart/server.py
+Restart=on-failure
+Nice=10
+
+[Install]
+WantedBy=default.target

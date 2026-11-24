@@ -1,6 +1,7 @@
 app-dev.lizardbyte.app.Sunshine.service
 hermes-gateway.service
 homebridge.service
+miku-ksat-chart.service
 miku-stt.service
 miku-tts.service
 openrgb-server.service

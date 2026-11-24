@@ -314,7 +314,7 @@ hl.config({
     scrolling = {
         fullscreen_on_one_column = false,      -- a lone window keeps its column width
         column_width             = 0.6,        -- new columns: 60% of the screen (2026-11-22 ultrawide, was 0.667)
-        explicit_column_widths   = "0.33333333, 0.5, 0.6, 1.0",   -- SUPER+CTRL+left/right cycles these
+        explicit_column_widths   = "0.25, 0.5, 1.0",   -- SUPER+CTRL+left/right cycles these (2026-11-24 master: only 25/50/100%; was 0.33333333, 0.5, 0.6, 1.0)
         focus_fit_method         = 1,          -- fit (scroll as little as possible); a lone column is centered by autoColApply (2026-11-23: method 0 dragged a newly opened 2nd window to the middle)
     },
 })
@@ -516,7 +516,7 @@ hl.bind(mainMod .. " + slash",     hl.dsp.exec_cmd("~/.local/bin/hypr-cheatsheet
 --   SUPER + up/down           go to the floor (workspace) above/below
 --   SUPER+SHIFT + left/right  swap the column with its neighbour
 --   SUPER+SHIFT + up/down     carry the window to the floor above/below
---   SUPER+CTRL + left/right   cycle the column width (1/2, 2/3, full)
+--   SUPER+CTRL + left/right   cycle the column width (25%, 50%, 100%)
 for _, k in ipairs({ { "left", "h", "l" }, { "right", "l", "r" } }) do
     local dir, vim, lr = k[1], k[2], k[3]
     local width = (lr == "r") and "+conf" or "-conf"

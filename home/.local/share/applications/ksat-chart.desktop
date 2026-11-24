@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=KSAT 완료 그래프
+Comment=칸반 일별·1시간별 완료 카드 수 (실시간)
+Exec=ksat-chart
+Icon=office-chart-line
+Terminal=false
+Categories=Utility;
