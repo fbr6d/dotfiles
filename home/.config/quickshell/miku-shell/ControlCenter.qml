@@ -579,6 +579,10 @@ PanelWindow {
                 spacing: 6
                 Tile { Layout.fillWidth: true; Layout.preferredWidth: 1; radius: 22; icon: "lock"; iconSize: 20
                        onClicked: { panel.hide(); panel.run(["loginctl", "lock-session"]) } }
+                // 2026-11-25 마스터 '화면 검게 덮는 버튼'(절전·잠금 아님, 작업은 계속, 입력 1초 이어지면 벗겨짐).
+                // 기기·방해 금지 줄에 넣으니 네 칸이 되어 글자가 '기기 …'로 잘려서, 아이콘 버튼 줄(잠금 옆)에 둠
+                Tile { Layout.fillWidth: true; Layout.preferredWidth: 1; radius: 22; icon: "tv_off"; iconSize: 20
+                       onClicked: { panel.hide(); BlackoutState.cover() } }
                 Tile { Layout.fillWidth: true; Layout.preferredWidth: 1; radius: 22; icon: "restart_alt"; iconSize: 20
                        onClicked: { panel.hide(); panel.run([panel.home + "/.local/bin/power-confirm", "reboot"]) } }
                 Tile { Layout.fillWidth: true; Layout.preferredWidth: 1; radius: 22; icon: "power_settings_new"; iconSize: 20

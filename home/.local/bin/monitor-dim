@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+"""monitor-dim — 모니터 백라이트를 DDC/CI(VCP 0x10 밝기)로 낮추고 되돌리기 (2026-11-25 마스터 '검은 화면 때 백라이트도 어둡게')
+
+  monitor-dim dim       지금 밝기를 적어 두고 0으로 (이미 적어 둔 게 있으면 덮어쓰지 않음 = 두 번 눌러도 원래 값 보존)
+  monitor-dim restore   적어 둔 밝기로 되돌리고 기록을 지움 (기록이 없으면 아무것도 안 함 → 셸 시작 때 안전하게 불러도 됨)
+  monitor-dim get       모니터별 지금 밝기 보기
+
+- 연결된 화면(/sys/class/drm/card*-*/status = connected)의 i2c 통로 중 대답하는 것을 쓴다(ddcutil 없이, sudo 없이 —
+  /dev/i2c-* 는 로그인 사용자 ACL로 읽고 쓸 수 있음).
+- 동시에 두 개가 돌지 않게 잠금(flock). 기록: ~/.local/state/miku/backlight.json
+"""
+import fcntl
+import glob
+import json
+import os
+import sys
+import time
+
+I2C_SLAVE = 0x0703
+STATE = os.path.expanduser("~/.local/state/miku/backlight.json")
+LOCK = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "monitor-dim.lock")
+
+
+def _xfer(bus, msg, read=0):
+    fd = os.open(f"/dev/i2c-{bus}", os.O_RDWR)
+    try:
+        fcntl.ioctl(fd, I2C_SLAVE, 0x37)
+        chk = 0x6E
+        for b in msg:
+            chk ^= b
+        os.write(fd, bytes(msg) + bytes([chk]))
+        if not read:
+            return b""
+        time.sleep(0.05)
+        return os.read(fd, read)
+    finally:
+        os.close(fd)
+
+
+def get_bright(bus):
+    """(지금, 최대) 또는 None"""
+    for _ in range(3):
+        try:
+            r = _xfer(bus, [0x51, 0x82, 0x01, 0x10], 12)
+            # 대답: … 02 <결과 00> <코드 10> <형식> <최대 hi lo> <지금 hi lo>
+            i = r.find(bytes([0x02, 0x00, 0x10]))
+            if i >= 0 and len(r) >= i + 8:
+                return (r[i + 6] << 8 | r[i + 7], r[i + 4] << 8 | r[i + 5])
+        except OSError:
+            pass
+        time.sleep(0.05)
+    return None
+
+
+def set_bright(bus, v):
+    for _ in range(3):
+        try:
+            _xfer(bus, [0x51, 0x84, 0x03, 0x10, (v >> 8) & 0xFF, v & 0xFF])
+            time.sleep(0.06)
+            g = get_bright(bus)
+            if g and g[0] == v:
+                return True
+        except OSError:
+            pass
+        time.sleep(0.05)
+    return False
+
+
+def monitors():
+    """{화면 이름: i2c 번호} — 연결된 화면마다 대답하는 통로 하나"""
+    out = {}
+    for d in sorted(glob.glob("/sys/class/drm/card*-*")):
+        try:
+            if open(os.path.join(d, "status")).read().strip() != "connected":
+                continue
+        except OSError:
+            continue
+        name = os.path.basename(d).split("-", 1)[1]
+        cands = [int(os.path.basename(p)[4:]) for p in glob.glob(os.path.join(d, "i2c-*"))]
+        ddc = os.path.join(d, "ddc")
+        if os.path.islink(ddc):
+            cands.append(int(os.path.basename(os.readlink(ddc))[4:]))
+        for b in cands:
+            if get_bright(b):
+                out[name] = b
+                break
+    return out
+
+
+def main():
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "get"
+    os.makedirs(os.path.dirname(STATE), exist_ok=True)
+    with open(LOCK, "w") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        if cmd == "get":
+            for n, b in monitors().items():
+                print(n, f"i2c-{b}", get_bright(b))
+        elif cmd == "dim":
+            saved = {}
+            if os.path.exists(STATE):
+                saved = json.load(open(STATE))
+            for n, b in monitors().items():
+                g = get_bright(b)
+                if not g:
+                    continue
+                if n not in saved and g[0] > 0:
+                    saved[n] = {"bus": b, "value": g[0]}
+                set_bright(b, 0)
+            if saved:
+                with open(STATE + ".tmp", "w") as f:
+                    json.dump(saved, f)
+                os.replace(STATE + ".tmp", STATE)
+            print("dim", saved)
+        elif cmd == "restore":
+            if not os.path.exists(STATE):
+                print("restore: 기록 없음")
+                return
+            saved = json.load(open(STATE))
+            ok = True
+            for n, s in saved.items():
+                ok = set_bright(s["bus"], int(s["value"])) and ok
+            if ok:
+                os.remove(STATE)
+            print("restore", saved, "ok" if ok else "일부 실패(기록 남김)")
+        else:
+            print(__doc__)
+            sys.exit(2)
+
+
+if __name__ == "__main__":
+    main()

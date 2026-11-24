@@ -14,6 +14,7 @@ ShellRoot {
     TrackCard {}
     MusicTabs {}          // 음악 앱 탭 줄 (Spotify ↔ 유튜브 뮤직, 2026-11-24)
     Mascot {}
+    Blackout {}           // 검은 화면 덮개 (제어센터 「검은 화면」, 2026-11-25)
     Variants {
         model: {
             const want = Quickshell.env("MIKU_CC_OUTPUT");
