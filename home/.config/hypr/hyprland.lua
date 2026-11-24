@@ -176,14 +176,14 @@ hl.config({
         gaps_in  = 4,
         gaps_out = 8,
 
-        border_size = 3,
+        border_size = 4,   -- 2026-11-24 master: dim off, border tells the focused window (was 3)
 
         col = {
             -- 2026-11-20 master: white, switches instantly (border animation off; gradient/spin/
             -- spread/fade effects tried and removed, backups in
             -- ~/.local/share/backups/border-once-20261120/). Old: "rgb(" .. theme.border .. ")"
             active_border   = "rgb(ffffff)",
-            inactive_border = "rgb(" .. theme.surface .. ")",
+            inactive_border = "rgba(00000000)",   -- 2026-11-24 master: invisible (space kept, no size jump); was "rgb(" .. theme.surface .. ")"
         },
 
         -- Set to true to enable resizing windows by clicking and dragging on borders and gaps
@@ -196,7 +196,7 @@ hl.config({
     },
 
     decoration = {
-        rounding       = 0,
+        rounding       = 6,   -- 2026-11-24 master: slight round corners (was 0)
         rounding_power = 2,
 
         -- Change transparency of focused and unfocused windows
@@ -204,7 +204,7 @@ hl.config({
         inactive_opacity = 1.0,
 
         -- Darken unfocused windows so the active one stands out
-        dim_inactive = true,
+        dim_inactive = false,   -- 2026-11-24 master: no darkening, the white border marks the focused window (was true)
         dim_strength = 0.35,   -- 2026-11-19 master: darker (was 0.2, backup hyprland.lua.bak-dim-20261119)
         dim_around   = 0.7,   -- backdrop of the window overview
 
