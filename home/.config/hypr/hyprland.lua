@@ -101,6 +101,14 @@ hl.on("window.active", function (window)
   end
 end)
 
+-- 2026-11-24 master: rofi (launcher/menus) always opens with the English keyboard.
+-- rofi is a layer surface, not a window, so window.active never fires for it; use layer.opened.
+hl.on("layer.opened", function (layer)
+  if layer and layer.namespace == "rofi" then
+    hl.dispatch(hl.dsp.exec_cmd("fcitx5-remote -c"))
+  end
+end)
+
 
 -------------------------------
 ---- ENVIRONMENT VARIABLES ----
