@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# bark-notify "본문" ["제목"] ["누르면 열 주소"] — 아이폰(Bark) 푸시 알림 (2026-11-24 마스터 요청)
+# 키: ~/.config/miku/bark.env (BARK_SERVER, BARK_KEY, 권한 600; 넣는 창 ~/.local/share/miku/bark-setup.sh)
+# 누르면 열 주소(Bark url): 예 korailtalk:// = 코레일+ 앱(2026-11-24 마스터 아이폰에서 열림 확인)
+# 아이콘: 디스코드 '하츠네 미쿠' 봇 프로필 사진(마스터 '아이콘 못 바꿔?' → Bark icon 매개변수)
+set -u
+CONF="$HOME/.config/miku/bark.env"
+ICON="https://cdn.discordapp.com/avatars/1572096241196605580/3124c5f88987b42f2f30ac015b2e1f49.png?size=256"
+[ -r "$CONF" ] || { echo "bark-notify: $CONF 없음 (bark-setup.sh로 키부터 넣기)" >&2; exit 1; }
+. "$CONF"
+body="${1:?usage: bark-notify \"본문\" [\"제목\"] [\"url\"]}"
+title="${2:-하츠네 미쿠}"
+open_url="${3:-}"
+json=$(python3 -c 'import json,sys
+d = {"title": sys.argv[1], "body": sys.argv[2], "group": "miku", "icon": sys.argv[3]}
+if sys.argv[4]: d["url"] = sys.argv[4]
+print(json.dumps(d, ensure_ascii=False))' "$title" "$body" "$ICON" "$open_url")
+out=$(curl -s -m 15 -X POST "$BARK_SERVER/$BARK_KEY" -H 'Content-Type: application/json; charset=utf-8' -d "$json")
+printf '%s' "$out" | grep -q '"code":200' && echo "bark sent" || { echo "bark-notify 실패: $out" >&2; exit 1; }
