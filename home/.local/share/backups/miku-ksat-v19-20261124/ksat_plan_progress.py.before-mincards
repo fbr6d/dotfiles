@@ -1,0 +1,410 @@
+#!/usr/bin/env python3
+"""KSAT 계획서 전체 진행도 — 읽기 전용. JSON 한 줄을 출력한다.
+TUI 위젯 tui-widgets/miku-ksat.mjs(10초마다)와 디스코드 현황판 scripts/ksat_live_board.py(1분마다)가 부른다.
+
+2026-11-24 (운영검토 H5, 마스터 승인): 카드 제목의 낱말로 세던 방식을 버리고 계획서 3절의 '단계 코드'로 센다.
+  단계: 과목마다 W1~W6(위키)·P1~P3(PDF)·X1(자료 확장), 공통은 A1·D1·X0. 무게는 계획서 3-1·3-2절 표(v19부터 합 338).
+  단계 점수(0~1):
+    ① 원장 t_729e2d91 댓글에 '[단계 완료] <과목>-<코드>, …'로 시작하는 줄이 있으면 1.
+       [단계 완료] 바로 뒤에 쉼표로 이어 적은 코드만 센다. 문장 속에 나오는 코드는 세지 않는다(2026-11-24).
+    ② 아니면 본문에 '단계: <과목>-<코드>' 줄이 있는 카드(보관 제외)의 완료 비율. 0.9를 넘기지 않는다.
+    ③ 전환 전에 이미 하던 단계는 scripts/ksat_stage_baseline.json의 기준값과 ② 가운데 큰 값(역시 0.9까지).
+  %는 Σ(점수 × 무게) ÷ Σ무게. 계획서 파일에서는 판 번호만 읽는다(단계표가 바뀌는 판이 나오면 아래 STAGES를 고칠 것).
+  제목 낱말은 점수에 쓰지 않는다. PDF 칸의 '제작중/보류/대기' 글자(pdf_note)만 '단계:' 줄이 없는 옛 카드 때문에
+  제목으로 가린다(점수 없음).
+  이전판(제목 낱말·WEIGHTS 방식, 2026-11-19~23) 백업: ~/.local/share/backups/miku-ksat-stagecodes-20261124/
+2026-11-24 (계획서 v19, 마스터 승인): 영어 범위가 지문·문법 개념(구문·어법·독해 43개)으로 줄어 영어 무게를
+  W3 6·W4 9·W5 4로 고쳤다. 영어-W5는 범위 변경 뒤에 만든 카드만 센다(그 전 카드는 단어·숙어 전사·대조).
+  이전판 백업: ~/.local/share/backups/miku-ksat-v19-20261124/
+판단 근거는 칸반 카드·원장 댓글·기준값 파일뿐이고, 카드·파일은 건드리지 않는다."""
+import json
+import os
+import re
+import subprocess
+import time
+
+ROOT = "/home/leejaeik/Projects/ksat-10000"
+BOARD = "ksat-10000"
+PLAN_PREFIX = "20261118_전과목_위키정식판_PDF"
+TENANT_PREFIX = "study-cycle-02"
+SUBJECTS = ["국어", "수학", "영어", "통합사회", "통합과학"]
+HERMES = os.path.expanduser("~/.hermes/hermes-agent/.hermes/bin/hermes")
+DB = os.path.expanduser("~/.hermes/kanban/boards/ksat-10000/kanban.db")
+LEDGER = "t_729e2d91"  # 계획 실행 원장 카드
+BASELINE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ksat_stage_baseline.json")
+DONE_CACHE = os.path.expanduser("~/.cache/miku/ksat-stage-done.json")
+CAP = 0.9  # [단계 완료] 줄이 없는 단계가 받을 수 있는 가장 큰 점수
+
+# 계획서 3-1절: (코드, 이름, 위젯에 쓰는 짧은 이름, 무게)
+STAGES = [
+    ("W1", "공식 범위 확인", "범위", 2), ("W2", "개념 목록", "목록", 3), ("W3", "집필·문항 연결", "집필", 11),
+    ("W4", "전수 검수·수정", "검수", 17), ("W5", "필수 암기 목록·보강", "암기", 10), ("W6", "정식판 인수", "인수", 2),
+    ("P1", "1~2일차 PDF 제작", "PDF", 4), ("P2", "마스터 컨펌", "컨펌", 1), ("P3", "최종 AI 검사·보관", "최종", 2),
+    ("X1", "자료 확장판 v1.1", "확장", 10),
+]
+# 과목마다 다른 무게: 국어는 W1~W3를 합쳐 5, W4 48, W5 15. 영어 PDF는 논문 기반 지문 검증 때문에 8.
+# 영어 위키는 개념이 43개로 줄어 W3 6·W4 9·W5 4 (계획서 v19 3-1절)
+WEIGHT_FIX = {("국어", "W1"): 1, ("국어", "W2"): 1, ("국어", "W3"): 3, ("국어", "W4"): 48, ("국어", "W5"): 15,
+              ("영어", "W3"): 6, ("영어", "W4"): 9, ("영어", "W5"): 4, ("영어", "P1"): 8}
+# 범위가 바뀐 단계: 이 시각(epoch) 뒤에 만든 카드만 센다. 그 전 카드는 옛 범위의 일이라 세지 않는다.
+# 영어-W5: 2026-11-24 14:51:08 영어 범위 변경(단어·숙어 제외) 마스터 결정
+STAGE_SINCE = {"영어-W5": 1795499468}
+# 국어만 순서가 W4 → W6(v1.0.0 제한부 인수) → W5(v1.0.1 보강)
+ORDER = {"국어": ["W1", "W2", "W3", "W4", "W6", "W5", "P1", "P2", "P3", "X1"]}
+# 계획서 3-2절 공통 단계
+COMMON = [("A1", "착수 점검·암기법 조사", "암기법", 10), ("D1", "학습 PDF 디자인", "디자인", 3),
+          ("X0", "raw 전체 색인과 장부", "색인", 5)]
+CODE_RE = re.compile(r"(국어|수학|영어|통합사회|통합과학|공통)-([WPXAD]\d)")
+DONE_LINE_RE = re.compile(r"[\s\-*]*\[단계 완료\](.*)")   # 줄 맨 앞(글머리표·굵게 표시는 허용). 인용(`…`, >)은 세지 않는다
+_ONE = r"[\s*`]*(?:국어|수학|영어|통합사회|통합과학|공통)-[WPXAD]\d(?!\d)[*`]*"
+HEAD_CODES_RE = re.compile(_ONE + r"(?:\s*[,·、]\s*" + _ONE + r")*")   # [단계 완료] 바로 뒤에 쉼표로 이어 적은 코드들
+TAG_RE = re.compile(r"^[ \t]*단계:[ \t]*(국어|수학|영어|통합사회|통합과학|공통)-([WPXAD]\d)(?!\d)", re.M)
+
+
+def latest_plan():
+    """plan/ 에서 가장 높은 판 파일 이름과 판 번호(v1 = 접미사 없음)"""
+    best = (1, PLAN_PREFIX + ".md")
+    for n in os.listdir(os.path.join(ROOT, "plan")):
+        m = re.fullmatch(re.escape(PLAN_PREFIX) + r"_v(\d+)\.md", n)
+        if m and int(m.group(1)) > best[0]:
+            best = (int(m.group(1)), n)
+    return best
+
+
+def tasks():
+    out = subprocess.run([HERMES, "kanban", "--board", BOARD, "list", "--json"],
+                         capture_output=True, text=True, timeout=40).stdout
+    return [t for t in json.loads(out or "[]")
+            if str(t.get("tenant") or "").startswith(TENANT_PREFIX) and t["status"] != "archived"]
+
+
+def all_stages():
+    """[(과목, 코드, 이름, 짧은 이름, 무게)] — 공통 먼저, 과목은 계획서 순서"""
+    out = [("공통", c, n, s, w) for c, n, s, w in COMMON]
+    tbl = {c: (n, s, w) for c, n, s, w in STAGES}
+    for sub in SUBJECTS:
+        for c in ORDER.get(sub, [x[0] for x in STAGES]):
+            n, s, w = tbl[c]
+            out.append((sub, c, n, s, WEIGHT_FIX.get((sub, c), w)))
+    return out
+
+
+def parse_done(bodies):
+    """댓글 본문들에서 '[단계 완료]'로 시작하는 줄의 코드를 모은다 (줄 중간에 나오는 말은 세지 않는다).
+    [단계 완료] 바로 뒤에 이어 적은 코드만 센다. '[단계 완료] 영어 … 영어-W5 확정은 아니다'처럼
+    문장으로 시작하는 줄의 코드는 세지 않는다 (2026-11-24: 한정 인수 줄이 완료로 세어졌다)"""
+    out = set()
+    for body in bodies:
+        for line in (body or "").splitlines():
+            m = DONE_LINE_RE.match(line)
+            h = HEAD_CODES_RE.match(m.group(1)) if m else None
+            if h:
+                out.update(f"{a}-{b}" for a, b in CODE_RE.findall(h.group(0)))
+    return out
+
+
+def done_codes():
+    """원장 댓글의 [단계 완료] 코드. DB를 잠깐 못 읽으면 지난번에 읽은 값을 쓴다(%가 갑자기 떨어지지 않게)"""
+    import sqlite3
+    try:
+        db = sqlite3.connect("file:" + DB + "?mode=ro", uri=True, timeout=2)
+        try:
+            rows = db.execute("select body from task_comments where task_id=? and body like '%[단계 완료]%'",
+                              (LEDGER,)).fetchall()
+        finally:
+            db.close()
+        codes = parse_done(r[0] for r in rows)
+        try:
+            os.makedirs(os.path.dirname(DONE_CACHE), exist_ok=True)
+            with open(DONE_CACHE, "w", encoding="utf-8") as f:
+                json.dump({"at": time.time(), "codes": sorted(codes)}, f, ensure_ascii=False)
+        except OSError:
+            pass
+        return codes
+    except Exception:
+        with open(DONE_CACHE, encoding="utf-8") as f:   # 캐시도 없으면 오류로 끝낸다(틀린 %를 내지 않는다)
+            return set(json.load(f)["codes"])
+
+
+def tagged(ts):
+    """본문에 '단계: <과목>-<코드>' 줄이 있는 카드 → {코드: [카드…]} (카드 하나는 첫 줄의 단계 하나로만 센다).
+    STAGE_SINCE에 있는 단계는 그 시각 뒤에 만든 카드만 넣는다"""
+    out = {}
+    for t in ts:
+        m = TAG_RE.search(t.get("body") or "")
+        if m:
+            key = f"{m.group(1)}-{m.group(2)}"
+            if (t.get("created_at") or 0) < STAGE_SINCE.get(key, 0):
+                continue   # 범위가 바뀌기 전에 만든 카드
+            out.setdefault(key, []).append(t)
+    return out
+
+
+def baseline():
+    """전환 때 한 번 적어 둔 기준값 {코드: 0~0.9}. 파일이 없거나 깨졌으면 빈 값"""
+    try:
+        with open(BASELINE, encoding="utf-8") as f:
+            return {k: min(CAP, max(0.0, float(v["v"]))) for k, v in json.load(f).get("stages", {}).items()}
+    except Exception:
+        return {}
+
+
+def stage_scores(done, tag, base):
+    """{코드: 점수}"""
+    out = {}
+    for sub, code, _n, _s, _w in all_stages():
+        key = f"{sub}-{code}"
+        if key in done:
+            out[key] = 1.0
+            continue
+        cards = tag.get(key, [])
+        frac = sum(t["status"] == "done" for t in cards) / len(cards) if cards else 0.0
+        out[key] = min(CAP, max(frac, base.get(key, 0.0)))
+    return out
+
+
+def wiki_version(sub):
+    p = os.path.join(ROOT, "wiki", sub, "README.md")
+    if not os.path.exists(p):
+        return None
+    # '판본: **1.0.0' 또는 '판본: **국어 Wiki v1.0.0 제한부 인수본' 둘 다 읽는다 (2026-11-20)
+    m = re.search(r"판본:\s*\**([^*\n]*)", open(p, encoding="utf-8").read())
+    if not m:
+        return "?"
+    v = re.search(r"v?(\d+\.\d+(?:\.\d+)?)", m.group(1))
+    return (v.group(1) + (" 제한부" if "제한부" in m.group(1) else "")) if v else "?"
+
+
+def pdf_note(sub, ts, tag):
+    """PDF 칸에 보일 글자: 제작중(실행 중 카드) / 보류(멈춘 카드) / 대기 — 점수에는 안 넣는다.
+    '단계: <과목>-P1' 카드가 있으면 그것으로, 없으면 옛 카드의 제목으로 가린다."""
+    c = [t for t in tag.get(f"{sub}-P1", []) if t["status"] != "done"]
+    if not c:
+        c = [t for t in ts if sub in t["title"] and "PDF" in t["title"] and t["status"] != "done"
+             and not TAG_RE.search(t.get("body") or "")
+             and not t["title"].startswith("[보관") and "양식" not in t["title"] and "디자인" not in t["title"]]
+    if any(t["status"] == "running" for t in c):
+        return "제작중"
+    if any(t["status"] in ("blocked", "triage") for t in c):
+        return "보류"
+    if c:
+        return "대기"
+    return ""
+
+
+def subject_rows(ts, sc, tag):
+    """과목 5줄: 위키 %·지금 단계, PDF, 자료 확장"""
+    tbl = {c: (n, s, w) for c, n, s, w in STAGES}
+    rows = []
+    for sub in SUBJECTS:
+        wk = [c for c in ORDER.get(sub, [x[0] for x in STAGES]) if c.startswith("W")]
+        wt = {c: WEIGHT_FIX.get((sub, c), tbl[c][2]) for c in wk}
+        got = sum(sc[f"{sub}-{c}"] * wt[c] for c in wk)
+        final = all(sc[f"{sub}-{c}"] >= 1.0 for c in wk)
+        # 지금 단계: 순서대로 보아 처음으로 덜 끝난 단계. 기록 확인만 남은 단계(0.9)는 뒤로 미룬다
+        cur = next((c for c in wk if sc[f"{sub}-{c}"] < CAP), None) or next((c for c in wk if sc[f"{sub}-{c}"] < 1.0), None)
+        ver = wiki_version(sub)
+        if final:
+            wiki = (ver if "제한부" in ver else "정식판 " + ver) if ver and ver != "?" else "정식판"   # 칸 폭 12칸 안
+        elif sc[f"{sub}-W6"] >= 1.0:
+            wiki = "보강 중"     # 정식판은 인수했고 필수 암기 보강이 남은 과목(국어)
+        elif got > 0:
+            wiki = "작업 중"
+        else:
+            wiki = "대기"
+        pdf = 2 if sc[f"{sub}-P3"] >= 1.0 else 1 if sc[f"{sub}-P1"] >= 1.0 else 0
+        note = pdf_note(sub, ts, tag)
+        rows.append({"name": sub, "wiki": wiki, "final": final, "pdf": pdf,
+                     "wiki_pct": 100 if final else round(got / sum(wt.values()) * 100),
+                     "stage": "" if final or not cur else f"{cur} {tbl[cur][1]}",
+                     "stage_full": "" if final or not cur else f"{cur} {tbl[cur][0]}",
+                     # 만들어진 뒤 다시 만드는 카드가 돌면 '수정중' (2026-11-23 마스터: 만들어졌는데 '보류'는 이상)
+                     "pdf_note": note if pdf == 0 else ("수정중" if note == "제작중" else ""),
+                     "ext_pct": round(sc[f"{sub}-X1"] * 100)})
+    return rows
+
+
+def codex_usage():
+    """KSAT 봇들이 함께 쓰는 Codex 주간 사용량(%)·초기화 시각 — 2분 캐시 (2026-11-20 마스터 요청)"""
+    cache = os.path.expanduser("~/.cache/miku/ksat-codex-usage.json")
+    try:
+        with open(cache, encoding="utf-8") as f:
+            c = json.load(f)
+        if time.time() - c.get("at", 0) < 120:
+            return c.get("u")
+    except Exception:
+        pass
+    u = None
+    try:
+        out = subprocess.run([HERMES, "-p", "ksat-administrator", "usage", "--provider", "openai-codex", "--json"],
+                             capture_output=True, text=True, timeout=20).stdout
+        w = [x for x in json.loads(out).get("windows", []) if "eek" in x.get("label", "")]
+        if w:
+            u = {"pct": round(float(w[0]["used_percent"])), "resets_at": w[0].get("resets_at")}
+    except Exception:
+        pass
+    try:
+        os.makedirs(os.path.dirname(cache), exist_ok=True)
+        with open(cache, "w", encoding="utf-8") as f:
+            json.dump({"at": time.time(), "u": u}, f)
+    except OSError:
+        pass
+    return u
+
+
+def running_cards(ts):
+    """실행 중 카드: 제목·담당·모델·시작 후 경과·최대 실행 시간·마지막 신호(heartbeat) — kanban.db 읽기 전용"""
+    import sqlite3
+    run = [t for t in ts if t["status"] == "running"]
+    beats, runs = {}, {}
+    try:
+        db = sqlite3.connect("file:" + DB + "?mode=ro", uri=True, timeout=2)
+        for t in run:
+            r = db.execute("select max(created_at) from task_events where task_id=? and kind in ('heartbeat','claimed','spawned','started')",
+                           (t["id"],)).fetchone()
+            beats[t["id"]] = r[0] if r else None
+            # 2026-11-22: 다시 시작한 카드는 카드 started_at(첫 시작)이 아니라 현재 실행(task_runs) 시작으로 잰다
+            r2 = db.execute("select started_at, max_runtime_seconds from task_runs where task_id=? and status='running' order by id desc limit 1",
+                            (t["id"],)).fetchone()
+            if r2:
+                runs[t["id"]] = r2
+        db.close()
+    except Exception:
+        pass
+    now = time.time()
+    out = []
+    for t in sorted(run, key=lambda x: x.get("started_at") or 0):
+        r2 = runs.get(t["id"])
+        st = (r2[0] if r2 and r2[0] else None) or t.get("started_at") or now
+        mx = (r2[1] if r2 and r2[1] else None) or t.get("max_runtime_seconds") or 7200
+        hb = beats.get(t["id"]) or st
+        out.append({"id": t["id"], "title": re.sub(r"^\[[^\]]*\]\s*", "", t["title"]),
+                    "who": (t.get("assignee") or "").replace("ksat-", ""),
+                    "model": (t.get("model_override") or "").replace("claude-", "").replace("gpt-6.1-", "").replace("gpt-6-", ""),
+                    "elapsed_min": int((now - st) // 60), "max_min": int(mx // 60),
+                    "beat_ago_min": int((now - hb) // 60)})
+    return out
+
+
+def stuck_cards(ts, n=3):
+    """가장 오래 막힌 카드 n장과 이유(blocked·triage, 원장 제외) — 디스코드 현황판에만 쓴다 (2026-11-24 운영검토 H5)"""
+    import sqlite3
+    st = {t["id"]: t for t in ts if t["status"] in ("blocked", "triage") and t["id"] != LEDGER}
+    if not st:
+        return []
+    last = {}
+    try:
+        db = sqlite3.connect("file:" + DB + "?mode=ro", uri=True, timeout=2)
+        # 카드마다 마지막으로 멈춘 사건(막힘 또는 실행 실패로 포기)
+        q = ("select e.task_id, e.created_at, e.kind, e.payload from task_events e join "
+             "(select task_id, max(id) mid from task_events where kind in ('blocked','gave_up') group by task_id) m on e.id = m.mid")
+        for tid, at, ev, payload in db.execute(q):
+            if tid in st:
+                last[tid] = (at, ev, payload)
+        db.close()
+    except Exception:
+        return []
+    now = time.time()
+    out = []
+    for tid, t in st.items():
+        at, ev, payload = last.get(tid, (t.get("created_at") or now, "", None))
+        try:
+            p = json.loads(payload or "{}")
+        except ValueError:
+            p = {}
+        kind, reason = p.get("kind") or "", str(p.get("reason") or "")
+        if t["status"] == "triage":
+            why = "같은 차단이 되풀이돼 자동으로 멈춤"
+        elif ev == "gave_up":
+            why = "실행이 실패해서 멈춤"
+        elif reason == "initial_status":
+            why = "대기로 등록됨(아직 시작 전)"
+        elif kind == "capability":
+            why = "작업자가 할 수 없는 일이라 돌려줌"
+        elif kind == "needs_input":
+            why = "총괄 판단을 기다림"
+        elif kind == "transient":
+            why = "일시 오류로 멈춤"
+        else:
+            why = "멈춤"
+        out.append({"id": tid, "title": re.sub(r"^\[[^\]]*\]\s*", "", t["title"]), "status": t["status"],
+                    "hours": int((now - at) // 3600), "why": why})
+    return sorted(out, key=lambda x: -x["hours"])[:n]
+
+
+def board_summary(ts):
+    """이번 사이클 카드 수: 실행·대기(ready/todo)·멈춤(blocked/triage, 일부러 보류한 것 포함)·오늘 완료"""
+    import datetime as dt
+    midnight = dt.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
+    st = [t["status"] for t in ts]
+    return {"running": st.count("running"), "waiting": st.count("ready") + st.count("todo"),
+            "stopped": st.count("blocked") + st.count("triage"),
+            "done_today": sum(1 for t in ts if t["status"] == "done" and (t.get("completed_at") or 0) >= midnight)}
+
+
+def recent_done(ts, n=2):
+    """최근 끝난 카드 n개: 끝난 시각·담당·걸린 분·제목"""
+    dn = sorted((t for t in ts if t["status"] == "done" and t.get("completed_at")), key=lambda t: t["completed_at"])[-n:]
+    return [{"at": time.strftime("%H:%M", time.localtime(t["completed_at"])),
+             "who": (t.get("assignee") or "").replace("ksat-", ""),
+             "min": int((t["completed_at"] - (t.get("started_at") or t["completed_at"])) // 60),
+             "title": re.sub(r"^\[[^\]]*\]\s*", "", t["title"])} for t in reversed(dn)]
+
+
+def _num(x):
+    """134.0 → 134, 137.8 → 137.8"""
+    x = round(x, 1)
+    return int(x) if x == int(x) else x
+
+
+def main():
+    plan_ver, plan_name = latest_plan()
+    ts = tasks()
+    done = done_codes()
+    tag = tagged(ts)
+    sc = stage_scores(done, tag, baseline())
+    stages = all_stages()
+
+    wsum = sum(w for *_x, w in stages)
+    score = sum(sc[f"{sub}-{code}"] * w for sub, code, _n, _s, w in stages)
+    steps_done = sum(1 for sub, code, *_x in stages if sc[f"{sub}-{code}"] >= 1.0)
+    current = next(((sub, code, n) for sub, code, n, _s, _w in stages if sc[f"{sub}-{code}"] < 1.0), None)
+    # 마스터 결정이 필요한 열린 건 (scripts/kanban_attention.py가 5분마다 적는다)
+    try:
+        with open(os.path.expanduser("~/.cache/miku/kanban-attention.json"), encoding="utf-8") as f:
+            attention = [{"task": o["task"], "text": o["text"][:120]} for o in json.load(f).get("open", [])]
+    except Exception:
+        attention = []
+    print(json.dumps({
+        "plan": plan_name,
+        "version": f"v{plan_ver}",
+        "attention": attention,
+        "percent": round(score / wsum * 100),
+        "score": steps_done,
+        "total": len(stages),
+        "weighted": True,
+        "method": "단계 코드",
+        "current": {"no": current[1], "name": f"{current[0]}-{current[1]}", "note": current[2]} if current else None,
+        # 2026-11-21 마스터: '첫 미완료 단계' 대신 전체 가중치 기준으로, 동시에 진행 중인 단계를 무게 순으로
+        "active": [{"name": f"{sub}-{code}", "label": f"{sub} {n}", "pct": round(sc[f"{sub}-{code}"] * 100), "w": w}
+                   for sub, code, n, _s, w in sorted(stages, key=lambda x: -x[4]) if 0 < sc[f"{sub}-{code}"] < 1],
+        "weight_done": _num(score), "weight_total": _num(wsum),
+        "subjects": subject_rows(ts, sc, tag),
+        "stages": {k: round(v, 2) for k, v in sc.items()},
+        "done_codes": sorted(done),
+        "tagged_cards": {k: [sum(t["status"] == "done" for t in v), len(v)] for k, v in sorted(tag.items())},
+        "running": running_cards(ts),
+        # 2026-11-23 마스터 '더 상세하게': 이번 사이클 카드 현황 + 최근 끝난 카드
+        "board": board_summary(ts),
+        "recent": recent_done(ts),
+        "stuck": stuck_cards(ts),
+        "codex": codex_usage(),
+        "at": int(time.time()),
+    }, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        print(json.dumps({"error": f"{type(e).__name__}"}, ensure_ascii=False))
