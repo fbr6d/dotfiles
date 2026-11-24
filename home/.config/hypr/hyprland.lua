@@ -806,6 +806,14 @@ hl.window_rule({
     maximize = true,
 })
 
+-- KSAT 대시보드 (~/.local/bin/ksat-chart, 크로뮴 --app=http://127.0.0.1:8742/): 켜면 항상 최대화 (2026-11-25 마스터)
+hl.window_rule({
+    name  = "ksat-dashboard",
+    match = { class = "^chrome-127\\.0\\.0\\.1__-Default$" },
+
+    maximize = true,
+})
+
 -- YouTube web app (~/.local/share/applications/youtube.desktop): opens maximized
 hl.window_rule({
     name  = "youtube",
