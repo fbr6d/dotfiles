@@ -586,11 +586,11 @@ hl.bind("CTRL + ALT + SHIFT + R", hl.dsp.exec_cmd("~/.local/bin/power-confirm re
 -- Lock screen (hyprlock), like macOS Ctrl+Cmd+Q
 hl.bind(mainMod .. " + CTRL + Q", hl.dsp.exec_cmd("loginctl lock-session"))
 
--- Requires playerctl
-hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = true })
-hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
+-- Requires playerctl. media-key (~/.local/bin, 2026-11-24): acts on the player that is Playing, else the bar-selected music app
+hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("media-key next"),        { locked = true })
+hl.bind("XF86AudioPause", hl.dsp.exec_cmd("media-key play-pause"), { locked = true })
+hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("media-key play-pause"), { locked = true })
+hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("media-key previous"),    { locked = true })
 
 
 --------------------------------

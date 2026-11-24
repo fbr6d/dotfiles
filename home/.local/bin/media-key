@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# media-key play-pause|next|previous — 키보드 미디어 키 (2026-11-24 마스터 요청)
+# 문제: 'playerctl play-pause'는 목록 맨 앞 플레이어(유튜브 뮤직 웹앱)를 건드려서,
+#       스포티파이가 재생 중인데 유튜브 뮤직까지 재생이 시작됐다.
+# 규칙: 1) 지금 재생 중(Playing)인 플레이어가 있으면 그것만 조작한다.
+#       2) 아무것도 재생 중이 아니면 바에서 고른 음악 앱(music-app player)을 조작한다.
+#       3) 그것도 없으면 playerctl 기본 동작.
+act="${1:-play-pause}"
+case "$act" in play-pause|next|previous) ;; *) echo "usage: media-key play-pause|next|previous" >&2; exit 2 ;; esac
+
+playing=()
+while read -r p; do
+  [ -n "$p" ] && [ "$(playerctl -p "$p" status 2>/dev/null)" = "Playing" ] && playing+=("$p")
+done < <(playerctl -l 2>/dev/null)
+
+if [ ${#playing[@]} -gt 0 ]; then
+  for p in "${playing[@]}"; do playerctl -p "$p" "$act"; done
+  exit 0
+fi
+
+sel="$(music-app player 2>/dev/null)"
+if [ -n "$sel" ] && playerctl -l 2>/dev/null | grep -qx "$sel"; then
+  exec playerctl -p "$sel" "$act"
+fi
+exec playerctl "$act"
