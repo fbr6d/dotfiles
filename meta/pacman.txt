@@ -136,6 +136,7 @@ system-config-printer
 tailscale
 tesseract
 tesseract-data-eng
+tesseract-data-kor
 tex-gyre-fonts
 tree-sitter-cli
 ttf-caladea

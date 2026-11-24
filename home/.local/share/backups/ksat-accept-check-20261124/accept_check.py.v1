@@ -1,0 +1,311 @@
+#!/usr/bin/env python3
+"""KSAT 인수 검사 (읽기 전용): 카드의 제출물이 지금 파일과 맞는지 한 번에 본다.
+
+사용:
+  /usr/bin/python3 -B tools/accept_check.py <카드 ID>             (예: t_8c810976)
+  /usr/bin/python3 -B tools/accept_check.py <run 폴더 또는 manifest 경로>
+  선택: --manifest <경로>   카드·폴더 안에 manifest가 여럿일 때 골라 준다
+        --all               폴더에만 있는 파일·안 맞는 파일을 전부 적는다(기본은 5개까지)
+
+보는 것:
+  1. manifest의 틀(files[].path·bytes·sha256, file_count, total_bytes)
+  2. manifest의 파일마다 지금 파일의 크기와 SHA256
+  3. 폴더에만 있는 파일, manifest에만 있는 파일, 폴더 밖 경로·링크
+  4. (카드 ID로 부르면) 카드 본문 `입력:` 줄에 적힌 SHA256과 지금 파일, 실제로 돈 모델, 작업자 첫 댓글
+끝 줄 `판정:`이 '일치'면 종료 코드 0, '불일치'면 1, 검사할 수 없으면 2.
+아무것도 쓰지 않는다(DB는 읽기 전용으로 연다). 내용이 맞는지는 보지 않는다.
+"""
+import hashlib
+import json
+import os
+import re
+import sqlite3
+import sys
+
+PROJECT = '/home/leejaeik/Projects/ksat-10000'
+KDB = os.environ.get('HERMES_KANBAN_DB') or os.path.expanduser('~/.hermes/kanban/boards/ksat-10000/kanban.db')
+ADMINS = ('ksat-administrator', '총괄')
+out = []
+bad = []      # 불일치
+cant = []     # 검사 불가
+
+
+def say(s=''):
+    out.append(s)
+
+
+def sha256(path):
+    h = hashlib.sha256()
+    with open(path, 'rb') as f:
+        for chunk in iter(lambda: f.read(1 << 20), b''):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def ro(path):
+    return sqlite3.connect('file:' + path + '?mode=ro', uri=True)
+
+
+def finish():
+    if cant:
+        verdict, code = '검사 불가 — ' + '; '.join(cant), 2
+    elif bad:
+        verdict, code = '불일치 — ' + '; '.join(bad), 1
+    else:
+        verdict, code = '일치', 0
+    say('판정: ' + verdict)
+    print('\n'.join(out))
+    sys.exit(code)
+
+
+def find_manifest(folder):
+    """폴더 안 manifest 후보(가장 늦게 바뀐 것이 먼저)."""
+    c = []
+    for base, dirs, files in os.walk(folder):
+        depth = os.path.relpath(base, folder).count(os.sep) + (0 if base == folder else 1)
+        if depth > 2:
+            dirs[:] = []
+            continue
+        for n in files:
+            if n.lower().endswith('.json') and 'manifest' in n.lower():
+                p = os.path.join(base, n)
+                c.append((os.path.getmtime(p), p))
+    return [p for _, p in sorted(c, reverse=True)]
+
+
+def check_manifest(mpath, show_all):
+    limit = 10 ** 6 if show_all else 5
+    try:
+        m = json.load(open(mpath, encoding='utf-8'))
+    except Exception as e:
+        cant.append(f'manifest를 읽지 못함({type(e).__name__})')
+        return
+    say(f'- manifest: {os.path.relpath(mpath, PROJECT) if mpath.startswith(PROJECT) else mpath}')
+    say(f'  · manifest 자신의 SHA256 {sha256(mpath)}')
+    if not isinstance(m, dict) or not isinstance(m.get('files'), list) or not m['files']:
+        cant.append('manifest 틀이 다름(files 목록이 없음). 최상위 키: ' + (', '.join(list(m)[:12]) if isinstance(m, dict) else type(m).__name__))
+        return
+    files = m['files']
+    if not all(isinstance(x, dict) and isinstance(x.get('path'), str) for x in files):
+        cant.append('manifest 틀이 다름(files 항목에 path가 없음). 첫 항목: ' + json.dumps(files[0], ensure_ascii=False)[:120])
+        return
+    size_key = next((k for k in ('bytes', 'size', 'size_bytes') if k in files[0]), None)
+    hash_key = next((k for k in ('sha256', 'SHA256', 'sha256sum') if k in files[0]), None)
+    if not size_key or not hash_key:
+        cant.append('manifest 틀이 다름(크기·sha256 칸 이름). 첫 항목의 키: ' + ', '.join(files[0].keys()))
+        return
+    mdir = os.path.dirname(os.path.abspath(mpath))
+    root = m.get('root') if isinstance(m.get('root'), str) and os.path.isdir(m.get('root')) else mdir
+    root = os.path.realpath(root)
+    total = sum(x.get(size_key) for x in files if isinstance(x.get(size_key), int))
+    notes = []
+    if 'file_count' in m and m['file_count'] != len(files):
+        notes.append(f"file_count {m['file_count']} ≠ files {len(files)}개")
+    if 'total_bytes' in m and m['total_bytes'] != total:
+        notes.append(f"total_bytes {m['total_bytes']} ≠ 합 {total}")
+    paths = [x['path'] for x in files]
+    if len(set(paths)) != len(paths):
+        notes.append(f'같은 path가 {len(paths) - len(set(paths))}번 겹침')
+    say(f"  · 틀: files {len(files)}개, bytes 합 {total:,}" + (' → ' + ', '.join(notes) if notes else ' (file_count·total_bytes와 같음)' if 'file_count' in m and 'total_bytes' in m else ''))
+    if notes:
+        bad.append('manifest 안의 수가 서로 다름')
+    ok = 0
+    miss, diff_size, diff_hash, outside = [], [], [], []
+    listed = set()
+    for x in files:
+        p = x['path']
+        ap = p if os.path.isabs(p) else os.path.join(root, p)
+        if not os.path.isabs(p) and not os.path.exists(ap) and os.path.exists(os.path.join(PROJECT, p)):
+            ap = os.path.join(PROJECT, p)      # 프로젝트 기준으로 적은 경로
+        if not os.path.isfile(ap):
+            miss.append(p)
+            continue
+        rp = os.path.realpath(ap)
+        listed.add(rp)
+        if os.path.islink(ap) or not (rp == root or rp.startswith(root + os.sep)):
+            outside.append(p)
+        want = x.get(size_key)
+        if not isinstance(want, int) or os.path.getsize(rp) != want:
+            diff_size.append(p)
+            continue
+        if sha256(rp) != str(x.get(hash_key)).lower():
+            diff_hash.append(p)
+            continue
+        ok += 1
+    say(f'  · 크기·SHA256: {ok}/{len(files)} 일치')
+    for name, L in (('manifest에만 있고 없는 파일', miss), ('크기가 다른 파일', diff_size), ('SHA256이 다른 파일', diff_hash)):
+        if L:
+            bad.append(f'{name} {len(L)}개')
+            say(f'    {name} {len(L)}개: ' + ', '.join(L[:limit]) + (' …' if len(L) > limit else ''))
+    if outside:
+        bad.append(f'폴더 밖이거나 링크인 경로 {len(outside)}개')
+        say(f'    폴더 밖이거나 링크인 경로 {len(outside)}개: ' + ', '.join(outside[:limit]) + (' …' if len(outside) > limit else ''))
+    excluded = set()
+    for e in (m.get('excluded') or []) if isinstance(m.get('excluded'), list) else []:
+        if isinstance(e, str):
+            excluded.add(os.path.basename(e))
+    extra = []
+    for base, dirs, fs in os.walk(root):
+        dirs[:] = [d for d in dirs if d != '__pycache__']
+        for n in fs:
+            p = os.path.realpath(os.path.join(base, n))
+            if p in listed or p == os.path.realpath(mpath) or n in excluded:
+                continue
+            if n.lower().endswith('.json') and 'manifest' in n.lower():
+                continue                        # 앞서 쓴 다른 manifest
+            extra.append(os.path.relpath(p, root))
+    say(f'  · 폴더에만 있는 파일(manifest에 없음): {len(extra)}개' + (': ' + ', '.join(sorted(extra)[:limit]) + (' …' if len(extra) > limit else '') if extra else ''))
+    if extra:
+        bad.append(f'manifest에 없는 파일 {len(extra)}개')
+    mt = os.path.getmtime(mpath)
+    later = [p for p in listed if os.path.getmtime(p) > mt + 1]
+    if later:
+        say(f'  · manifest를 쓴 뒤에 바뀐 시각이 찍힌 파일 {len(later)}개(위 SHA256이 맞으면 내용은 같다)')
+    return root
+
+
+def card_mode(tid, mopt, show_all):
+    try:
+        db = ro(KDB)
+    except Exception as e:
+        cant.append(f'칸반 DB를 열지 못함({e})')
+        finish()
+    t = db.execute('select title, assignee, status, body, model_override, provider_override from tasks where id=?', (tid,)).fetchone()
+    if not t:
+        cant.append(f'카드 {tid}가 없음')
+        finish()
+    title, assignee, status, body, model, provider = t
+    body = body or ''
+    run = db.execute('select id, profile, status, outcome, started_at, ended_at, summary from task_runs where task_id=? order by id desc limit 1', (tid,)).fetchone()
+    say(f'인수 검사: {tid} {title[:50]}')
+    if not run:
+        cant.append('run이 없음')
+        finish()
+    rid, prof, rstatus, outcome, st, en, summary = run
+    say(f"- run {rid} ({prof}) 결과 {outcome or rstatus} | 카드 상태 {status} | 요약 첫 줄: {(summary or '').splitlines()[0][:110] if summary else '(없음)'}")
+    # 실제로 돈 모델
+    ev = db.execute("select payload from task_events where task_id=? and run_id=? and kind='owner_admitted' order by id desc limit 1", (tid, rid)).fetchone()
+    actual = None
+    if ev:
+        try:
+            p = json.loads(ev[0])
+            s = ro(p['db'])
+            cols = [r[1] for r in s.execute('pragma table_info(sessions)')]
+            want = [c for c in ('model', 'billing_provider', 'api_call_count', 'tool_call_count') if c in cols]
+            row = s.execute(f"select {', '.join(want)} from sessions where id=?", (p['session_id'],)).fetchone()
+            if row:
+                actual = dict(zip(want, row))
+        except Exception as e:
+            say(f'- 실제 모델: 작업자 세션을 읽지 못함({type(e).__name__})')
+    if actual:
+        same = (not model or actual.get('model') == model) and (not provider or actual.get('billing_provider') == provider)
+        say(f"- 실제 모델: {actual.get('model')} / {actual.get('billing_provider')}"
+            + (f" (API {actual.get('api_call_count')}번, 도구 {actual.get('tool_call_count')}번)" if 'api_call_count' in actual else f" (도구 {actual.get('tool_call_count')}번)")
+            + f" | 카드 지정 {model or '(없음)'} / {provider or '(없음)'} → {'같음' if same else '다름'}")
+        if not same:
+            bad.append('실제 모델이 카드 지정과 다름')
+    elif ev is None:
+        say('- 실제 모델: 이 run의 owner_admitted 사건이 없어 확인하지 못함')
+    # 작업자 첫 댓글과 run 폴더
+    com = db.execute('select author, body, created_at from task_comments where task_id=? and created_at>=? order by id', (tid, st - 1)).fetchall()
+    first = next((c for c in com if c[0] not in ADMINS), None)
+    an = None
+    if first:
+        mm = re.search(r'폴더\s+(t_[0-9a-f]{8})/(a\d+)', first[1])
+        an = mm.group(2) if mm and mm.group(1) == tid else None
+        say(f"- 작업자 첫 댓글: {first[1].splitlines()[0][:60]}" + ('' if re.match(r'\s*공통 기준 v\d+ 읽음', first[1]) else ' → 「공통 기준 vN 읽음」으로 시작하지 않음'))
+    else:
+        say('- 작업자 첫 댓글: 없음')
+    allc = db.execute("select body from task_comments where task_id=? and author in ('ksat-administrator','총괄') and body like '실행:%' order by id desc", (tid,)).fetchall()
+    folder = None
+    for (b,) in allc:
+        mm = re.search(r'쓸 폴더\s+(/\S+?/' + tid + r')/?(?:\s|$)', b)
+        if mm:
+            folder = mm.group(1)
+            break
+    if not folder:
+        mm = re.search(r'쓰기 폴더:\s*(\S.*?)<카드 ID>', body)
+        if mm:
+            folder = os.path.join(PROJECT, mm.group(1).strip(), tid)
+    if not folder or not os.path.isdir(folder):
+        cant.append(f'카드 폴더를 찾지 못함({folder})')
+        finish()
+    if not an:
+        ans = sorted((d for d in os.listdir(folder) if re.fullmatch(r'a\d+', d)), key=lambda d: int(d[1:]))
+        an = ans[-1] if ans else None
+    rdir = os.path.join(folder, an) if an else folder
+    say(f'- run 폴더: {os.path.relpath(rdir, PROJECT)}' + ('' if os.path.isdir(rdir) else ' → 없음'))
+    if not os.path.isdir(rdir):
+        cant.append('run 폴더가 없음')
+        finish()
+    # 입력 SHA256
+    il = re.search(r'^입력:\s*(.+)$', body, re.M)
+    pairs = []
+    if il:
+        for seg in il.group(1).split(';'):
+            for mm in re.finditer(r'\((?:[^()]*?[,\s])?SHA256\s+([0-9a-fA-F]{64})\)', seg):
+                before = seg[:mm.start()].strip()
+                pm = re.search(r'(/home/\S.*)$', before) or re.search(r'(?:^|[\s(,:])((?:raw|derived|wiki|plan)/.*)$', before)
+                cand = (pm.group(1) if pm else before).strip()
+                ext = list(re.finditer(r'\.[A-Za-z0-9]{1,5}(?=$|[\s,·)])', cand))
+                if ext:
+                    cand = cand[:ext[-1].end()]          # 확장자 뒤에 붙은 말('한 파일' 등)을 뗀다
+                pairs.append((cand, mm.group(1).lower()))
+    if pairs:
+        okn = 0
+        unknown = []
+        for p, hx in pairs:
+            ap = p if os.path.isabs(p) else os.path.join(PROJECT, p)
+            if not os.path.isfile(ap):
+                unknown.append(p[-50:])            # 본문이 자유 글이라 경로를 못 알아본 것. 불일치로 치지 않는다
+            elif sha256(ap) != hx:
+                bad.append(f'입력 SHA256 다름: {p[-60:]}')
+            else:
+                okn += 1
+        say(f'- 입력(카드에 SHA256이 적힌 것 {len(pairs)}개): {okn}개 일치'
+            + (f', 경로를 알아보지 못해 견주지 못한 것 {len(unknown)}개(…{unknown[0]})' if unknown else ''))
+    else:
+        say('- 입력: 카드 본문에 SHA256이 적힌 입력이 없어 견주지 않음')
+    ms = [mopt] if mopt else find_manifest(rdir)
+    if not ms:
+        cant.append('run 폴더에 manifest가 없음')
+        finish()
+    if len(ms) > 1:
+        say(f'  (manifest 후보 {len(ms)}개 중 가장 늦게 바뀐 것을 봄: ' + ', '.join(os.path.basename(x) for x in ms[:4]) + ')')
+    check_manifest(ms[0], show_all)
+    finish()
+
+
+def main():
+    a = [x for x in sys.argv[1:] if not x.startswith('--')]
+    show_all = '--all' in sys.argv
+    mopt = None
+    if '--manifest' in sys.argv:
+        i = sys.argv.index('--manifest')
+        mopt = sys.argv[i + 1] if i + 1 < len(sys.argv) else None
+        a = [x for x in a if x != mopt]
+    if not a:
+        print(__doc__)
+        sys.exit(2)
+    target = a[0]
+    if re.fullmatch(r't_[0-9a-f]{8}', target):
+        card_mode(target, mopt, show_all)
+    p = os.path.abspath(target)
+    say(f'인수 검사: {target}')
+    if os.path.isdir(p):
+        ms = [mopt] if mopt else find_manifest(p)
+        if not ms:
+            cant.append('폴더에 manifest가 없음')
+            finish()
+        if len(ms) > 1:
+            say(f'  (manifest 후보 {len(ms)}개 중 가장 늦게 바뀐 것을 봄: ' + ', '.join(os.path.basename(x) for x in ms[:4]) + ')')
+        check_manifest(ms[0], show_all)
+    elif os.path.isfile(p):
+        check_manifest(p, show_all)
+    else:
+        cant.append('그런 카드·폴더·파일이 없음')
+    finish()
+
+
+if __name__ == '__main__':
+    main()
