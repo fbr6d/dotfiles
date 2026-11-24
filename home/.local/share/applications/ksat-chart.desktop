@@ -1,7 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=KSAT 완료 그래프
-Comment=칸반 일별·1시간별 완료 카드 수 (실시간)
+Name=KSAT 대시보드
+Comment=칸반 완료 그래프·위젯·사용량·실시간 로그 (실시간)
+Keywords=ksat;dashboard;대시보드;칸반;kanban;그래프;완료;
 Exec=ksat-chart
 Icon=office-chart-line
 Terminal=false

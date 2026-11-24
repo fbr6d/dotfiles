@@ -4,7 +4,7 @@
 systemctl --user is-active --quiet miku-ksat-chart || systemctl --user start miku-ksat-chart
 addr=$(hyprctl -j clients 2>/dev/null | python3 -c "import json,sys
 for c in json.load(sys.stdin):
-    if c['class'].startswith('chrome-127.0.0.1') or c['title'] == 'KSAT 완료 카드':
+    if c['class'].startswith('chrome-127.0.0.1') or c['title'] in ('KSAT 대시보드', 'KSAT 완료 카드'):
         print(c['address']); break" 2>/dev/null)
 if [ -n "$addr" ]; then hyprctl dispatch "hl.dsp.focus({window=\"address:$addr\"})" >/dev/null 2>&1 || hyprctl dispatch focuswindow "address:$addr" >/dev/null; exit 0; fi
 for i in $(seq 20); do curl -s -o /dev/null http://127.0.0.1:8742/api/data && break; sleep 0.2; done
