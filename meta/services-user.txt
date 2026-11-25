@@ -18,4 +18,5 @@ miku-backup.timer
 miku-calendar-cache.timer
 miku-hourly.timer
 miku-kanban-attention.timer
+miku-ksat-limit-watch.timer
 miku-ksat-live.timer

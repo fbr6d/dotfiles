@@ -1,0 +1,8 @@
+[Unit]
+Description=KSAT 한도·멈춤 감시, 긴급할 때만 아이폰 바크 (AI 사용 없음, 미쿠)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -B %h/.hermes/profiles/miku/scripts/ksat_limit_watch.py
+Nice=10
+TimeoutStartSec=240
