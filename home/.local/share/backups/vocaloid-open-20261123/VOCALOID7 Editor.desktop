@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=VOCALOID7 Editor
-Exec=env "WINEPREFIX=/home/leejaeik/Games/vocaloid" wine "C:\\\\users\\\\leejaeik\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\Start Menu\\\\Programs\\\\VOCALOID7\\\\VOCALOID7 Editor.lnk"
-Type=Application
-StartupNotify=true
-Icon=588E_VOCALOID7.0
-StartupWMClass=vocaloid7.exe

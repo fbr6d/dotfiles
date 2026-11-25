@@ -1,9 +1,0 @@
-#!/bin/sh
-# Once per boot (marker lives in $XDG_RUNTIME_DIR, which is emptied at every boot):
-# open a terminal where chibi Miku greets you, then leave a normal fish shell.
-marker="${XDG_RUNTIME_DIR:-/tmp}/miku-greeted"
-[ -e "$marker" ] && exit 0
-touch "$marker"
-# Give the network a moment so the weather line can load
-nm-online -q -t 10 2>/dev/null
-exec kitty --class miku-greeter -e sh -c "$HOME/.local/bin/miku-greeting; exec fish"

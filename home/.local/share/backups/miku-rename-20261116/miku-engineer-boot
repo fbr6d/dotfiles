@@ -1,8 +1,0 @@
-#!/bin/sh
-# Once per boot (marker in $XDG_RUNTIME_DIR, emptied at every boot): open a terminal
-# where Hermes (miku-engineer profile) greets you; replaces the old miku-boot/miku-greeting.
-marker="${XDG_RUNTIME_DIR:-/tmp}/miku-greeted"
-[ -e "$marker" ] && exit 0
-touch "$marker"
-nm-online -q -t 10 2>/dev/null   # let the network come up so the weather lookup works
-exec kitty --class miku-greeter -e "$HOME/.local/bin/miku-engineer-start"
