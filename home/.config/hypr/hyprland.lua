@@ -913,7 +913,9 @@ hl.window_rule({
     match = { class = "^steam_app_stove$" },
 
     float  = true,
-    center = true,
+    -- no center (2026-11-26): STOVE menus/popups (e.g. PersonalWidget) are placed by Wine itself
+    -- (some are override-redirect). Centering moved them on screen but Wine kept its own idea of
+    -- where they are, so clicks inside a popup never reached its buttons (tested: closes instead).
     no_blur = true,  -- STOVE's dark overlay can sit above its dialog; with blur the dialog turned to mush
     no_dim = true,   -- dialog + STOVE's own dark overlay + our 35% inactive dim = unreadable fog
 })
@@ -968,8 +970,12 @@ hl.on("window.open", function (w)
             hl.dispatch(hl.dsp.window.float({ action = "disable", window = addr }))
             hl.dispatch(hl.dsp.focus({ window = addr }))
             stoveMain = w.address
-        elseif big > 0 and wd >= big - 60 and ht >= bigH - 120 and title == "" then
-            -- the untitled near-full-size dark overlay: hide it (dialogs are separate windows)
+        elseif big >= 600 and wd >= big - 60 and wd <= big + 60 and ht >= bigH - 120
+            and (title == "" or title == "STOVE") then
+            -- the near-full-size dark overlay: hide it (dialogs are separate windows).
+            -- 2026-11-26: it is titled "STOVE" (1688x1371 over a 1696x1376 main window), so the old
+            -- title == "" test never matched; raised as a "popup" it sat over the dialogs and ate
+            -- every click on their buttons. Titled full-size popups like "공지" stay popups.
             decision = "overlay->99"
             hl.dispatch(hl.dsp.window.move({ workspace = "99", window = addr, follow = false }))
         else

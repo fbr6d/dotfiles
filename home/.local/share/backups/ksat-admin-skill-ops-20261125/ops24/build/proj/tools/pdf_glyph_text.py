@@ -205,8 +205,16 @@ def convert_page(conv, doc, dg, pno, sort=False):
         cn = gc.clean_name(fname)
         d = sp.get('dir') or (1.0, 0.0)
         up = abs(d[0] - 1.0) < 1e-3 and abs(d[1]) < 1e-3
+        back = abs(d[0] + 1.0) < 1e-3 and abs(d[1]) < 1e-3
         for (ucs, gid, org, bbox) in sp['chars']:
-            trace[(round(org[0], 1), round(org[1], 1))].append((ucs, gid, cn, xr, sp['size'], up))
+            flip = ''
+            if (up or back) and (bbox[2] - bbox[0] > 0.01 or bbox[3] - bbox[1] > 0.01):
+                above = (bbox[1] + bbox[3]) / 2.0 <= org[1] + 0.01      # 글자 상자가 기준선 위쪽에 있나
+                if up and not above:
+                    flip = 'v'              # 위아래로 뒤집어 찍음
+                elif back and above:
+                    flip = 'h'              # 좌우로(거울처럼) 뒤집어 찍음. back 인데 상자가 아래면 180도 돌린 것이라 글자는 그대로다
+            trace[(round(org[0], 1), round(org[1], 1))].append((ucs, gid, cn, xr, sp['size'], up, flip))
     lines = []
     stat = collections.Counter()
     rd = page.get_text('rawdict', flags=RAW_FLAGS, sort=sort)
@@ -240,8 +248,12 @@ def convert_page(conv, doc, dg, pno, sort=False):
                             res = (c, '그대로', 'base', 'char', None, '')
                         ucs, gid, size, up, xr = u, None, sp.get('size'), False, ()
                     else:
-                        ucs, gid, cn, xr, size, up = hit
+                        ucs, gid, cn, xr, size, up, flip = hit
                         res = conv.char(dg, cn, ucs, gid, xr)
+                        if flip and res[1] in ('확정', '근사') and res[3] != 'space' and not (len(res[0]) == 1 and res[0] in (SYM_H if flip == 'h' else SYM_V)):
+                            # 글리프를 뒤집어 찍으면 다른 글자가 된다( ) 를 뒤집어 ( 로, ≧ 를 뒤집어 ≦ 로 쓴 책이 있다). 뒤집어도 같은 글자만 그대로 둔다
+                            res = ('⟦U+%04X⟧' % ucs if ucs != 0xFFFD else '⟦?⟧', '미확정', 'base', res[3], res[4],
+                                   '뒤집어 찍은 글자(%s)라 모양만으로 정하지 않음: 글리프는 %s' % ('좌우 거울' if flip == 'h' else '위아래', res[0]))
                     text, status, pos, role, eid, how = res
                     cen = None
                     if pos != 'base' and gid is not None and xr:
@@ -262,6 +274,9 @@ def convert_page(conv, doc, dg, pno, sort=False):
     return lines, stat
 
 
+# 뒤집어 찍어도 같은 글자로 읽히는 것(좌우 거울 / 위아래). 여기 없는 글자가 뒤집혀 있으면 미확정으로 둔다
+SYM_H = set('+\u2212-=\u00b7\u2022.:|\u2015\u00d7\u00f7\u221e\u2225\u22a5\u25b3\u25a1\u25cb\u25ef\u2234\u2235\u2229\u222a\u2227\u2228\u2191\u2193\u2194\u21d4\u23aa' '08AHIMOTUVWXYilovwx')
+SYM_V = set('+\u2212-=\u00b7\u2022:|\u2015\u00d7\u00f7\u221e\u2225\u25a1\u25cb\u25ef\u2192\u2190\u2194\u21d4\u21d2\u21d0\u23aa\u23a8\u23ac\u239c\u239f\u23a2\u23a5\u2208\u220b\u2282\u2283()[]{}<>' '038BCDEHIKOXclox')
 POS_CUT = 0.33          # 잉크 가운데가 견준 본문 글자의 기준선에서 그 글자 크기의 이 비율보다 높으면 위첨자, 아니면 아래첨자
 POS_DEBUG = None        # 시험용: 목록을 넣어 두면 (표의 자리, 높이 비율, 글자)를 모은다
 
