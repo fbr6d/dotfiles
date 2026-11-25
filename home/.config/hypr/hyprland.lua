@@ -888,37 +888,60 @@ hl.window_rule({
     no_dim = true,
 })
 
--- STOVE dialogs: STOVE draws a translucent dark overlay window for each dialog and under
--- Wine the overlay can end up stacked ABOVE the dialog (dialog looked dark and foggy).
--- When a small STOVE window opens, put it on top (2026-11-22).
+-- STOVE / Riichi City windows (all class steam_app_stove; the rule above opens them floating).
+-- 2026-11-25 master: "don't float STOVE or Riichi City, and the popups' contents are unreadable".
+--   * the game window (title 麻雀一番街) and STOVE's main window (the first STOVE window when no
+--     other one is open) are put back into the tiled layout;
+--   * STOVE's translucent dark overlay (about the main window's size, opened on top of it for
+--     every dialog) is sent to hidden workspace 99 — it covered the dialog / other columns;
+--   * real popups stay floating, centered and raised to the top (twice, Wine restacks).
+-- Every STOVE window is logged to ~/.cache/miku/stove-windows.log (title, size, decision).
+local stoveMain = nil   -- address of the tiled STOVE main window
+local function stoveLog(msg)
+    local f = io.open((os.getenv("HOME") or "") .. "/.cache/miku/stove-windows.log", "a")
+    if f then f:write(os.date("%F %T ") .. msg .. "\n"); f:close() end
+end
 hl.on("window.open", function (w)
     if not w or w.class ~= "steam_app_stove" then return end
     local addr = "address:" .. w.address
     hl.timer(function ()
-        -- STOVE's dark overlay is (main window - ~8px); anything clearly smaller is a
-        -- dialog/popup. A 1050x882 popup stayed under the overlay and looked black, so the
-        -- old "< 1000px" cut was too small (2026-11-22). Raise twice: once now, once after
-        -- the overlay may have restacked itself.
-        local sz = w.size
-        local wd = sz and (sz.x or sz[1]) or 9999
-        -- find STOVE's main (largest) window on any floor; its overlay/popups opened while
-        -- master looked at another floor landed THERE and greyed it out, so send them home
-        local big, home = 0, nil
+        local me = hl.get_window and hl.get_window(addr) or w
+        if not me then return end
+        local sz = me.size or w.size
+        local wd = sz and (sz.x or sz[1]) or 0
+        local ht = sz and (sz.y or sz[2]) or 0
+        local title = me.title or w.title or ""
+        -- other STOVE windows that are open right now; the biggest one is the main/game window
+        local big, bigH, home, others = 0, 0, nil, 0
         for _, x in ipairs(hl.get_windows()) do
-            if x.class == "steam_app_stove" and x.address ~= w.address and x.size then
+            if x.class == "steam_app_stove" and x.address ~= w.address and x.size and x.mapped ~= false then
+                others = others + 1
                 local xw = x.size.x or x.size[1] or 0
-                if xw > big then big = xw; home = x.workspace and x.workspace.id end
+                if xw > big then big = xw; bigH = x.size.y or x.size[2] or 0; home = x.workspace and x.workspace.id end
             end
         end
-        if home and w.workspace and w.workspace.id ~= home and wd < big + 50 then
-            hl.dispatch(hl.dsp.window.move({ workspace = home, window = addr, follow = false }))
-        end
-        if wd < big - 100 then
+        local decision
+        if title:find("麻雀一番街", 1, true) or (others == 0 and wd >= 600) then
+            decision = "tile"
+            hl.dispatch(hl.dsp.window.float({ action = "disable", window = addr }))
+            hl.dispatch(hl.dsp.focus({ window = addr }))
+            stoveMain = w.address
+        elseif big > 0 and wd >= big - 60 and ht >= bigH - 120 and title == "" then
+            -- the untitled near-full-size dark overlay: hide it (dialogs are separate windows)
+            decision = "overlay->99"
+            hl.dispatch(hl.dsp.window.move({ workspace = "99", window = addr, follow = false }))
+        else
+            decision = "popup"
+            -- popups opened while master looked at another floor go to the STOVE floor
+            if home and w.workspace and w.workspace.id ~= home then
+                hl.dispatch(hl.dsp.window.move({ workspace = home, window = addr, follow = false }))
+            end
             hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top", window = addr }))
             hl.timer(function ()
                 hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top", window = addr }))
             end, { timeout = 700, type = "oneshot" })
         end
+        stoveLog(string.format("%s %q %dx%d others=%d big=%dx%d -> %s", w.address, title, wd, ht, others, big, bigH, decision))
     end, { timeout = 300, type = "oneshot" })
 end)
 
