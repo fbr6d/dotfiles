@@ -1,0 +1,46 @@
+[
+ {
+  "sheet": "REV_B01",
+  "group": "REV",
+  "type": "B",
+  "cells": 48,
+  "size": [
+   1480,
+   1230
+  ],
+  "bytes": 82576
+ },
+ {
+  "sheet": "REV_B02",
+  "group": "REV",
+  "type": "B",
+  "cells": 48,
+  "size": [
+   1480,
+   1230
+  ],
+  "bytes": 81720
+ },
+ {
+  "sheet": "REV_B03",
+  "group": "REV",
+  "type": "B",
+  "cells": 48,
+  "size": [
+   1480,
+   1230
+  ],
+  "bytes": 83952
+ },
+ {
+  "sheet": "REV_B04",
+  "group": "REV",
+  "type": "B",
+  "cells": 8,
+  "size": [
+   1480,
+   1230
+  ],
+  "bytes": 19355
+ }
+]

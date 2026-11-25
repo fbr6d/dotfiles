@@ -20,3 +20,4 @@ miku-hourly.timer
 miku-kanban-attention.timer
 miku-ksat-limit-watch.timer
 miku-ksat-live.timer
+miku-ksat-stagecount.timer

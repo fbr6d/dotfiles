@@ -1,11 +1,16 @@
-# 읽기 결과 파일이 형식에 맞는지 확인한다.  쓰기: /usr/bin/python3 check_read.py <견본 이름> [<견본 이름> …]
+# 읽기 결과 파일이 형식에 맞는지 확인한다.
+# 쓰기: /usr/bin/python3 check_read.py [--read <읽기 폴더>] <견본 이름> [<견본 이름> …]
+#   읽기 폴더를 안 주면 이 파일 옆의 read/ 를 본다. 견본 칸 수는 이 파일 옆 sheets/manifest.json 에서 읽는다.
 import sys, os, json
 BASE = os.path.dirname(os.path.abspath(__file__))
 SH = os.path.join(BASE, 'sheets'); RD = os.path.join(BASE, 'read')
+args = sys.argv[1:]
+if args and args[0] == '--read':
+    RD = args[1]; args = args[2:]
 man = {m['sheet']: m for m in json.load(open(os.path.join(SH, 'manifest.json')))}
 ST = {'확정', '근사', '미확정'}; POS = {'base', 'sup', 'sub'}; ROLE = {'char', 'bar', 'radical', 'piece', 'accent', 'deco', 'space'}
 bad = 0
-for name in sys.argv[1:]:
+for name in args:
     name = name.replace('.png', '').replace('.json', '')
     if name not in man:
         print(name, ': 그런 견본이 없어요'); bad += 1; continue

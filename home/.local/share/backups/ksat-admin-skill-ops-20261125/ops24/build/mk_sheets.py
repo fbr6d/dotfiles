@@ -58,6 +58,7 @@ def work(arg):
         doc = pymupdf.open(path)
         dg = gc.DocGlyphs(doc)
         pages = {}
+        maps = {}
         for (cid, slot, pno, ox, oy, size, gid, xref, gpx, cpx, cwem, chem, tick) in reqs:
             item = {'cid': cid, 'slot': slot}
             try:
@@ -65,15 +66,17 @@ def work(arg):
                 if page is None:
                     page = pages[pno] = doc[pno]
                 if slot == 0:
-                    f = dg.font(xref) if xref else None
-                    if f is not None:
-                        g = gc.render_gray(f, gid, gpx)
-                        if g is not None:
-                            item['glyph'] = (g[0], g[1], g[2].tobytes(), g[2].shape)
-                            try:
-                                item['adv'] = float(mupdf.fz_advance_glyph(f.this, gid, 0))
-                            except Exception:
-                                item['adv'] = None
+                    cands = [xref] if xref else []
+                    if xref:
+                        if pno not in maps:
+                            maps[pno] = dg.page_map(page)
+                        for lst in maps[pno].values():
+                            if lst and lst[0] == xref:
+                                cands += [x for x in lst[1:] if x not in cands]
+                    g = dg.gray_any(cands, gid, gpx)
+                    if g is not None:
+                        item['glyph'] = (g[0], g[1], g[2].tobytes(), g[2].shape)
+                        item['adv'] = dg.advance(xref, gid)
                 z = max(0.8, min(14.0, cpx / size))
                 left = cwem * 0.45
                 clip = pymupdf.Rect(ox - left * size, oy - chem * 0.68 * size, ox + (cwem - left) * size, oy + chem * 0.32 * size) & page.rect
@@ -200,7 +203,7 @@ def main():
     # 묶음 이름: 수식 가족은 그대로, PUA는 C=KO(옛한글), A=SYM(기호)
     groups = collections.defaultdict(list)
     for c in cells:
-        g = c['fam'] if c['fam'] != 'PUA' else ('KO' if c['sheet'] == 'C' else 'SYM')
+        g = c.get('group') or (c['fam'] if c['fam'] != 'PUA' else ('KO' if c['sheet'] == 'C' else 'SYM'))
         if only and g not in only:
             continue
         groups[(g, c['sheet'])].append(c)
@@ -227,7 +230,7 @@ def main():
     print('묶음', {k: len(v) for k, v in groups.items()}, 'PDF', len(reqs), flush=True)
     got = collections.defaultdict(dict)
     errs = 0
-    with Pool(8) as pool:
+    with Pool(6) as pool:
         for path, res, err in pool.imap_unordered(work, list(reqs.items()), chunksize=2):
             if err:
                 errs += 1
@@ -268,7 +271,7 @@ def main():
                 elif t == 'B':
                     d.text((x0 + 3, y0 + 2), str(no), font=F_NO_S, fill=(0, 0, 160))
                     sheet.paste(gp, (x0 + 34, y0 + 4))
-                    sheet.paste(cand_panel(chr(c['label']), L), (x0 + 130, y0 + 4))
+                    sheet.paste(cand_panel(c.get('cand_text') or chr(c['label']), L), (x0 + 130, y0 + 4))
                     d.text((x0 + 196, y0 + 2), mf[:22], font=F_SM, fill=(90, 90, 90))
                     it = its.get(0)
                     ci = ctx_image((it['ctx'], it['tick']) if it and 'ctx' in it else None, 172, 62)
@@ -286,7 +289,9 @@ def main():
                                'keys': [[k[0], '%04X' % k[1], v] for k, v in sorted(c['keys'].items(), key=lambda kv: -kv[1])][:12],
                                'pdf': os.path.relpath(paths[s0[0]], RAW) if s0 else None, 'page': (s0[1] + 1) if s0 else None}
                 if t == 'B':
-                    cj[str(no)]['cand'] = chr(c['label'])
+                    cj[str(no)]['cand'] = c.get('cand_text') or chr(c['label'])
+                    if c.get('rev'):
+                        cj[str(no)]['rev'] = c['rev']
                 if t == 'C':
                     cj[str(no)]['cand'] = c['hy']['text']; cj[str(no)]['cand_ucs'] = '%04X' % c['hy']['ucs']; cj[str(no)]['rank'] = c['hy']['rank']
             # 보는 도구가 그림 한 장을 256KB(base64) 안으로 줄여 버리므로, 색 수를 줄여 원래 크기로 전달되게 한다
