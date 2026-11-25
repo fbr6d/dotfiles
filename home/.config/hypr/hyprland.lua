@@ -314,7 +314,9 @@ hl.config({
     scrolling = {
         fullscreen_on_one_column = false,      -- a lone window keeps its column width
         column_width             = 0.6,        -- new columns: 60% of the screen (2026-11-22 ultrawide, was 0.667)
-        explicit_column_widths   = "0.25, 0.5, 1.0",   -- SUPER+CTRL+left/right cycles these (2026-11-24 master: only 25/50/100%; was 0.33333333, 0.5, 0.6, 1.0)
+        explicit_column_widths   = "0.25, 0.5, 0.75, 1.0",   -- SUPER+CTRL+left/right cycles these (2026-11-25 master: 25/50/75/100%; 11-24 was 0.25, 0.5, 1.0)
+        wrap_focus               = false,      -- 2026-11-25 master: at the first/last column stop, don't jump to the other end
+        wrap_swapcol             = false,      --   (same for moving the window with SUPER+SHIFT+left/right)
         focus_fit_method         = 1,          -- fit (scroll as little as possible); a lone column is centered by autoColApply (2026-11-23: method 0 dragged a newly opened 2nd window to the middle)
     },
 })
@@ -516,14 +518,60 @@ hl.bind(mainMod .. " + slash",     hl.dsp.exec_cmd("~/.local/bin/hypr-cheatsheet
 --   SUPER + up/down           go to the floor (workspace) above/below
 --   SUPER+SHIFT + left/right  swap the column with its neighbour
 --   SUPER+SHIFT + up/down     carry the window to the floor above/below
---   SUPER+CTRL + left/right   cycle the column width (25%, 50%, 100%)
+--   SUPER+CTRL + left/right   cycle the column width (25%, 50%, 75%, 100%)
+--   2026-11-25 master: when exactly two columns are fully visible on screen right now (e.g. a
+--   half/half pair, even if the floor has more windows scrolled away), the other visible column
+--   takes the rest (25/75, 50/50, 75/25) so both stay on one screen; the active one stays 25..75%.
+local colSteps = { 0.25, 0.5, 0.75, 1.0 }
+local function colResize(dir)
+    local w = hl.get_active_window()
+    if not w or w.floating then return end
+    local ws = w.workspace and w.workspace.id
+    local mon = w.monitor
+    local mw = mon and mon.width or 0
+    local mx = mon and mon.position and (mon.position.x or mon.position[1]) or 0
+    local function px(x) return x.at and (x.at.x or x.at[1]) or 0 end
+    local function wd(x) return x.size and (x.size.x or x.size[1]) or 0 end
+    -- tiled windows of this floor that are fully inside the monitor right now (40px slack for gaps)
+    local tiled = {}
+    for _, x in ipairs(hl.get_windows()) do
+        if x.workspace and x.workspace.id == ws and not x.floating and x.mapped ~= false
+           and px(x) >= mx - 40 and px(x) + wd(x) <= mx + mw + 40 then
+            table.insert(tiled, x)
+        end
+    end
+    local meIn = false
+    for _, x in ipairs(tiled) do if x.address == w.address then meIn = true end end
+    if not meIn then tiled = {} end
+    if mw <= 0 then return end
+    local cur, idx, best = w.size.x / mw, 1, 9
+    for i, v in ipairs(colSteps) do
+        if math.abs(v - cur) < best then best = math.abs(v - cur); idx = i end
+    end
+    -- 2026-11-25 master: stop at the smallest/largest width instead of wrapping (+conf went 100% -> 25%)
+    if #tiled ~= 2 then
+        idx = math.max(1, math.min(#colSteps, idx + dir))
+        hl.dispatch(hl.dsp.layout("colresize " .. colSteps[idx]))
+        return
+    end
+    idx = math.max(1, math.min(3, idx + dir))
+    local nw = colSteps[idx]
+    local other = (tiled[1].address == w.address) and tiled[2] or tiled[1]
+    hl.dispatch(hl.dsp.layout("colresize " .. nw))
+    hl.config({ cursor = { no_warps = true } })
+    hl.dispatch(hl.dsp.focus({ window = "address:" .. other.address }))
+    hl.dispatch(hl.dsp.layout("colresize " .. (1 - nw)))
+    hl.dispatch(hl.dsp.focus({ window = "address:" .. w.address }))
+    hl.config({ cursor = { no_warps = false } })
+end
+mikuColResize = colResize   -- for testing: hyprctl eval 'mikuColResize(1)'
 for _, k in ipairs({ { "left", "h", "l" }, { "right", "l", "r" } }) do
     local dir, vim, lr = k[1], k[2], k[3]
     local width = (lr == "r") and "+conf" or "-conf"
     for _, key in ipairs({ dir, vim }) do
         hl.bind(mainMod .. " + " .. key,         hl.dsp.layout("focus " .. lr))
         hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.layout("swapcol " .. lr))
-        hl.bind(mainMod .. " + CTRL + " .. key,  hl.dsp.layout("colresize " .. width))
+        hl.bind(mainMod .. " + CTRL + " .. key,  function () colResize(lr == "r" and 1 or -1) end)
     end
 end
 -- 2026-11-20 master: up/down = "floors" (the workspace above/below, empty ones included);
@@ -806,13 +854,7 @@ hl.window_rule({
     maximize = true,
 })
 
--- KSAT 대시보드 (~/.local/bin/ksat-chart, 크로뮴 --app=http://127.0.0.1:8742/): 켜면 항상 최대화 (2026-11-25 마스터)
-hl.window_rule({
-    name  = "ksat-dashboard",
-    match = { class = "^chrome-127\\.0\\.0\\.1__-Default$" },
-
-    maximize = true,
-})
+-- KSAT 대시보드 최대화 규칙(ksat-dashboard)은 2026-11-25 마스터 '켜면 무조건 최대화 끄고'로 뺌
 
 -- YouTube web app (~/.local/share/applications/youtube.desktop): opens maximized
 hl.window_rule({
