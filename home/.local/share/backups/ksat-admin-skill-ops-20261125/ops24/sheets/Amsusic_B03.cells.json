@@ -1,0 +1,497 @@
+{
+"1": {
+"cell": "5e296c0f816113e9",
+"n": 1077,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"002E",
+1077
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 100,
+"cand": "."
+},
+"2": {
+"cell": "b73713e96da0e2e0",
+"n": 675,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0030",
+627
+],
+[
+"Amsusic-ItalicBold",
+"0030",
+48
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 100,
+"cand": "0"
+},
+"3": {
+"cell": "208e3cebeac5dd7f",
+"n": 390,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0032",
+321
+],
+[
+"Amsusic-ItalicBold",
+"0032",
+69
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 12,
+"cand": "2"
+},
+"4": {
+"cell": "202ad927984942d2",
+"n": 417,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0033",
+345
+],
+[
+"Amsusic-ItalicBold",
+"0033",
+72
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 33,
+"cand": "3"
+},
+"5": {
+"cell": "0ae47a9db8808ae4",
+"n": 411,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0034",
+384
+],
+[
+"Amsusic-ItalicBold",
+"0034",
+27
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 33,
+"cand": "4"
+},
+"6": {
+"cell": "bf8c6ddaf70c03e1",
+"n": 399,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0037",
+390
+],
+[
+"Amsusic-ItalicBold",
+"0037",
+9
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 100,
+"cand": "7"
+},
+"7": {
+"cell": "d8d24de2820cd259",
+"n": 420,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0039",
+411
+],
+[
+"Amsusic-ItalicBold",
+"0039",
+9
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 100,
+"cand": "9"
+},
+"8": {
+"cell": "3c24b132df0232ce",
+"n": 3,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0042",
+3
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 14,
+"cand": "B"
+},
+"9": {
+"cell": "3204da48eab2d66a",
+"n": 6,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0043",
+6
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 3,
+"cand": "C"
+},
+"10": {
+"cell": "5a3d572474112320",
+"n": 3,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0047",
+3
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 14,
+"cand": "G"
+},
+"11": {
+"cell": "a3f8f67212852e4a",
+"n": 3,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0048",
+3
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 17,
+"cand": "H"
+},
+"12": {
+"cell": "e5df99b9f6d6f9b4",
+"n": 81,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0050",
+81
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 3,
+"cand": "P"
+},
+"13": {
+"cell": "5b82abe5e7f583a5",
+"n": 6,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0052",
+6
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 3,
+"cand": "R"
+},
+"14": {
+"cell": "dc4b8907040b0b24",
+"n": 27,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0061",
+27
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 33,
+"cand": "a"
+},
+"15": {
+"cell": "c5cae58bffe14707",
+"n": 12,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0062",
+12
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 3,
+"cand": "b"
+},
+"16": {
+"cell": "1fa6b493bf203af0",
+"n": 21,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0063",
+21
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 33,
+"cand": "c"
+},
+"17": {
+"cell": "2cba6199acfb2d75",
+"n": 3,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0064",
+3
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 14,
+"cand": "d"
+},
+"18": {
+"cell": "7a795eb377eabb64",
+"n": 6,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0065",
+6
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 3,
+"cand": "e"
+},
+"19": {
+"cell": "1c590d452782a2ac",
+"n": 3,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0066",
+3
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 10,
+"cand": "f"
+},
+"20": {
+"cell": "245312ae092aa063",
+"n": 27,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0069",
+27
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 33,
+"cand": "i"
+},
+"21": {
+"cell": "7d504f798ace4b83",
+"n": 9,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"006B",
+9
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 3,
+"cand": "k"
+},
+"22": {
+"cell": "6c4bdb460ae01e91",
+"n": 9,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"006C",
+9
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 10,
+"cand": "l"
+},
+"23": {
+"cell": "8c0d3cdde0eb2492",
+"n": 6,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"006D",
+6
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 42,
+"cand": "m"
+},
+"24": {
+"cell": "0385d0dce8113c31",
+"n": 45,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"006E",
+45
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 33,
+"cand": "n"
+},
+"25": {
+"cell": "70eb44cab084705e",
+"n": 33,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"006F",
+33
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 33,
+"cand": "o"
+},
+"26": {
+"cell": "0e713a09cebcaf4c",
+"n": 3,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0072",
+3
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 14,
+"cand": "r"
+},
+"27": {
+"cell": "5487ffadd6fe5ed0",
+"n": 48,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0073",
+48
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 33,
+"cand": "s"
+},
+"28": {
+"cell": "381cccf18ebe1ef0",
+"n": 24,
+"npdf": 4,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0074",
+24
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 33,
+"cand": "t"
+},
+"29": {
+"cell": "4ebfb0ee5b834da7",
+"n": 12,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0075",
+12
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 3,
+"cand": "u"
+},
+"30": {
+"cell": "b018514d27032a3c",
+"n": 3,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"0077",
+3
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 10,
+"cand": "w"
+},
+"31": {
+"cell": "ca6ab223079e8ee1",
+"n": 3,
+"npdf": 2,
+"keys": [
+[
+"Amsusic-NormalBold",
+"007A",
+3
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 17,
+"cand": "z"
+}
+}

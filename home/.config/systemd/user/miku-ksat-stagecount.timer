@@ -1,0 +1,9 @@
+[Unit]
+Description=KSAT 단계 수치 10분마다
+
+[Timer]
+OnBootSec=3min
+OnUnitInactiveSec=10min
+
+[Install]
+WantedBy=timers.target

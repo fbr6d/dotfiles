@@ -1,0 +1,11 @@
+{"sheet": "Kab_B02", "cells": {
+  "1": {"same": true}, "2": {"same": true}, "3": {"same": true}, "4": {"same": true},
+  "5": {"same": true}, "6": {"same": true}, "7": {"same": true}, "8": {"same": true},
+  "9": {"same": true}, "10": {"same": true}, "11": {"same": true}, "12": {"same": true},
+  "13": {"same": true}, "14": {"same": true}, "15": {"same": true}, "16": {"same": true},
+  "17": {"same": true}, "18": {"same": true}, "19": {"same": true}, "20": {"same": true},
+  "21": {"same": true}, "22": {"same": true}, "23": {"same": true}, "24": {"same": true},
+  "25": {"same": true}, "26": {"same": true}, "27": {"same": true}, "28": {"same": true},
+  "29": {"same": true}, "30": {"same": true}, "31": {"same": true},
+  "32": {"same": false, "text": "\u03b1", "status": "확정", "pos": "base", "role": "char", "desc": "글리프는 그리스 문자 알파(오른쪽에서 획이 엇갈리는 물고기 꼴)인데 후보는 라틴 a. 기호 글꼴(KabMathe3Symbol)이라 a 자리에 α가 들어 있음. 문맥 그림 속 길이 이름 α"}
+}}

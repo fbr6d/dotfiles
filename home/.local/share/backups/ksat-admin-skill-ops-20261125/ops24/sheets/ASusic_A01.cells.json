@@ -1,0 +1,447 @@
+{
+"1": {
+"cell": "11e76583f54f0de4",
+"n": 1,
+"npdf": 1,
+"keys": [
+[
+"ASusicItalicA120",
+"006C",
+1
+]
+],
+"pdf": "수능자료/교과서/중학교 수학1-지학사.pdf",
+"page": 148
+},
+"2": {
+"cell": "fd77407aeb9e331c",
+"n": 1364,
+"npdf": 7,
+"keys": [
+[
+"ASusicItalicNEW",
+"0079",
+1364
+]
+],
+"pdf": "수능자료/교과서/중학교 수학1-지학사.pdf",
+"page": 78
+},
+"3": {
+"cell": "12d285eddc35a989",
+"n": 692,
+"npdf": 8,
+"keys": [
+[
+"ASusicItalicNEW",
+"007B",
+483
+],
+[
+"ASusicPlainNEW",
+"007B",
+189
+],
+[
+"ASusicPlainA120",
+"007B",
+18
+],
+[
+"ASusicPlainTEXT",
+"007B",
+2
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 52
+},
+"4": {
+"cell": "6fad59aae1185362",
+"n": 692,
+"npdf": 8,
+"keys": [
+[
+"ASusicItalicNEW",
+"007D",
+483
+],
+[
+"ASusicPlainNEW",
+"007D",
+189
+],
+[
+"ASusicPlainA120",
+"007D",
+18
+],
+[
+"ASusicPlainTEXT",
+"007D",
+2
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 52
+},
+"5": {
+"cell": "6063da7760165711",
+"n": 184,
+"npdf": 6,
+"keys": [
+[
+"ASusicItalicNEW",
+"2122",
+94
+],
+[
+"ASusicPlainNEW",
+"2122",
+90
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 24
+},
+"6": {
+"cell": "467b54454e31c986",
+"n": 177,
+"npdf": 6,
+"keys": [
+[
+"ASusicItalicNEW",
+"00A1",
+121
+],
+[
+"ASusicPlainNEW",
+"00A1",
+56
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 22
+},
+"7": {
+"cell": "e817b04c1fce8e81",
+"n": 132,
+"npdf": 5,
+"keys": [
+[
+"ASusicItalicNEW",
+"006C",
+132
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 37
+},
+"8": {
+"cell": "c5b85781c91caeeb",
+"n": 126,
+"npdf": 5,
+"keys": [
+[
+"ASusicItalicNEW",
+"00B7",
+126
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 53
+},
+"9": {
+"cell": "becef517a626b13e",
+"n": 103,
+"npdf": 5,
+"keys": [
+[
+"ASusicItalicNEW",
+"2026",
+62
+],
+[
+"ASusicPlainNEW",
+"2026",
+41
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 67
+},
+"10": {
+"cell": "3afa98a1c2d7ab47",
+"n": 97,
+"npdf": 7,
+"keys": [
+[
+"ASusicItalicNEW",
+"0040",
+85
+],
+[
+"ASusicPlainNEW",
+"0040",
+12
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 8
+},
+"11": {
+"cell": "410799c2ccc27a7f",
+"n": 92,
+"npdf": 5,
+"keys": [
+[
+"ASusicItalicNEW",
+"00C2",
+92
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 53
+},
+"12": {
+"cell": "3a1ebfaef9c49ed9",
+"n": 57,
+"npdf": 6,
+"keys": [
+[
+"ASusicItalicNEW",
+"005C",
+47
+],
+[
+"ASusicPlainNEW",
+"005C",
+10
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 66
+},
+"13": {
+"cell": "7e617d66085fa39d",
+"n": 52,
+"npdf": 3,
+"keys": [
+[
+"ASusicItalicNEW",
+"00D6",
+50
+],
+[
+"ASusicPlainNEW",
+"00D6",
+2
+]
+],
+"pdf": "수능자료/교과서/공통수학2-지학사.pdf",
+"page": 66
+},
+"14": {
+"cell": "6d10f0d999e02fa9",
+"n": 47,
+"npdf": 5,
+"keys": [
+[
+"ASusicItalicNEW",
+"00E5",
+46
+],
+[
+"ASusicPlainNEW",
+"00E5",
+1
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 35
+},
+"15": {
+"cell": "9dfe81bd1abb1003",
+"n": 36,
+"npdf": 3,
+"keys": [
+[
+"ASusicItalicNEW",
+"00D5",
+36
+]
+],
+"pdf": "수능자료/교과서/공통수학2-지학사.pdf",
+"page": 66
+},
+"16": {
+"cell": "f8a66debbfa2a136",
+"n": 36,
+"npdf": 5,
+"keys": [
+[
+"ASusicItalicNEW",
+"222B",
+35
+],
+[
+"ASusicPlainNEW",
+"222B",
+1
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 59
+},
+"17": {
+"cell": "ab168f5d9176b0ca",
+"n": 36,
+"npdf": 2,
+"keys": [
+[
+"ASusicItalicNEW",
+"2206",
+36
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 53
+},
+"18": {
+"cell": "ab0e37b8eee92dca",
+"n": 21,
+"npdf": 4,
+"keys": [
+[
+"ASusicItalicNEW",
+"00B0",
+21
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 53
+},
+"19": {
+"cell": "aa1aabdfd16c0741",
+"n": 17,
+"npdf": 6,
+"keys": [
+[
+"ASusicItalicNEW",
+"0023",
+10
+],
+[
+"ASusicPlainNEW",
+"0023",
+7
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 8
+},
+"20": {
+"cell": "b7ad809da3a2a8af",
+"n": 12,
+"npdf": 2,
+"keys": [
+[
+"ASusicItalicNEW",
+"00C7",
+12
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 3
+},
+"21": {
+"cell": "22bcee2723b093b8",
+"n": 10,
+"npdf": 3,
+"keys": [
+[
+"ASusicItalicNEW",
+"0021",
+7
+],
+[
+"ASusicPlainNEW",
+"0021",
+3
+]
+],
+"pdf": "수능자료/교과서/확률과통계-천재.pdf",
+"page": 16
+},
+"22": {
+"cell": "78e09eca50642a8c",
+"n": 8,
+"npdf": 4,
+"keys": [
+[
+"ASusicItalicNEW",
+"0025",
+6
+],
+[
+"ASusicPlainNEW",
+"0025",
+2
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 8
+},
+"23": {
+"cell": "402a9c8a67de0bf1",
+"n": 7,
+"npdf": 4,
+"keys": [
+[
+"ASusicItalicNEW",
+"0024",
+6
+],
+[
+"ASusicPlainNEW",
+"0024",
+1
+]
+],
+"pdf": "수능자료/교과서/대수-천재.pdf",
+"page": 8
+},
+"24": {
+"cell": "7896902c40a9e542",
+"n": 5,
+"npdf": 2,
+"keys": [
+[
+"ASusicItalicNEW",
+"03BC",
+4
+],
+[
+"ASusicPlainNEW",
+"00B5",
+1
+]
+],
+"pdf": "수능자료/교과서/중학교 수학1-지학사.pdf",
+"page": 118
+},
+"25": {
+"cell": "81e2e3a0794e2118",
+"n": 4,
+"npdf": 1,
+"keys": [
+[
+"ASusicItalicNEW",
+"2014",
+4
+]
+],
+"pdf": "수능자료/교과서/공통수학2-지학사.pdf",
+"page": 116
+}
+}

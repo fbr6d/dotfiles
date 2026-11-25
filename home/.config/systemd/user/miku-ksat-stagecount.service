@@ -1,0 +1,11 @@
+[Unit]
+Description=KSAT 단계 수치 직접 세기 (Haiku 추출 + 기계 집계, 읽기 전용)
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/.hermes/profiles/miku/scripts/ksat_stagecount
+Environment=PATH=%h/.hermes/hermes-agent/.hermes/bin:/usr/local/bin:/usr/bin
+ExecStart=/usr/bin/python3 extract_ai.py --max 40
+ExecStart=/usr/bin/python3 run_all.py -q
+TimeoutStartSec=1500
+Nice=10

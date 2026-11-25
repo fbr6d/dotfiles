@@ -1,0 +1,46 @@
+[
+ {
+  "sheet": "KO3_C01",
+  "group": "KO3",
+  "type": "C",
+  "cells": 42,
+  "size": [
+   1476,
+   1276
+  ],
+  "bytes": 99533
+ },
+ {
+  "sheet": "KO3_C02",
+  "group": "KO3",
+  "type": "C",
+  "cells": 42,
+  "size": [
+   1476,
+   1276
+  ],
+  "bytes": 102186
+ },
+ {
+  "sheet": "KO3_C03",
+  "group": "KO3",
+  "type": "C",
+  "cells": 9,
+  "size": [
+   1476,
+   1276
+  ],
+  "bytes": 29919
+ },
+ {
+  "sheet": "SYM3_A01",
+  "group": "SYM3",
+  "type": "A",
+  "cells": 8,
+  "size": [
+   1480,
+   1290
+  ],
+  "bytes": 29587
+ }
+]
