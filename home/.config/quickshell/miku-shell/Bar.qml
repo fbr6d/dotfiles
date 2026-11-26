@@ -398,6 +398,10 @@ PanelWindow {
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: mouse => {
                                     const m = ti.modelData;
+                                    // 스토브(Wine 트레이, 제목 STOVE)는 왼쪽 클릭 = 강제종료 (마스터 요청 2026-11-26)
+                                    if (mouse.button === Qt.LeftButton && (m.title || "").toUpperCase() === "STOVE") {
+                                        bar.run([Quickshell.env("HOME") + "/.local/bin/stove-kill"]); return;
+                                    }
                                     if (mouse.button === Qt.LeftButton && !m.onlyMenu) { m.activate(); return; }
                                     if (m.hasMenu) menuAnchor.open();
                                 }

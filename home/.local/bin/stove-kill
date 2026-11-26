@@ -1,0 +1,42 @@
+#!/bin/bash
+# 스토브 강제종료 (미쿠 셸 트레이의 STOVE 아이콘 왼쪽 클릭에서 부름)
+# - 마작일번가(Mahjong-JP.exe)가 켜져 있으면 같은 Wine 접두어라 같이 죽으므로 중단한다.
+# - stove-setup.sh 뿌리들의 자손 전부 + 스토브 접두어(WINEPREFIX=~/Games/stove/pfx)를 가진 프로세스만 죽인다.
+#   다른 Wine 접두어(보컬로이드 등)는 건드리지 않는다. pkill -f 는 쓰지 않는다.
+PFX="$HOME/Games/stove/pfx"
+inpfx() { { tr '\0' '\n' < "/proc/$1/environ"; } 2>/dev/null | grep -qE "^WINEPREFIX=$PFX/?$"; }
+say() { notify-send -a "STOVE" -i system-shutdown "스토브" "$1" 2>/dev/null; echo "$1"; }
+
+if pgrep -f 'Mahjong-JP.exe' >/dev/null; then
+  say "마작일번가가 켜져 있어서 강제종료를 멈췄어요. 게임을 먼저 꺼 주세요!"
+  exit 1
+fi
+
+pids=""
+for r in $(pgrep -f "^/bin/bash $HOME/.local/bin/stove-setup.sh"); do
+  pids="$pids $(pstree -p "$r" | grep -oE '\([0-9]+\)' | tr -d '()')"
+done
+# 뿌리에서 떨어져 나간 스토브 접두어 프로세스도 모은다
+for p in $(pgrep -u "$USER" .); do
+  inpfx "$p" && pids="$pids $p"
+done
+pids=$(echo $pids | tr ' ' '\n' | grep -vx "$$" | sort -un)
+
+if [ -z "$pids" ]; then
+  say "스토브가 이미 꺼져 있어요."
+  exit 0
+fi
+kill -9 $pids 2>/dev/null
+sleep 2
+
+left=0
+for p in $(pgrep -u "$USER" .); do
+  inpfx "$p" && left=$((left+1))
+done
+left=$((left + $(pgrep -fc "^/bin/bash $HOME/.local/bin/stove-setup.sh")))
+if [ "$left" -eq 0 ]; then
+  say "스토브를 강제종료했어요."
+else
+  say "스토브 프로세스가 ${left}개 남았어요. 다시 눌러 주세요."
+  exit 1
+fi
