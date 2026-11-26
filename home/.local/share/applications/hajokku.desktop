@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=하조꾸 관리
+GenericName=톡톡 자동 발송 · 워터마크
+Comment=톡톡 주문 발송 승인과 Anki 덱 워터마크를 한 곳에서
+Exec=python3 "/home/leejaeik/Documents/하조꾸/08_톡톡자동화/talk_bot_gui.py"
+Path=/home/leejaeik/Documents/하조꾸/08_톡톡자동화
+Icon=/home/leejaeik/Documents/하조꾸/04_인스타/프로필/프로필_A_하조꾸.png
+Terminal=false
+Categories=Utility;
+Keywords=hajokku;하조꾸;톡톡;talk;워터마크;watermark;anki;발송;

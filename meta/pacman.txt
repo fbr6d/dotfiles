@@ -19,6 +19,7 @@ cage
 cava
 chafa
 chromium
+cloudflared
 cmake
 csvlens
 cups
