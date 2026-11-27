@@ -17,6 +17,7 @@ f3d       = [ { run = 'f3d %s1', orphan = true, desc = "f3d (3D 보기)" } ]
 htmlview  = [ { run = '/home/leejaeik/.local/bin/html-view %s', orphan = true, desc = "HTML 보기" } ]
 papers    = [ { run = 'papers %s', orphan = true, desc = "Papers (PDF 보기)" } ]
 drawio    = [ { run = 'drawio %s1', orphan = true, desc = "draw.io" } ]
+anki      = [ { run = 'anki %s1', orphan = true, desc = "Anki로 가져오기" } ]
 imv       = [ { run = 'imv %s', orphan = true, desc = "imv (이미지 보기)" } ]
 mpv       = [ { run = 'mpv --force-window=yes %s', orphan = true, desc = "mpv (재생)" } ]
 ffplay    = [ { run = 'ffplay -autoexit -loglevel quiet %s1', orphan = true, desc = "ffplay로 재생" } ]
@@ -35,6 +36,7 @@ prepend_rules = [
 	{ mime = "folder/*", use = [ "edit", "folder", "localsend", "other" ] },
 	{ url = "*.{stl,step,stp,iges,igs,obj,3mf,glb,gltf,ply,fbx,dae,off,brep}", use = [ "f3d", "localsend", "other", "nautilus" ] },
 	{ url = "*.drawio", use = [ "drawio", "edit", "localsend", "other" ] },
+	{ url = "*.apkg", use = [ "anki", "localsend", "other", "nautilus" ] },
 	{ url = "*.svg", use = [ "imv", "htmlview", "drawio", "edit", "convert", "localsend", "other" ] },
 	{ url = "*.{html,htm}", use = [ "htmlview", "edit", "kate", "localsend", "other" ] },
 	{ url = "*.tsv", use = [ "csvlens", "edit", "kate", "localsend", "other" ] },

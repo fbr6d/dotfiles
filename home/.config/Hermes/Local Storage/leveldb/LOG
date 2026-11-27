@@ -1,18 +1,51 @@
-2026/11/18-21:33:15.161 6eccc Reusing MANIFEST /home/leejaeik/.config/Hermes/Local Storage/leveldb/MANIFEST-000001
-2026/11/18-21:33:15.165 6eccc Recovering log #521
-2026/11/18-21:33:15.165 6eccc Reusing old log /home/leejaeik/.config/Hermes/Local Storage/leveldb/000521.log 
-2026/11/18-21:36:15.272 6eccc Level-0 table #525: started
-2026/11/18-21:36:15.287 6eccc Level-0 table #525: 37205 bytes OK
-2026/11/18-21:36:15.295 6eccc Delete type=0 #521
-2026/11/18-21:36:15.295 6eccc Compacting 4@0 + 1@1 files
-2026/11/18-21:36:15.310 6eccc Generated table #526@0: 3068 keys, 1323355 bytes
-2026/11/18-21:36:15.310 6eccc Compacted 4@0 + 1@1 files => 1323355 bytes
-2026/11/18-21:36:15.317 6eccc compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/11/18-21:36:15.317 6eccc Delete type=2 #525
-2026/11/18-21:36:15.318 6eccc Delete type=2 #522
-2026/11/18-21:36:15.318 6eccc Delete type=2 #520
-2026/11/18-21:36:15.318 6eccc Delete type=2 #516
-2026/11/18-21:36:15.318 6eccc Delete type=2 #518
-2026/11/18-21:38:15.272 6ec9f Level-0 table #528: started
-2026/11/18-21:38:15.278 6ec9f Level-0 table #528: 34746 bytes OK
-2026/11/18-21:38:15.286 6ec9f Delete type=0 #524
+2026/11/27-10:54:11.518 2e695b Reusing MANIFEST /home/leejaeik/.config/Hermes/Local Storage/leveldb/MANIFEST-000001
+2026/11/27-10:54:11.523 2e695b Recovering log #527
+2026/11/27-10:54:11.524 2e695b Reusing old log /home/leejaeik/.config/Hermes/Local Storage/leveldb/000527.log 
+2026/11/27-11:00:11.703 2e69a0 Level-0 table #531: started
+2026/11/27-11:00:11.709 2e69a0 Level-0 table #531: 46586 bytes OK
+2026/11/27-11:00:11.717 2e69a0 Delete type=0 #527
+2026/11/27-11:05:11.309 2e69a0 Level-0 table #533: started
+2026/11/27-11:05:11.316 2e69a0 Level-0 table #533: 44736 bytes OK
+2026/11/27-11:05:11.328 2e69a0 Delete type=0 #530
+2026/11/27-11:07:11.703 2e69a0 Level-0 table #535: started
+2026/11/27-11:07:11.710 2e69a0 Level-0 table #535: 38962 bytes OK
+2026/11/27-11:07:11.718 2e69a0 Delete type=0 #532
+2026/11/27-11:07:11.718 2e69a0 Compacting 4@0 + 1@1 files
+2026/11/27-11:07:11.732 2e69a0 Generated table #536@0: 3183 keys, 1328054 bytes
+2026/11/27-11:07:11.732 2e69a0 Compacted 4@0 + 1@1 files => 1328054 bytes
+2026/11/27-11:07:11.740 2e69a0 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/11/27-11:07:11.740 2e69a0 Delete type=2 #535
+2026/11/27-11:07:11.740 2e69a0 Delete type=2 #533
+2026/11/27-11:07:11.740 2e69a0 Delete type=2 #526
+2026/11/27-11:07:11.740 2e69a0 Delete type=2 #531
+2026/11/27-11:07:11.740 2e69a0 Delete type=2 #528
+2026/11/27-11:10:11.703 2e69a0 Level-0 table #538: started
+2026/11/27-11:10:11.710 2e69a0 Level-0 table #538: 41697 bytes OK
+2026/11/27-11:10:11.717 2e69a0 Delete type=0 #534
+2026/11/27-11:16:47.397 2e69a0 Level-0 table #540: started
+2026/11/27-11:16:47.404 2e69a0 Level-0 table #540: 43147 bytes OK
+2026/11/27-11:16:47.417 2e69a0 Delete type=0 #537
+2026/11/27-11:21:11.703 2e69a0 Level-0 table #542: started
+2026/11/27-11:21:11.709 2e69a0 Level-0 table #542: 43676 bytes OK
+2026/11/27-11:21:11.717 2e69a0 Delete type=0 #539
+2026/11/27-11:25:11.703 2e69a0 Level-0 table #544: started
+2026/11/27-11:25:11.709 2e69a0 Level-0 table #544: 44762 bytes OK
+2026/11/27-11:25:11.717 2e69a0 Delete type=0 #541
+2026/11/27-11:25:11.717 2e69a0 Compacting 4@0 + 1@1 files
+2026/11/27-11:25:11.732 2e69a0 Generated table #545@0: 3242 keys, 1322644 bytes
+2026/11/27-11:25:11.732 2e69a0 Compacted 4@0 + 1@1 files => 1322644 bytes
+2026/11/27-11:25:11.739 2e69a0 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/11/27-11:25:11.739 2e69a0 Delete type=2 #544
+2026/11/27-11:25:11.739 2e69a0 Delete type=2 #536
+2026/11/27-11:25:11.739 2e69a0 Delete type=2 #538
+2026/11/27-11:25:11.739 2e69a0 Delete type=2 #540
+2026/11/27-11:25:11.740 2e69a0 Delete type=2 #542
+2026/11/27-11:31:11.703 2e69a0 Level-0 table #547: started
+2026/11/27-11:31:11.710 2e69a0 Level-0 table #547: 51090 bytes OK
+2026/11/27-11:31:11.718 2e69a0 Delete type=0 #543
+2026/11/27-11:38:11.703 2e69a0 Level-0 table #549: started
+2026/11/27-11:38:11.710 2e69a0 Level-0 table #549: 46496 bytes OK
+2026/11/27-11:38:11.718 2e69a0 Delete type=0 #546
+2026/11/27-11:42:11.703 2e69a0 Level-0 table #551: started
+2026/11/27-11:42:11.710 2e69a0 Level-0 table #551: 43813 bytes OK
+2026/11/27-11:42:11.718 2e69a0 Delete type=0 #548

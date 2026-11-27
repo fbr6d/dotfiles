@@ -1,6 +1,6 @@
 {
   "connectionProfiles": {
-    "local": "ksat-administrator"
+    "local": "default"
   },
   "connectionProfilesImported": true,
   "profile": "ksat-administrator"
