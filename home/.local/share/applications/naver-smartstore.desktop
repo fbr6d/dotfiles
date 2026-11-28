@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=네이버 스마트스토어센터
+GenericName=스마트스토어 판매자 관리
+Comment=Naver SmartStore seller center (sell.smartstore.naver.com) in a Chromium app window; stays signed in through Chromium's profile
+Exec=chromium --ozone-platform=wayland --app=https://sell.smartstore.naver.com/
+Icon=/home/leejaeik/.local/share/icons/naver-smartstore.png
+Type=Application
+Categories=Office;
+Keywords=smartstore;naver;스마트스토어;네이버;판매자;하조꾸;

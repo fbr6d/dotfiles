@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=네이버톡톡 파트너센터
+GenericName=톡톡 상담 관리
+Comment=Naver TalkTalk partner center (partner.talk.naver.com) in a Chromium app window; stays signed in through Chromium's profile
+Exec=chromium --ozone-platform=wayland --app=https://partner.talk.naver.com/web/accounts/103556447
+Icon=/home/leejaeik/.local/share/icons/naver-talktalk-partner.png
+Type=Application
+Categories=Office;
+Keywords=talktalk;naver;톡톡;네이버;파트너센터;하조꾸;
