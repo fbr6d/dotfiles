@@ -79,6 +79,9 @@ def auth_days():
 cpu, gpu, ssd = temps()
 bk = backup()
 ad = auth_days()
+# 2026-11-28 마스터 'iCloud 용량 꽉 차서 백업 이제 하지 마' + '백업 실패 알약도 빼줘': 백업 타이머가 꺼져 있으면 백업 알약·자세히 글자를 안 보인다
+if not bk["running"] and sh("systemctl", "--user", "is-enabled", "miku-backup.timer").strip() != "enabled":
+    bk = {"running": False, "pct": None, "result": None, "finished": None}
 alerts = []  # (단계, 짧은 글자) 단계: red / yellow / info
 if cpu is not None and cpu >= CPU_HOT:
     alerts.append({"level": "red", "text": f"CPU {cpu}°"})
